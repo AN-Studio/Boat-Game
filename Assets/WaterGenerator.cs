@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(LineRenderer), typeof(MeshFilter), typeof(PolygonCollider2D))]
-public class WaterGenerator : MonoBehaviour
+public partial class WaterGenerator : MonoBehaviour
 {
     #region Settings
         [Header("Settings")]
@@ -13,8 +13,8 @@ public class WaterGenerator : MonoBehaviour
         public float waterDepth;
         
         [Header("Physics")]
-        public float springConstant;
-        public float damping;
+        [Range(0, 0.1f)] public float springConstant;
+        [Range(0, 0.1f)] public float damping;
         [Range(0.0f, 0.5f)] public float spread;
     #endregion
 
@@ -26,10 +26,8 @@ public class WaterGenerator : MonoBehaviour
 
     #region Private Variables
         private List<WaterNode> nodes;
-        // private List<Vector3> nodes;
-        // private List<Vector3> velocities;
-        // private List<Vector3> accelerations;
         private float positionDelta;
+        private float massPerNode;
     #endregion
 
     #region MonoBehaviour Functions
@@ -38,9 +36,9 @@ public class WaterGenerator : MonoBehaviour
             surface = GetComponent<LineRenderer>();
 
             nodes = new List<WaterNode>();
-            // nodes = new List<Vector3>();
-            // velocities = new List<Vector3>();
-            // accelerations = new List<Vector3>();
+            // nodes = new List<Vector2>();
+            // velocities = new List<Vector2>();
+            // accelerations = new List<Vector2>();
         }
 
         // Start is called before the first frame update
@@ -54,77 +52,83 @@ public class WaterGenerator : MonoBehaviour
         // Update is called once per frame
         void Update()
         {
-            
+            DetectCollisions();
         }
 
         void FixedUpdate() 
         {
             ApplySpringForces();
+            PropagateWaves();
+            DrawBody();
         }
     #endregion
 
     void ComputeCoeficients()
     {
         positionDelta = 1f / nodesPerUnit;
+        massPerNode = (1f / nodesPerUnit) * waterDepth;
     }
 
     void ApplySpringForces()
     {
         for (int i = 0; i < nodes.Count ; i++)
         {
-            nodes[i].Update(springConstant, damping);
+            nodes[i].Update(springConstant, damping, massPerNode);
             surface.SetPosition(i, nodes[i].position);
         } 
-
-        // for (int i = 0; i < nodes.Count ; i++)
-        // {
-        //     Vector3 displacement = (nodes[i] - transform.position);
-        //     accelerations[i] = -springConstant * displacement + velocities[i]*damping ;   
-            
-        //     nodes[i] += velocities[i];
-        //     velocities[i] += accelerations[i];
-        // }
-        // surface.SetPositions(nodes.ToArray());
-
-        DrawBody();
     }
 
     void PropagateWaves()
     {
-        Vector3[] leftDeltas = new Vector3[nodes.Count];
-        Vector3[] rightDeltas = new Vector3[nodes.Count];
+        Vector2[] leftDeltas = new Vector2[nodes.Count];
+        Vector2[] rightDeltas = new Vector2[nodes.Count];
                     
         // do some passes where nodes pull on their neighbours
-        // for (int j = 0; j < 8; j++)
-        // {
+        for (int j = 0; j < 8; j++)
+        {
             for (int i = 0; i < nodes.Count; i++)
             {
                 if (i > 0)
                 {
-                    leftDeltas[i] = spread * (nodes[i].position - nodes[i - 1].position - Vector3.right * positionDelta);
-                    nodes[i - 1].velocity += leftDeltas[i];
+                    leftDeltas[i] = spread * (nodes[i].position - nodes[i - 1].position - Vector2.right * positionDelta);
+                    nodes[i - 1].velocity.y += leftDeltas[i].y;
                 }
                 if (i < nodes.Count - 1)
                 {
-                    rightDeltas[i] = spread * (nodes[i].position - nodes[i + 1].position + Vector3.right * positionDelta);
-                    nodes[i + 1].velocity += rightDeltas[i];
+                    rightDeltas[i] = spread * (nodes[i].position - nodes[i + 1].position + Vector2.right * positionDelta);
+                    nodes[i + 1].velocity.y += rightDeltas[i].y;
                 }
             }
 
             for (int i = 0; i < nodes.Count; i++)
             {
                 if (i > 0)
-                    nodes[i - 1].position += leftDeltas[i];
+                    nodes[i - 1].position.y += leftDeltas[i].y * Time.fixedDeltaTime;
                 if (i < nodes.Count - 1)
-                    nodes[i + 1].position += rightDeltas[i];
+                    nodes[i + 1].position.y += rightDeltas[i].y * Time.fixedDeltaTime;
             }
-        // }
+        }
     }
 
-    public void Splash(int index, float speed)
+    public void DetectCollisions()
     {
-        if (index >= 0 && index < nodes.Count)
-            nodes[index].velocity = Vector3.down * speed;
+        LayerMask mask = LayerMask.GetMask("Default");
+        foreach (WaterNode node in nodes)
+        {
+            Collider2D splasher = Physics2D.OverlapCircle(
+                node.position + Vector2.down * positionDelta, 
+                positionDelta, 
+                mask
+            );
+            
+            if (splasher != null)
+            {
+                float mass = splasher.attachedRigidbody.mass;
+                Vector2 velocity = splasher.attachedRigidbody.velocity;
+
+                node.Splash(mass * velocity, massPerNode);
+            }
+        }
     }
 
     #region Draw Functions
@@ -136,14 +140,14 @@ public class WaterGenerator : MonoBehaviour
 
             for (int count = 0; count <= nodeAmount; count++)
             {
-                Vector3 position = transform.position + Vector3.right * (positionDelta * count);
+                Vector2 position = (Vector2) transform.position + Vector2.right * (positionDelta * count);
                 
                 nodes.Add(new WaterNode(position));
                 surface.SetPosition(count, position);
                 
-                // nodes.Add(transform.position + Vector3.right * (positionDelta * count));
-                // velocities.Add(Vector3.zero);
-                // accelerations.Add(Vector3.zero);
+                // nodes.Add(transform.position + Vector2.right * (positionDelta * count));
+                // velocities.Add(Vector2.zero);
+                // accelerations.Add(Vector2.zero);
             }
 
             // surface.SetPositions(nodes.ToArray());
@@ -162,12 +166,12 @@ public class WaterGenerator : MonoBehaviour
                 // Weave the mesh by adding the nodes in pairs from left to right
                 vertices.AddRange(new Vector3[]
                 {
-                    nodes[i].position - transform.position,
-                    nodes[i].position - transform.position + Vector3.down * waterDepth,
+                    (Vector3) nodes[i].position - transform.position,
+                    (Vector3) nodes[i].position - transform.position + Vector3.down * waterDepth,
                 });
 
                 // Add each node's position, relative to the gameObject position
-                colliderPath.Add(nodes[i].position - transform.position);
+                colliderPath.Add(nodes[i].position - (Vector2) transform.position);
                 
                 if (i > 0)
                     triangles.AddRange(new int[] 

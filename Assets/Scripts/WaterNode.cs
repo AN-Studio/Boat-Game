@@ -1,39 +1,52 @@
 using UnityEngine;
 
-public class WaterNode
+public partial class WaterGenerator
 {
-    Vector3 positionBase;
-    public Vector3 position;
-    public Vector3 velocity;
-    public Vector3 acceleration;
+    public class WaterNode
+    {
+        Vector2 positionBase;
+        public Vector2 position;
+        public Vector2 velocity;
+        public Vector2 acceleration;
 
-    #region Properties
-        public Vector3 Displacement {
-            get => position - positionBase;
-        }
-    #endregion
+        const float massPerNode = 0.04f;
 
-    #region Public Functions
-        
-        #region Construnctors
-            public WaterNode(Vector3 position)
-            {
-                positionBase = position;
-                this.position = position;
-            }
-            public WaterNode(Vector2 position)
-            {
-                positionBase = position;
-                this.position = position;
+        #region Properties
+            public Vector2 Displacement {
+                get => position - positionBase;
             }
         #endregion
 
-        public void Update(float SpringConstant, float Damping) 
-        {
-            acceleration = -SpringConstant * Displacement + velocity * Damping;   
+        #region Public Functions
             
-            position += velocity;
-            velocity += acceleration;
-        }
-    #endregion
+            #region Construnctors
+                public WaterNode(Vector3 position)
+                {
+                    positionBase = position;
+                    this.position = position;
+                }
+                public WaterNode(Vector2 position)
+                {
+                    positionBase = position;
+                    this.position = position;
+                }
+            #endregion
+
+            public void Update(float springConstant, float damping, float massPerNode) 
+            {
+                Vector2 force = springConstant * Displacement + velocity * damping;   
+                acceleration = -force / massPerNode;
+
+                position += velocity * Time.fixedDeltaTime;
+                velocity += acceleration;
+            }
+            public void Splash(Vector2 momentum, float massPerNode) => this.velocity.y = momentum.y / massPerNode;
+            // public void Splash(float speed) => Splash(speed, Vector2.down);
+            // public void Splash(float speed, Vector2 direction)
+            // {
+            //     velocity.y = speed * direction.y;
+            // }
+        #endregion
+    }
+
 }
