@@ -52,23 +52,26 @@ public partial class WaterGenerator : MonoBehaviour
                 otherCenter + lowerRight
             };
 
-            float percentSubmerged = 0f;
+            // float volume = other.bounds.size.x * other.bounds.size.y * percentSubmerged;
+            // float percentSubmerged = 0f;
+            float fluidDensity = 1f;
+            float volumePerPoint = 1f / points.Length;
             foreach (Vector2 point in points)
             {
-                if (collider.OverlapPoint(point)) percentSubmerged += 1f / points.Length;
+                if (collider.OverlapPoint(point)) 
+                    rb.AddForceAtPosition(-fluidDensity * Physics2D.gravity * volumePerPoint, point);
             }
 
-            float fluidDensity = 1f;
-            float volume = other.bounds.size.x * other.bounds.size.y * percentSubmerged;
             float dragCoefficient = .38f;
             float crossSection = rb.velocity.y > 0 ? other.bounds.size.x : other.bounds.size.y; // this one needs a better solution
 
-            Vector2 buoyancy = -fluidDensity * Physics2D.gravity * volume;
+            // Vector2 buoyancy = -fluidDensity * Physics2D.gravity * volume;
             float drag = .5f * rb.velocity.sqrMagnitude * dragCoefficient * crossSection;
             
-            Vector2 force = buoyancy - drag * rb.velocity.normalized;
+            // Vector2 force = buoyancy ;
 
-            rb.AddForce(force);
+            rb.AddForce(-drag * rb.velocity.normalized);
+            
         }
 
         void Awake() 
