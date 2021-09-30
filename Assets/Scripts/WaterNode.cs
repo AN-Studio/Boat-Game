@@ -40,12 +40,7 @@ public partial class WaterGenerator
                 position += velocity * Time.fixedDeltaTime;
                 velocity += acceleration;
             }
-            public void Splash(Vector2 momentum, float massPerNode) => this.velocity.y = momentum.y / massPerNode;
-            // public void Splash(float speed) => Splash(speed, Vector2.down);
-            // public void Splash(float speed, Vector2 direction)
-            // {
-            //     velocity.y = speed * direction.y;
-            // }
+            public void Splash(Vector2 momentum, float massPerNode) => this.velocity = momentum / massPerNode;
         #endregion
     }
 

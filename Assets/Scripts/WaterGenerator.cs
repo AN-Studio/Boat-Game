@@ -31,14 +31,50 @@ public partial class WaterGenerator : MonoBehaviour
     #endregion
 
     #region MonoBehaviour Functions
+
+        void OnTriggerStay2D(Collider2D other) 
+        {
+            Rigidbody2D rb = other.attachedRigidbody;
+            PolygonCollider2D collider = GetComponent<PolygonCollider2D>();
+
+            Vector2 upperLeft = new Vector2(-other.bounds.extents.x, other.bounds.extents.y) / 2f;
+            Vector2 upperRight = new Vector2(other.bounds.extents.x, other.bounds.extents.y) / 2f;
+            Vector2 lowerLeft = new Vector2(-other.bounds.extents.x, -other.bounds.extents.y) / 2f;
+            Vector2 lowerRight = new Vector2(other.bounds.extents.x, -other.bounds.extents.y) / 2f;
+
+            // Measure submerged volume
+            Vector2 otherCenter = other.bounds.center;
+            Vector2[] points = new Vector2[] {
+                otherCenter,
+                otherCenter + upperLeft,
+                otherCenter + upperRight,
+                otherCenter + lowerLeft,
+                otherCenter + lowerRight
+            };
+
+            float percentSubmerged = 0f;
+            foreach (Vector2 point in points)
+            {
+                if (collider.OverlapPoint(point)) percentSubmerged += 1f / points.Length;
+            }
+
+            float fluidDensity = 1f;
+            float volume = other.bounds.size.x * other.bounds.size.y * percentSubmerged;
+            float dragCoefficient = .38f;
+            float crossSection = rb.velocity.y > 0 ? other.bounds.size.x : other.bounds.size.y; // this one needs a better solution
+
+            Vector2 buoyancy = -fluidDensity * Physics2D.gravity * volume;
+            float drag = .5f * rb.velocity.sqrMagnitude * dragCoefficient * crossSection;
+            
+            Vector2 force = buoyancy - drag * rb.velocity.normalized;
+
+            rb.AddForce(force);
+        }
+
         void Awake() 
         {
             surface = GetComponent<LineRenderer>();
-
             nodes = new List<WaterNode>();
-            // nodes = new List<Vector2>();
-            // velocities = new List<Vector2>();
-            // accelerations = new List<Vector2>();
         }
 
         // Start is called before the first frame update
@@ -91,21 +127,21 @@ public partial class WaterGenerator : MonoBehaviour
                 if (i > 0)
                 {
                     leftDeltas[i] = spread * (nodes[i].position - nodes[i - 1].position - Vector2.right * positionDelta);
-                    nodes[i - 1].velocity.y += leftDeltas[i].y;
+                    nodes[i - 1].velocity += leftDeltas[i];
                 }
                 if (i < nodes.Count - 1)
                 {
                     rightDeltas[i] = spread * (nodes[i].position - nodes[i + 1].position + Vector2.right * positionDelta);
-                    nodes[i + 1].velocity.y += rightDeltas[i].y;
+                    nodes[i + 1].velocity += rightDeltas[i];
                 }
             }
 
             for (int i = 0; i < nodes.Count; i++)
             {
                 if (i > 0)
-                    nodes[i - 1].position.y += leftDeltas[i].y * Time.fixedDeltaTime;
+                    nodes[i - 1].position += leftDeltas[i] * Time.fixedDeltaTime;
                 if (i < nodes.Count - 1)
-                    nodes[i + 1].position.y += rightDeltas[i].y * Time.fixedDeltaTime;
+                    nodes[i + 1].position += rightDeltas[i] * Time.fixedDeltaTime;
             }
         }
     }
@@ -167,7 +203,7 @@ public partial class WaterGenerator : MonoBehaviour
                 vertices.AddRange(new Vector3[]
                 {
                     (Vector3) nodes[i].position - transform.position,
-                    (Vector3) nodes[i].position - transform.position + Vector3.down * waterDepth,
+                    (nodes[i].position.x - transform.position.x) * Vector3.right + (transform.position.y - waterDepth) * Vector3.up,
                 });
 
                 // Add each node's position, relative to the gameObject position
