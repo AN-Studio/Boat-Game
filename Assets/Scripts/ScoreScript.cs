@@ -24,6 +24,10 @@ public class ScoreScript : MonoBehaviour
         {
             scoreInt += 1;
         }
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            ResetScore();
+        }
     }
     private void OnDestroy()
     {
@@ -35,5 +39,10 @@ public class ScoreScript : MonoBehaviour
         {
             PlayerPrefs.SetInt("HighScore", scoreInt);
         }
+    }
+    public void ResetScore()
+    {
+        PlayerPrefs.DeleteKey("HighScore");
+        highScore.text = "0";
     }
 }
