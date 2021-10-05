@@ -5,12 +5,14 @@ using UnityEngine;
 [RequireComponent(typeof(LineRenderer), typeof(MeshFilter), typeof(PolygonCollider2D))]
 public partial class WaterGenerator : MonoBehaviour
 {
+    
     #region Settings
         [Header("Settings")]
         public Color waterColor;
         public float longitude;
         public int nodesPerUnit = 5;
         public float waterDepth;
+        public int forcesPerAxis = 5;
         
         [Header("Physics")]
         [Range(0, 0.1f)] public float springConstant;
@@ -35,40 +37,89 @@ public partial class WaterGenerator : MonoBehaviour
         void OnTriggerStay2D(Collider2D other) 
         {
             Rigidbody2D rb = other.attachedRigidbody;
-            PolygonCollider2D collider = GetComponent<PolygonCollider2D>();
+            PolygonCollider2D waterBody = GetComponent<PolygonCollider2D>();
 
-            Vector2 upperLeft = new Vector2(-other.bounds.extents.x, other.bounds.extents.y) / 2f;
-            Vector2 upperRight = new Vector2(other.bounds.extents.x, other.bounds.extents.y) / 2f;
-            Vector2 lowerLeft = new Vector2(-other.bounds.extents.x, -other.bounds.extents.y) / 2f;
-            Vector2 lowerRight = new Vector2(other.bounds.extents.x, -other.bounds.extents.y) / 2f;
-
-            // Measure submerged volume
-            Vector2 otherCenter = other.bounds.center;
-            Vector2[] points = new Vector2[] {
-                otherCenter,
-                otherCenter + upperLeft,
-                otherCenter + upperRight,
-                otherCenter + lowerLeft,
-                otherCenter + lowerRight
+            Vector2 center = rb.worldCenterOfMass;
+            Vector2 size = GetColliderSize(other);
+            
+            List<Vector2> vertices = new List<Vector2>() {
+                center + RotateVector(size * (Vector2.up + Vector2.left) / 2, rb.rotation),
+                center + RotateVector(size * (Vector2.up + Vector2.right) / 2, rb.rotation),
+                center + RotateVector(size * (Vector2.down + Vector2.right) / 2, rb.rotation),
+                center + RotateVector(size * (Vector2.down + Vector2.left) / 2, rb.rotation)
             };
 
-            // float volume = other.bounds.size.x * other.bounds.size.y * percentSubmerged;
-            // float percentSubmerged = 0f;
-            float fluidDensity = 1f;
-            float volumePerPoint = 1f / points.Length;
-            foreach (Vector2 point in points)
+            //Find the highest corner
+            int upperCornerIndex = 0;
+            for (int i = 0; i < 4; i++)
+                if (vertices[i].y > vertices[upperCornerIndex].y) upperCornerIndex = i;
+
+            float volume = size.x * size.y;
+            float unsubmergedVolume = 0;
+
+            // Get ready to compute unsubmerged volume
+            WaterNode[] closestNodes = FindClosestSegment(vertices[upperCornerIndex]);
+            if (vertices[upperCornerIndex].y > closestNodes[0].position.y || vertices[upperCornerIndex].y > closestNodes[1].position.y)
             {
-                if (collider.OverlapPoint(point)) 
-                    rb.AddForceAtPosition(-fluidDensity * Physics2D.gravity * volumePerPoint, point);
+                // Add contact points between water & collider
+                Vector2[] intersections = FindIntersectionsOnSurface(vertices, rb.rotation, upperCornerIndex);
+                
+                // Remove submerged vertices
+                foreach (Vector2 vertex in vertices)
+                {
+                    if (waterBody.OverlapPoint(vertex))
+                        vertices.Remove(vertex);
+                }
+                
+                vertices.InsertRange(upperCornerIndex, intersections);
+
+                // Split the unsubmerged volume into triangles
+                List<int> triangles = SplitIntoTriangles(vertices);
             }
+
+
+
+            // Vector2 step = size / forcesPerAxis;
+            // Vector2 origin = center + RotateVector(-size / 2f, rb.rotation);
+            // Vector2[] points = new Vector2[forcesPerAxis*forcesPerAxis];
+            // for (int j = 0; j < forcesPerAxis; j++)
+            // {
+            //     for (int i = 0; i < forcesPerAxis; i++)
+            //     {
+            //         Vector2 point = new Vector2(step.x * i, step.y * j);
+            //         point = RotateVector(point, rb.rotation);
+
+            //         points[i + j * forcesPerAxis] = 
+            //             origin + point
+            //         ;
+            //     }
+            // }
+
+            float fluidDensity = 1f;
+
+            // float volumePerPoint = volume / points.Length;
+            // float torque = 0f;
+            // Vector2 buoyancy = Vector2.zero;
+            // foreach (Vector2 point in points)
+            // {
+            //     if (waterBody.OverlapPoint(point)) 
+            //     {
+            //         Vector2 localForce = -fluidDensity * Physics2D.gravity * volumePerPoint;
+            //         Vector2 radius = point - (Vector2) rb.worldCenterOfMass;
+
+            //         buoyancy += localForce;
+                    
+            //         rb.AddForceAtPosition(-fluidDensity * Physics2D.gravity * volumePerPoint, point);
+            //     }
+            // }
 
             float dragCoefficient = .38f;
             float crossSection = rb.velocity.y > 0 ? other.bounds.size.x : other.bounds.size.y; // this one needs a better solution
 
-            // Vector2 buoyancy = -fluidDensity * Physics2D.gravity * volume;
+            Vector2 buoyancy = -fluidDensity * Physics2D.gravity * (volume - unsubmergedVolume);
             float drag = .5f * rb.velocity.sqrMagnitude * dragCoefficient * crossSection;
             
-            // Vector2 force = buoyancy ;
+            // Debug.Log($"Size: {size}\nTorque: {torque}");
 
             rb.AddForce(-drag * rb.velocity.normalized);
             
@@ -101,6 +152,184 @@ public partial class WaterGenerator : MonoBehaviour
             DrawBody();
         }
     #endregion
+
+    Vector2[] FindIntersectionsOnSurface(List<Vector2> vertices, float rotation, int topIndex)
+    {
+        Vector2[] intersections = new Vector2[2];
+
+        Vector2 upperCorner = vertices[(topIndex) % 4];
+        Vector2 leftCorner = vertices[(topIndex + 3) % 4];
+        Vector2 lowerCorner = vertices[(topIndex + 2) % 4]; 
+        Vector2 rightCorner = vertices[(topIndex + 1) % 4];
+
+        WaterNode leftNode = FindClosestSegment(leftCorner)[0];
+        WaterNode rightNode = FindClosestSegment(rightCorner)[1];
+
+        // Compute the line function that approximates the water surface
+        float waterIncline = rightNode.position.x - leftNode.position.x != 0 ?
+            (rightNode.position.y - leftNode.position.y) /
+            (rightNode.position.x - leftNode.position.x) :
+            float.NaN;
+        float waterOffset = rightNode.position.y - waterIncline * rightNode.position.x;
+        
+        // Compute the line function that describes the left side of the collider
+        float leftIncline;
+        float leftOffset;
+        if (leftNode.position.y < leftCorner.y)
+        {
+            leftIncline = lowerCorner.x - leftCorner.x != 0 ?
+                (lowerCorner.y - leftCorner.y) /
+                (lowerCorner.x - leftCorner.x) :
+                float.NaN;
+            leftOffset = lowerCorner.y - leftIncline * lowerCorner.x;
+        }
+        else
+        {
+            leftIncline = upperCorner.x - leftCorner.x != 0 ?
+                (upperCorner.y - leftCorner.y) /
+                (upperCorner.x - leftCorner.x) :
+                float.NaN;
+            leftOffset = upperCorner.y - leftIncline * upperCorner.x;
+        }
+        
+        // Compute the line function that describes the right side of the collider
+        float rightIncline;
+        float rightOffset;
+        if (rightNode.position.y < rightCorner.y)
+        {
+            rightIncline = lowerCorner.x - rightCorner.x != 0 ?
+                (lowerCorner.y - rightCorner.y) /
+                (lowerCorner.x - rightCorner.x) :
+                float.NaN;
+            rightOffset = lowerCorner.y - rightIncline * lowerCorner.x;
+        }
+        else
+        {
+            rightIncline = upperCorner.x - rightCorner.x != 0 ?
+                (upperCorner.y - rightCorner.y) /
+                (upperCorner.x - rightCorner.x) :
+                float.NaN;
+            rightOffset = upperCorner.y - rightIncline * upperCorner.x;
+        }
+
+        // Now compute each intersection
+        intersections[0] = Vector2.zero;
+        if (float.IsNaN(rightIncline)) 
+        {
+            intersections[0].x = rightCorner.x;
+            intersections[0].y = waterIncline * intersections[0].x + waterOffset;
+        }
+        else 
+        {
+            intersections[0].x = 
+                (rightOffset - waterOffset) /
+                (waterIncline - rightIncline);
+            intersections[0].y = waterIncline * intersections[0].x + waterOffset;
+        }
+
+        intersections[1] = Vector2.zero;
+        if (float.IsNaN(leftIncline)) 
+        {
+            intersections[1].x = leftCorner.x;
+            intersections[1].y = waterIncline * intersections[1].x + waterOffset;
+        }
+        else 
+        {
+            intersections[1].x = 
+                (leftOffset - waterOffset) /
+                (waterIncline - leftIncline);
+            intersections[1].y = waterIncline * intersections[1].x + waterOffset;
+        }
+
+        return intersections;
+    }
+
+    List<int> SplitIntoTriangles(List<Vector2> vertices) 
+    {
+        List<int> triangles = new List<int>();
+
+        // TODO: Split the given polygon into triangles
+
+        return triangles;
+    }
+
+    Vector2 GetColliderSize(Collider2D other)
+    {
+        Vector2 size = Vector2.zero;
+
+        switch(other){
+            case BoxCollider2D box:
+                // Debug.Log("It's a box");
+                size = box.size;
+                break;
+            case CapsuleCollider2D capsule:
+                // Debug.Log("It's a capsule");
+                size = capsule.size;
+                break;
+            case CircleCollider2D circle:
+                // Debug.Log("It's a circle");
+                size = circle.radius * Vector2.one;
+                break;
+            default:
+                Debug.LogError("Floating collider fell into generic case");
+                size = other.bounds.size / forcesPerAxis;
+                break;
+        }
+        
+        return size * other.transform.localScale;
+
+    }
+
+    float Compute3x3Determinant(float[,] matrix)
+    {
+        if (matrix.Length != 9)
+            throw new System.Exception("Matrix is not 3x3");
+
+        float det = 0;
+        for(int i=0;i<3;i++)
+            det += (matrix[0,i]*(matrix[1,(i+1)%3]*matrix[2,(i+2)%3] - matrix[1,(i+2)%3]*matrix[2,(i+1)%3]));
+
+        return det;
+    }
+
+    WaterNode[] FindClosestSegment(Vector2 point)
+    {
+        float minDistance = float.PositiveInfinity;
+        float secondToMin = minDistance;
+        WaterNode closestNode = nodes[0];
+        WaterNode secondToClosest = closestNode;
+        
+        foreach (WaterNode node in nodes)
+        {
+            float sqrDistance = (node.position - point).sqrMagnitude;
+            if (sqrDistance < minDistance)
+            {
+                secondToMin = minDistance;
+                secondToClosest = closestNode;
+
+                minDistance = sqrDistance;
+                closestNode = node;
+            }
+            else if (sqrDistance < secondToMin) 
+            {
+                secondToMin = sqrDistance;
+                secondToClosest = node;
+            }
+        }
+
+        if (closestNode.position.x < secondToClosest.position.x) 
+            return new WaterNode[] {closestNode, secondToClosest};
+
+        return new WaterNode[] {secondToClosest, closestNode};
+    }
+
+    Vector2 RotateVector(Vector2 vector, float degrees)
+    {
+        return new Vector2(
+            Mathf.Cos(degrees) * vector.x - Mathf.Sin(degrees) * vector.y,
+            Mathf.Sin(degrees) * vector.x + Mathf.Cos(degrees) * vector.y
+        );
+    }
 
     void ComputeCoeficients()
     {
@@ -247,13 +476,13 @@ public partial class WaterGenerator : MonoBehaviour
     #endregion
 
     #region Gizmos
-        private void OnDrawGizmos() {
-            Gizmos.color = waterColor;
-            Gizmos.DrawLine(transform.position, transform.position + Vector3.right * longitude);
-            Gizmos.DrawCube(
-                transform.position + Vector3.right * longitude/2 + Vector3.down * waterDepth/2,
-                Vector3.right * longitude + Vector3.down * waterDepth    
-            );
-        }
+        // private void OnDrawGizmos() {
+        //     Gizmos.color = waterColor;
+        //     Gizmos.DrawLine(transform.position, transform.position + Vector3.right * longitude);
+        //     Gizmos.DrawCube(
+        //         transform.position + Vector3.right * longitude/2 + Vector3.down * waterDepth/2,
+        //         Vector3.right * longitude + Vector3.down * waterDepth    
+        //     );
+        // }
     #endregion
 }

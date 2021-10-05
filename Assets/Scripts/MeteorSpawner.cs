@@ -21,7 +21,7 @@ public class MeteorSpawner : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             Rigidbody2D rb = Instantiate(meteor, position, Quaternion.identity).GetComponent<Rigidbody2D>();
-            rb.velocity = Vector2.left;
+            // rb.velocity = Vector2.left;
         }
     }
 }

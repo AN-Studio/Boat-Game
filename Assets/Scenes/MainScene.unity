@@ -544,6 +544,7 @@ MonoBehaviour:
   longitude: 30
   nodesPerUnit: 5
   waterDepth: 6
+  forcesPerAxis: 6
   springConstant: 0.0204
   damping: 0.0203
   spread: 0.5
