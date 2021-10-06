@@ -546,7 +546,7 @@ MonoBehaviour:
   waterDepth: 6
   forcesPerAxis: 6
   springConstant: 0.0204
-  damping: 0.0203
+  damping: 0.015
   spread: 0.5
   surface: {fileID: 0}
   mesh: {fileID: 0}

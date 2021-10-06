@@ -150,12 +150,13 @@ public partial class WaterGenerator : MonoBehaviour
         // Get ready to compute submerged volume
         float volume = 0;
         WaterNode[] closestNodes = FindClosestSegment(vertices[upperCornerIndex]);
+
         if ((vertices[upperCornerIndex].y > closestNodes[0].position.y || vertices[upperCornerIndex].y > closestNodes[1].position.y)
         && (vertices[(upperCornerIndex+2)%4].y <= closestNodes[0].position.y || vertices[(upperCornerIndex+2)%4].y <= closestNodes[1].position.y))
         {
             // Add contact points between water & collider
             Vector2[] intersections = FindIntersectionsOnSurface(vertices, rb.rotation, upperCornerIndex);
-            
+
             // Remove unsubmerged vertices
             foreach (Vector2 vertex in vertices.ToArray())
             {
@@ -166,9 +167,9 @@ public partial class WaterGenerator : MonoBehaviour
             vertices.InsertRange(0, intersections);
         }
 
-        Debug.Log("Vertices:");
-        foreach (var vertex in vertices)
-            Debug.Log(vertex);
+        // Debug.Log("Vertices:");
+        // foreach (var vertex in vertices)
+        //     Debug.Log(vertex);
 
         // Split the unsubmerged volume into triangles
         int[] triangles = SplitIntoTriangles(vertices.ToArray());
@@ -180,7 +181,9 @@ public partial class WaterGenerator : MonoBehaviour
 
         float fluidDensity = 1f;
         float dragCoefficient = .38f;
-        float crossSection = rb.velocity.y > 0 ? other.bounds.size.x : other.bounds.size.y; // this one might need a better solution
+        float crossSection = Mathf.Max(rb.velocity.y, rb.velocity.x) == rb.velocity.y ? 
+            other.bounds.size.x : other.bounds.size.y; // this one might need a better solution
+        float angularCrossSection = Mathf.Max(size.x, size.y);
 
         Vector2 buoyancy = -fluidDensity * Physics2D.gravity * volume;
         float drag = .5f * rb.velocity.sqrMagnitude * dragCoefficient * crossSection;
@@ -207,12 +210,12 @@ public partial class WaterGenerator : MonoBehaviour
         // WaterNode[] nodes = FindClosestSegment(rightCorner);
         // Debug.Log($"{nodes[0].position}\n{nodes[1].position}");
         
-        Debug.Log($@"
-            Upper Corner: {upperCorner}
-            Left Corner: {leftCorner}
-            RightCorner: {rightCorner}
-            LowerCorner: {lowerCorner}"
-        );
+        // Debug.Log($@"
+        //     Upper Corner: {upperCorner}
+        //     Left Corner: {leftCorner}
+        //     RightCorner: {rightCorner}
+        //     LowerCorner: {lowerCorner}"
+        // );
 
         // Debug.Log($@"
         //     Left Node: {leftNode.position}
@@ -295,10 +298,10 @@ public partial class WaterGenerator : MonoBehaviour
             intersections[1].y = waterIncline * intersections[1].x + waterOffset;
         }
 
-        Debug.Log($@"Intersections:
-            {intersections[0]}
-            {intersections[1]}"
-        );
+        // Debug.Log($@"Intersections:
+        //     {intersections[0]}
+        //     {intersections[1]}"
+        // );
 
         return intersections;
     }
@@ -370,7 +373,7 @@ public partial class WaterGenerator : MonoBehaviour
             polygonCentroid += tArea * tCentroid;
             polygonArea += tArea;
         }
-        Debug.Log($"Sum of centroids*area: {polygonCentroid}\nTotal area: {polygonArea}");
+        // Debug.Log($"Sum of centroids*area: {polygonCentroid}\nTotal area: {polygonArea}");
         polygonCentroid = polygonCentroid / polygonArea;
         area = polygonArea;
 
