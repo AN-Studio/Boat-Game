@@ -159,6 +159,9 @@ public partial class WaterGenerator : MonoBehaviour
                 // Add contact points between water & collider
                 Vector2[] intersections = FindIntersectionsOnSurface(vertices, rb.rotation, upperCornerIndex);
 
+                Debug.Log($"Intersections: {intersections[0]} {intersections[1]}");
+                Debug.Log($"Submerged Area (approx.): {(intersections[0].y -(center.y - size.y/2)) * size.x}");
+
                 // Remove unsubmerged vertices
                 foreach (Vector2 vertex in vertices.ToArray())
                 {
@@ -169,9 +172,9 @@ public partial class WaterGenerator : MonoBehaviour
                 vertices.InsertRange(0, intersections);
             }
 
-            // Debug.Log("Vertices:");
-            // foreach (var vertex in vertices)
-            //     Debug.Log(vertex);
+            Debug.Log("Vertices:");
+            foreach (var vertex in vertices)
+                Debug.Log(vertex);
 
             // Split the unsubmerged volume into triangles
             int[] triangles = SplitIntoTriangles(vertices.ToArray());
@@ -179,7 +182,7 @@ public partial class WaterGenerator : MonoBehaviour
             // Compute the submerged volume & its centroid
             Vector2 centroid = ComputeCentroid(vertices.ToArray(), triangles, out volume);
 
-            // Debug.Log(centroid);
+            Debug.Log($"Buoyancy Centroid: {centroid}\nSubmerged Volume: {volume}");
 
             float fluidDensity = 1f;
             float dragCoefficient = .38f;
@@ -256,30 +259,30 @@ public partial class WaterGenerator : MonoBehaviour
 
             // Now compute each intersection
             intersections[0] = Vector2.zero;
-            if (float.IsNaN(rightIncline)) 
+            if (float.IsNaN(leftIncline)) 
             {
-                intersections[0].x = rightCorner.x;
+                intersections[0].x = leftCorner.x;
                 intersections[0].y = waterIncline * intersections[0].x + waterOffset;
             }
             else 
             {
                 intersections[0].x = 
-                    (rightOffset - waterOffset) /
-                    (waterIncline - rightIncline);
+                    (leftOffset - waterOffset) /
+                    (waterIncline - leftIncline);
                 intersections[0].y = waterIncline * intersections[0].x + waterOffset;
             }
 
             intersections[1] = Vector2.zero;
-            if (float.IsNaN(leftIncline)) 
+            if (float.IsNaN(rightIncline)) 
             {
-                intersections[1].x = leftCorner.x;
+                intersections[1].x = rightCorner.x;
                 intersections[1].y = waterIncline * intersections[1].x + waterOffset;
             }
             else 
             {
                 intersections[1].x = 
-                    (leftOffset - waterOffset) /
-                    (waterIncline - leftIncline);
+                    (rightOffset - waterOffset) /
+                    (waterIncline - rightIncline);
                 intersections[1].y = waterIncline * intersections[1].x + waterOffset;
             }
 
@@ -511,10 +514,10 @@ public partial class WaterGenerator : MonoBehaviour
 
                     splashedNodes[splasher].Add(node);
 
-                    float mass = splasher.attachedRigidbody.mass;
-                    Vector2 velocity = splasher.attachedRigidbody.velocity;
+                    // float mass = splasher.attachedRigidbody.mass;
+                    // Vector2 velocity = splasher.attachedRigidbody.velocity;
 
-                    node.Splash(mass * velocity, massPerNode);
+                    // node.Splash(mass * velocity, massPerNode);
                 }
             }
 

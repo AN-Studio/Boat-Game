@@ -6,7 +6,7 @@ public class BoatBehaviour : MonoBehaviour
 {
     new Collider2D collider;
 
-    [Range(0,1)] public float keelWeightRatio = 0.1f;
+    [Range(0,2)] public float keelWeightRatio = 2f;
 
     private void Awake() 
     {
@@ -38,7 +38,7 @@ public class BoatBehaviour : MonoBehaviour
         Vector2 keelWeight = rb.mass * keelWeightRatio * Physics2D.gravity;
         Vector2 keelPos = center + WaterGenerator.RotateVector(Vector2.down * size.y, rb.rotation);
 
-        Debug.Log($"Rotation: {rb.rotation}");
+        Debug.Log($"Keel Position: {keelPos}");
 
         rb.AddForceAtPosition(keelWeight, keelPos);
     }
