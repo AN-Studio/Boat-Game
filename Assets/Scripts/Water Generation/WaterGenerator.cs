@@ -5,7 +5,13 @@ using UnityEngine;
 [RequireComponent(typeof(LineRenderer), typeof(MeshFilter), typeof(PolygonCollider2D))]
 public partial class WaterGenerator : MonoBehaviour
 {
-    
+    #region Singleton
+        static WaterGenerator instance;
+        public static WaterGenerator Instance {
+            get => instance;
+        }
+    #endregion
+
     #region Settings
         [Header("Settings")]
         public Color waterColor;
@@ -44,6 +50,9 @@ public partial class WaterGenerator : MonoBehaviour
 
         void Awake() 
         {
+            if (instance is null)
+                instance = this;
+
             surface = GetComponent<LineRenderer>();
             nodes = new List<WaterNode>();
             interactionQueue = new Queue<Collider2D>();
@@ -61,6 +70,7 @@ public partial class WaterGenerator : MonoBehaviour
         // Update is called once per frame
         void Update()
         {
+            CheckCameraBounds();
             GenerateWaves();
         }
 
@@ -450,6 +460,37 @@ public partial class WaterGenerator : MonoBehaviour
     #endregion
 
     #region Surface Control
+        void CheckCameraBounds() 
+        {
+            Vector2 WorldUnitsInCamera;
+            WorldUnitsInCamera.y = Camera.main.orthographicSize * 2;
+            WorldUnitsInCamera.x = WorldUnitsInCamera.y * Screen.width / Screen.height;
+            
+            Vector2 leftMostPos = nodes[0].position;
+            float bound = Camera.main.transform.position.x - WorldUnitsInCamera.x / 2 - 5f;
+
+            if (leftMostPos.x < bound) {
+                DestroyChunks();
+                AddChunks();
+            }
+        }
+        public void DestroyChunks(int numberOfChunks = 1)
+        {
+            if (numberOfChunks < 1) 
+                throw new System.Exception("Cannot destroy a negative number of chunks.");
+            
+            nodes.RemoveRange(0, nodesPerUnit * numberOfChunks);
+        }
+        public void AddChunks(int numberOfChunks = 1)
+        {
+            if (numberOfChunks < 1) 
+                throw new System.Exception("Cannot add a negative number of chunks.");
+
+            Vector2 anchor = nodes[nodes.Count-1].position;
+            for (int i = 1; i <= nodesPerUnit * numberOfChunks; i++)
+                nodes.Add(new WaterNode(anchor + (positionDelta * i) * Vector2.right));
+            
+        }
         void GenerateWaves()
         {
             Vector2 force = random.Next(-waveIntensity,waveIntensity) * Vector2.up;
@@ -610,13 +651,17 @@ public partial class WaterGenerator : MonoBehaviour
     #endregion
 
     #region Gizmos
-        // private void OnDrawGizmos() {
-        //     Gizmos.color = waterColor;
-        //     Gizmos.DrawLine(transform.position, transform.position + Vector3.right * longitude);
-        //     Gizmos.DrawCube(
-        //         transform.position + Vector3.right * longitude/2 + Vector3.down * waterDepth/2,
-        //         Vector3.right * longitude + Vector3.down * waterDepth    
-        //     );
-        // }
+        private void OnDrawGizmos() {
+            #if UNITY_EDITOR
+                Gizmos.color = waterColor;
+                Gizmos.DrawLine(
+                    transform.position - Vector3.right * longitude/2, 
+                    transform.position + Vector3.right * longitude/2);
+                Gizmos.DrawCube(
+                    transform.position + Vector3.down * waterDepth/2,
+                    Vector3.right * longitude + Vector3.down * waterDepth    
+                );
+            #endif
+        }
     #endregion
 }
