@@ -260,7 +260,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ad980451443d70438faac0bc6c235a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_TrackedObjectOffset: {x: 12, y: 1, z: 0}
+  m_TrackedObjectOffset: {x: 12, y: 0, z: 0}
   m_LookaheadTime: 0
   m_LookaheadSmoothing: 0
   m_LookaheadIgnoreY: 1
@@ -272,7 +272,7 @@ MonoBehaviour:
   m_ScreenY: 0.5
   m_CameraDistance: 10
   m_DeadZoneWidth: 0
-  m_DeadZoneHeight: 0.15
+  m_DeadZoneHeight: 0.6
   m_DeadZoneDepth: 0
   m_UnlimitedSoftZone: 0
   m_SoftZoneWidth: 0.8
@@ -389,7 +389,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 10
+  orthographic size: 7
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -413,7 +413,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1248490441}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6, y: 6.3700004, z: -10}
+  m_LocalPosition: {x: -3, y: 5.37, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 995621946}
@@ -601,7 +601,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 2.56, y: 2.43}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -615,7 +615,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1632266443}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6, y: 5.37, z: 0}
+  m_LocalPosition: {x: -15, y: 5.37, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -633,7 +633,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fe3cdd716707da40bc58c1c21d3fa5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  keelWeightRatio: 2
+  forwardForce: 0.5
+  properties: {fileID: 11400000, guid: 324abb66c2752d94d9a7fc1fe6f9b75f, type: 2}
+  gameStarted: 1
+  gameEnded: 0
 --- !u!1 &1648797092
 GameObject:
   m_ObjectHideFlags: 0
@@ -673,7 +676,7 @@ MonoBehaviour:
   m_Follow: {fileID: 1632266447}
   m_Lens:
     FieldOfView: 60
-    OrthographicSize: 10
+    OrthographicSize: 7
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -694,7 +697,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1648797092}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6, y: 6.3700004, z: -10}
+  m_LocalPosition: {x: -3, y: 5.37, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 789424229}
@@ -899,9 +902,10 @@ MonoBehaviour:
   longitude: 60
   nodesPerUnit: 5
   waterDepth: 10
-  waveIntensity: 10
+  waveIntensity: 5
+  despawnDistance: 10
   springConstant: 0.0204
-  damping: 0.015
+  damping: 0
   spread: 0.5
   surface: {fileID: 0}
   mesh: {fileID: 0}

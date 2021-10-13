@@ -19,11 +19,12 @@ public partial class WaterGenerator : MonoBehaviour
         public int nodesPerUnit = 5;
         public float waterDepth;
         public int waveIntensity = 10;
+        public int despawnDistance = 5;
         
         [Header("Physics")]
         [Range(0, 0.1f)] public float springConstant;
         [Range(0, 0.1f)] public float damping;
-        [Range(0.0f, 0.5f)] public float spread;
+        [Range(0.0f, 1f)] public float spread;
     #endregion
 
     #region References
@@ -38,6 +39,7 @@ public partial class WaterGenerator : MonoBehaviour
         private float massPerNode;
         private Queue<Collider2D> interactionQueue;
         private System.Random random;
+        private float time = 0;
     #endregion
 
     #region MonoBehaviour Functions
@@ -169,8 +171,8 @@ public partial class WaterGenerator : MonoBehaviour
                 // Add contact points between water & collider
                 Vector2[] intersections = FindIntersectionsOnSurface(vertices, rb.rotation, upperCornerIndex);
 
-                Debug.Log($"Intersections: {intersections[0]} {intersections[1]}");
-                Debug.Log($"Submerged Area (approx.): {(intersections[0].y -(center.y - size.y/2)) * size.x}");
+                // Debug.Log($"Intersections: {intersections[0]} {intersections[1]}");
+                // Debug.Log($"Submerged Area (approx.): {(intersections[0].y -(center.y - size.y/2)) * size.x}");
 
                 // Remove unsubmerged vertices
                 foreach (Vector2 vertex in vertices.ToArray())
@@ -182,9 +184,9 @@ public partial class WaterGenerator : MonoBehaviour
                 vertices.InsertRange(0, intersections);
             }
 
-            Debug.Log("Vertices:");
-            foreach (var vertex in vertices)
-                Debug.Log(vertex);
+            // Debug.Log("Vertices:");
+            // foreach (var vertex in vertices)
+            //     Debug.Log(vertex);
 
             // Split the unsubmerged volume into triangles
             int[] triangles = SplitIntoTriangles(vertices.ToArray());
@@ -192,18 +194,10 @@ public partial class WaterGenerator : MonoBehaviour
             // Compute the submerged volume & its centroid
             Vector2 centroid = ComputeCentroid(vertices.ToArray(), triangles, out volume);
 
-            Debug.Log($"Buoyancy Centroid: {centroid}\nSubmerged Volume: {volume}");
+            // Debug.Log($"Buoyancy Centroid: {centroid}\nSubmerged Volume: {volume}");
 
             float fluidDensity = 1f;
-            float dragCoefficient = .38f;
-            float crossSection = Mathf.Max(rb.velocity.y, rb.velocity.x) == rb.velocity.y ? 
-                other.bounds.size.x : other.bounds.size.y; // this one might need a better solution
-            float angularCrossSection = Mathf.Max(size.x, size.y);
-
             Vector2 buoyancy = -fluidDensity * Physics2D.gravity * volume;
-            float drag = .5f * rb.velocity.sqrMagnitude * dragCoefficient * crossSection;
-
-            rb.AddForce(-drag * rb.velocity.normalized);
             
             if (volume != 0 && !float.IsNaN(centroid.x) && !float.IsNaN(centroid.y))
                 rb.AddForceAtPosition(buoyancy, centroid);   
@@ -467,7 +461,7 @@ public partial class WaterGenerator : MonoBehaviour
             WorldUnitsInCamera.x = WorldUnitsInCamera.y * Screen.width / Screen.height;
             
             Vector2 leftMostPos = nodes[0].position;
-            float bound = Camera.main.transform.position.x - WorldUnitsInCamera.x / 2 - 5f;
+            float bound = Camera.main.transform.position.x - WorldUnitsInCamera.x / 2 - despawnDistance;
 
             if (leftMostPos.x < bound) {
                 DestroyChunks();
@@ -486,15 +480,25 @@ public partial class WaterGenerator : MonoBehaviour
             if (numberOfChunks < 1) 
                 throw new System.Exception("Cannot add a negative number of chunks.");
 
-            Vector2 anchor = nodes[nodes.Count-1].position;
+            Vector2 anchor = new Vector2(nodes[nodes.Count-1].position.x, transform.position.y);
+            Vector2 disturbance = waveIntensity * Mathf.Sin(time) * Vector2.up;
+            
             for (int i = 1; i <= nodesPerUnit * numberOfChunks; i++)
-                nodes.Add(new WaterNode(anchor + (positionDelta * i) * Vector2.right));
+                nodes.Add(new WaterNode(anchor + (positionDelta * i) * Vector2.right, disturbance));
             
         }
         void GenerateWaves()
         {
-            Vector2 force = random.Next(-waveIntensity,waveIntensity) * Vector2.up;
-            nodes[nodes.Count-1].Disturb(force);
+            // Vector2 force = random.Next(-waveIntensity,waveIntensity) * Vector2.up;
+
+            Vector2 disturbance = waveIntensity * Mathf.Sin(time) * Vector2.up;
+            time = (time + Time.fixedDeltaTime) % (2*Mathf.PI);
+
+            nodes[nodes.Count-1].Disturb(disturbance);
+            // nodes[nodes.Count-2].Disturb(disturbance);
+            // nodes[nodes.Count-3].Disturb(disturbance);
+            // nodes[nodes.Count-4].Disturb(disturbance);
+            // nodes[nodes.Count-5].Disturb(disturbance);
         }
         void ApplySpringForces()
         {

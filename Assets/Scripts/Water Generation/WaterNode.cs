@@ -31,6 +31,16 @@ public partial class WaterGenerator
                     positionBase = position;
                     this.position = position;
                 }
+                public WaterNode(Vector3 position, Vector2 disturbance)
+                {
+                    positionBase = position;
+                    this.position = positionBase + disturbance;
+                }
+                public WaterNode(Vector2 position, Vector2 disturbance)
+                {
+                    positionBase = position;
+                    this.position = positionBase + disturbance;
+                }
             #endregion
 
             public void Update(float springConstant, float damping, float massPerNode) 
@@ -46,8 +56,8 @@ public partial class WaterGenerator
                 momentum.y = Mathf.Min(0f, momentum.y);
                 this.velocity += momentum / massPerNode * Time.fixedDeltaTime;
             }
-            public void Disturb(Vector2 acceleration){
-                disturbance += acceleration;
+            public void Disturb(Vector2 positionDelta){
+                this.position = positionBase + positionDelta;
             }
         #endregion
     }

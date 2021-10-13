@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 820028717ef78cd499196f4f30d54279
+guid: 163b39bae46f98940a9e95f202818fd2
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -8,7 +8,7 @@ ScriptedImporter:
   assetBundleName: 
   assetBundleVariant: 
   script: {fileID: 11500000, guid: a57477913897c46af95d590f580878bd, type: 3}
-  svgType: 0
+  svgType: 1
   texturedSpriteMeshType: 0
   svgPixelsPerUnit: 100
   gradientResolution: 64
@@ -39,17 +39,17 @@ ScriptedImporter:
   spriteData:
     TessellationDetail: 0
     SpriteRect:
-      name: Sale1_BoatSprite
+      name: 
       originalName: 
-      pivot: {x: 0.50012404, y: 0.5000359}
+      pivot: {x: 0, y: 0}
       alignment: 0
       border: {x: 0, y: 0, z: 0, w: 0}
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 441
-        height: 418
-      spriteID: 31caf5774044ceb4e89600d8a198fde9
+        width: 0
+        height: 0
+      spriteID: c2f9153927966e443a9742126f02a535
       internalID: 0
     PhysicsOutlines: []
