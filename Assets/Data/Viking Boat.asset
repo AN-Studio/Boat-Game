@@ -17,6 +17,6 @@ MonoBehaviour:
   description: 'A ship famous for its ruthless tripulation: the fearsome vikings.'
   dragCoefficient: {x: 0.09, y: 0.6}
   density: 0.872
-  spriteColliderRatio: 0
+  spriteColliderRatio: 0.2
   keelRelativePos: 1
   keelWeightRatio: 2

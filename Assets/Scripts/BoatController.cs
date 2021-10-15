@@ -5,6 +5,8 @@ using UnityEngine;
 public class BoatController : MonoBehaviour
 {
     public float forwardForce;
+    public float accelerationForce;
+    public float tiltTorque;
     public BoatProperties properties;
     
     #region Private Variables
@@ -14,6 +16,8 @@ public class BoatController : MonoBehaviour
 
         public bool gameStarted = false;
         public bool gameEnded = false;
+        bool isAccelerating = false;
+        float tilt = 0;
     #endregion
 
     #region MonoBehaviour Functions
@@ -33,19 +37,28 @@ public class BoatController : MonoBehaviour
             collider.size = properties.colliderSize;
             collider.density = properties.colliderDensity;
 
-            rb.angularDrag = 2 * Mathf.Max(properties.dragCoefficient.x, properties.dragCoefficient.y);
+            float depth = Mathf.Min(properties.colliderSize.x, properties.colliderSize.y);
+            rb.angularDrag = 2 * depth * Mathf.Max(properties.dragCoefficient.x, properties.dragCoefficient.y);
             
             UpdateDrag();
+        }
+
+        private void Update() {
+            ReadInputs();
         }
 
         private void FixedUpdate() 
         {
             UpdateDrag();
+            UpdateAngularDrag();
+            
+            ApplyAcceleration();
+            ApplyTilt();
+
             ApplyForwardForce();
             ApplyKeelWeight();    
         }
     #endregion
-
     void ApplyForwardForce()
     {
         if (gameStarted && !gameEnded)
@@ -54,12 +67,33 @@ public class BoatController : MonoBehaviour
 
     void UpdateDrag()
     {
-        Vector2 dragCoefficient = WaterGenerator.RotateVector(
-            properties.dragCoefficient * properties.colliderSize, 
-            rb.rotation
-        );
+        float depth = Mathf.Min(properties.colliderSize.x, properties.colliderSize.y);
+        
+        Vector2 dragCoefficient = //WaterGenerator.RotateVector(
+            properties.dragCoefficient * properties.colliderSize * depth//, 
+            // rb.rotation
+        ;
+
+        LayerMask mask = LayerMask.GetMask("Water");
+        if (!collider.IsTouchingLayers(mask))
+            dragCoefficient *= .001f;
 
         rb.drag = (dragCoefficient * rb.velocity.normalized).magnitude;
+    }
+
+    void UpdateAngularDrag()
+    {
+        float depth = Mathf.Min(properties.colliderSize.x, properties.colliderSize.y);
+        
+        LayerMask mask = LayerMask.GetMask("Water");
+        if (collider.IsTouchingLayers(mask))
+        {
+            rb.angularDrag = 2 * depth * Mathf.Max(properties.dragCoefficient.x, properties.dragCoefficient.y);
+        }
+        else
+        {
+            rb.angularDrag = 2 * .001f * depth * Mathf.Max(properties.dragCoefficient.x, properties.dragCoefficient.y);
+        }
     }
 
     void ApplyKeelWeight()
@@ -70,8 +104,58 @@ public class BoatController : MonoBehaviour
         Vector2 keelWeight = rb.mass * properties.keelWeightRatio * Physics2D.gravity;
         Vector2 keelPos = center + WaterGenerator.RotateVector((Vector2.down * size) * properties.keelRelativePos, rb.rotation);
 
-        Debug.Log($"Keel Position: {keelPos}");
+        // Debug.Log($"Keel Position: {keelPos}");
 
         rb.AddForceAtPosition(keelWeight, keelPos);
     }
+
+    void ApplyAcceleration()
+    {
+        if (isAccelerating && !gameEnded)
+            rb.AddForce(WaterGenerator.RotateVector(accelerationForce * Vector2.right, rb.rotation));
+    }
+
+    void ApplyTilt()
+    {
+        rb.AddTorque(tilt * tiltTorque);
+    }
+
+    void ReadInputs()
+    {
+        #if (UNITY_ANDROID || UNITY_IOS) 
+            if (Input.touchCount > 0)
+            {
+                Touch touch = Input.GetTouch(0);
+                
+                switch(touch.phase)
+                {
+                    case TouchPhase.Began:
+                        isAccelerating = true;
+                        break;
+                    case TouchPhase.Ended:    
+                        isAccelerating = false;
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+
+            float tilt = Input.acceleration.y;
+
+        #else
+            if (Input.GetKeyDown(KeyCode.D))
+                tilt -= 1f;
+            if (Input.GetKeyDown(KeyCode.A))
+                tilt += 1f;
+            tilt = Mathf.Clamp(tilt, -1, 1);
+
+            if (Input.GetMouseButtonDown(0)){
+                isAccelerating = true;
+            } else {
+                isAccelerating = false;
+            }
+        #endif
+    }
+
 }

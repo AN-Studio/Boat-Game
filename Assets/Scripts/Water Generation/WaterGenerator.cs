@@ -464,8 +464,11 @@ public partial class WaterGenerator : MonoBehaviour
             float bound = Camera.main.transform.position.x - WorldUnitsInCamera.x / 2 - despawnDistance;
 
             if (leftMostPos.x < bound) {
-                DestroyChunks();
-                AddChunks();
+                for (int i = 0; i < bound - leftMostPos.x; i++)
+                {
+                    DestroyChunks();
+                    AddChunks();
+                }
             }
         }
         public void DestroyChunks(int numberOfChunks = 1)
@@ -480,11 +483,17 @@ public partial class WaterGenerator : MonoBehaviour
             if (numberOfChunks < 1) 
                 throw new System.Exception("Cannot add a negative number of chunks.");
 
-            Vector2 anchor = new Vector2(nodes[nodes.Count-1].position.x, transform.position.y);
-            Vector2 disturbance = waveIntensity * Mathf.Sin(time) * Vector2.up;
-            
+            Vector2 anchor;
+            Vector2 disturbance;
             for (int i = 1; i <= nodesPerUnit * numberOfChunks; i++)
+            {
+                anchor = new Vector2(nodes[nodes.Count-1].position.x, transform.position.y);
+                disturbance = waveIntensity * Mathf.Sin(time) * Vector2.up;
+                
                 nodes.Add(new WaterNode(anchor + (positionDelta * i) * Vector2.right, disturbance));
+                
+                time = (time + Time.fixedDeltaTime) % (2*Mathf.PI); 
+            }
             
         }
         void GenerateWaves()
