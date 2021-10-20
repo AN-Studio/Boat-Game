@@ -5,7 +5,7 @@ using UnityEngine;
 public class BoatController : MonoBehaviour
 {
     public float forwardForce;
-    public float accelerationForce;
+    public float jumpForce;
     public float tiltTorque;
     public BoatProperties properties;
     
@@ -16,7 +16,7 @@ public class BoatController : MonoBehaviour
 
         public bool gameStarted = false;
         public bool gameEnded = false;
-        bool isAccelerating = false;
+        bool wantsToJump = false;
         float tilt = 0;
     #endregion
 
@@ -111,8 +111,16 @@ public class BoatController : MonoBehaviour
 
     void ApplyAcceleration()
     {
-        if (isAccelerating && !gameEnded)
-            rb.AddForce(WaterGenerator.RotateVector(accelerationForce * (new Vector2(0,1)).normalized, rb.rotation), ForceMode2D.Impulse);
+        LayerMask mask = LayerMask.GetMask("Water");
+        bool isTouchingWater = collider.IsTouchingLayers(mask);
+
+        // Debug.Log($"IsTouchingWater: {isTouchingWater}");
+
+        if (wantsToJump && isTouchingWater && !gameEnded)
+        {
+            rb.AddForce(WaterGenerator.RotateVector(jumpForce * (new Vector2(.75f,1)).normalized, rb.rotation), ForceMode2D.Impulse);
+            wantsToJump = false;
+        }
     }
 
     void ApplyTilt()
@@ -130,10 +138,10 @@ public class BoatController : MonoBehaviour
                 switch(touch.phase)
                 {
                     case TouchPhase.Began:
-                        isAccelerating = true;
+                        wantsToJump = true;
                         break;
                     case TouchPhase.Ended:    
-                        isAccelerating = false;
+                        wantsToJump = false;
                         break;
                     default:
                         break;
@@ -141,16 +149,17 @@ public class BoatController : MonoBehaviour
 
             }
 
-            float tilt = Input.acceleration.y;
+            tilt = Input.acceleration.y;
+        #endif
 
-        #else
+        #if (UNITY_EDITOR || UNITY_STANDALONE)
             tilt = -Input.GetAxis("Horizontal");
             tilt = Mathf.Clamp(tilt, -1, 1);
 
             if (Input.GetMouseButtonDown(0)){
-                isAccelerating = true;
+                wantsToJump = true;
             } else {
-                isAccelerating = false;
+                wantsToJump = false;
             }
         #endif
     }

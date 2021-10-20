@@ -31,6 +31,7 @@ public partial class WaterGenerator : MonoBehaviour
         [Header("References")]
         public LineRenderer surface;
         public Mesh mesh;
+        public ParticleSystem particles;
     #endregion
 
     #region Private Variables
@@ -44,10 +45,26 @@ public partial class WaterGenerator : MonoBehaviour
 
     #region MonoBehaviour Functions
 
+        private void OnTriggerEnter2D(Collider2D other) 
+        {
+            ParticleSystem.ShapeModule shape = particles.shape;
+            shape.position = other.transform.position;
+
+            particles.Play();
+        }
+
         void OnTriggerStay2D(Collider2D other) 
         {
             if (!interactionQueue.Contains(other))
                 interactionQueue.Enqueue(other);
+
+            if (other.attachedRigidbody.velocity.x != 0)
+            {
+                ParticleSystem.ShapeModule shape = particles.shape;
+                shape.position = other.transform.position;
+
+                particles.Play();
+            }
         }
 
         void Awake() 
@@ -55,6 +72,7 @@ public partial class WaterGenerator : MonoBehaviour
             if (instance is null)
                 instance = this;
 
+            particles = GetComponent<ParticleSystem>();
             surface = GetComponent<LineRenderer>();
             nodes = new List<WaterNode>();
             interactionQueue = new Queue<Collider2D>();
