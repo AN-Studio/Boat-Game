@@ -510,7 +510,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   forwardForce: 100
-  jumpForce: 25
+  jumpForce: 100
   tiltTorque: 500
   properties: {fileID: 11400000, guid: 6ebd810c6b63836419d9978c69dee0d4, type: 2}
   gameStarted: 1

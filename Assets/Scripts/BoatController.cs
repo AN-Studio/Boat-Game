@@ -149,7 +149,7 @@ public class BoatController : MonoBehaviour
 
             }
 
-            tilt = Input.acceleration.y;
+            tilt = Input.acceleration.x;
         #endif
 
         #if (UNITY_EDITOR || UNITY_STANDALONE)
