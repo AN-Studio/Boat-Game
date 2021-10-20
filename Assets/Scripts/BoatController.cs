@@ -112,7 +112,7 @@ public class BoatController : MonoBehaviour
     void ApplyAcceleration()
     {
         if (isAccelerating && !gameEnded)
-            rb.AddForce(WaterGenerator.RotateVector(accelerationForce * Vector2.right, rb.rotation));
+            rb.AddForce(WaterGenerator.RotateVector(accelerationForce * (new Vector2(0,1)).normalized, rb.rotation), ForceMode2D.Impulse);
     }
 
     void ApplyTilt()
@@ -144,10 +144,7 @@ public class BoatController : MonoBehaviour
             float tilt = Input.acceleration.y;
 
         #else
-            if (Input.GetKeyDown(KeyCode.D))
-                tilt -= 1f;
-            if (Input.GetKeyDown(KeyCode.A))
-                tilt += 1f;
+            tilt = -Input.GetAxis("Horizontal");
             tilt = Mathf.Clamp(tilt, -1, 1);
 
             if (Input.GetMouseButtonDown(0)){

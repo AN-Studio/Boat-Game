@@ -73,15 +73,18 @@ public partial class WaterGenerator : MonoBehaviour
         void Update()
         {
             CheckCameraBounds();
-            GenerateWaves();
         }
 
         void FixedUpdate() 
         {
+            GenerateWaves();
+            
             ProcessInteractionQueue();
             ReactToCollisions();
+            
             ApplySpringForces();
             PropagateWaves();
+            
             DrawBody();
         }
     #endregion
@@ -513,7 +516,8 @@ public partial class WaterGenerator : MonoBehaviour
         {
             for (int i = 0; i < nodes.Count ; i++)
             {
-                nodes[i].Update(springConstant, damping, massPerNode);
+                if (i < nodes.Count-1)
+                    nodes[i].Update(springConstant, damping, massPerNode);
                 surface.SetPosition(i, nodes[i].position);
             } 
         }
@@ -643,8 +647,8 @@ public partial class WaterGenerator : MonoBehaviour
             }
 
             // Add the two last nodes that close the polygon properly, and that give it depth.
-            colliderPath.Add(colliderPath[colliderPath.Count-1] + Vector2.down * waterDepth);
-            colliderPath.Add(colliderPath[0] + Vector2.down * waterDepth);
+            colliderPath.Add(colliderPath[colliderPath.Count-1].x * Vector2.right + Vector2.up * (transform.position.y - waterDepth));
+            colliderPath.Add(colliderPath[0].x * Vector2.right + Vector2.up * (transform.position.y - waterDepth));
 
             Color[] colors = new Color[vertices.ToArray().Length];
             for (int i = 0; i < vertices.ToArray().Length; i++)
