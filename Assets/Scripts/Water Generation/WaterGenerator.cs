@@ -36,6 +36,15 @@ public partial class WaterGenerator : MonoBehaviour
 
     #region Private Variables
         private List<WaterNode> nodes;
+        
+        private float[] leftDeltas;
+        private float[] rightDeltas;
+
+        private List<Vector3> meshVertices;
+        private List<Vector2> colliderPath;
+        private List<int> meshTriangles;
+        private Color[] meshColors;
+
         private float positionDelta;
         private float massPerNode;
         private Queue<Collider2D> interactionQueue;
@@ -83,7 +92,8 @@ public partial class WaterGenerator : MonoBehaviour
         void Start()
         {
             ComputeCoeficients();
-            DrawSurfaceLine();
+            InitializeStructures();
+            InitializeSurface();
             DrawBody();
         }
 
@@ -485,50 +495,36 @@ public partial class WaterGenerator : MonoBehaviour
             float bound = Camera.main.transform.position.x - WorldUnitsInCamera.x / 2 - despawnDistance;
 
             if (leftMostPos.x < bound) {
-                for (int i = 0; i < bound - leftMostPos.x; i++)
-                {
-                    DestroyChunks();
-                    AddChunks();
-                }
+                for (int i = 0; i < bound - leftMostPos.x; i++) CycleNodes();
             }
         }
-        public void DestroyChunks(int numberOfChunks = 1)
-        {
-            if (numberOfChunks < 1) 
-                throw new System.Exception("Cannot destroy a negative number of chunks.");
-            
-            nodes.RemoveRange(0, nodesPerUnit * numberOfChunks);
-        }
-        public void AddChunks(int numberOfChunks = 1)
-        {
-            if (numberOfChunks < 1) 
-                throw new System.Exception("Cannot add a negative number of chunks.");
 
-            Vector2 anchor;
-            Vector2 disturbance;
-            for (int i = 1; i <= nodesPerUnit * numberOfChunks; i++)
+        public void CycleNodes()
+        {
+            float disturbance;
+            WaterNode cycledNode;
+            for (int i = 1; i <= nodesPerUnit; i++)
             {
-                anchor = new Vector2(nodes[nodes.Count-1].position.x, transform.position.y);
-                disturbance = waveIntensity * Mathf.Sin(time) * Vector2.up;
+                cycledNode = nodes[0];
+                nodes.Remove(cycledNode);
+
+                disturbance = waveIntensity * Mathf.Sin(time);
                 
-                nodes.Add(new WaterNode(anchor + (positionDelta * i) * Vector2.right, disturbance));
+                cycledNode.position.x = nodes[nodes.Count-1].position.x + (positionDelta);
+                cycledNode.position.y = transform.position.y + disturbance;
+
+                nodes.Add(cycledNode);
                 
                 time = (time + Time.fixedDeltaTime) % (2*Mathf.PI); 
             }
-            
         }
+
         void GenerateWaves()
         {
-            // Vector2 force = random.Next(-waveIntensity,waveIntensity) * Vector2.up;
-
-            Vector2 disturbance = waveIntensity * Mathf.Sin(time) * Vector2.up;
+            float disturbance = waveIntensity * Mathf.Sin(time);
             time = (time + Time.fixedDeltaTime) % (2*Mathf.PI);
 
             nodes[nodes.Count-1].Disturb(disturbance);
-            // nodes[nodes.Count-2].Disturb(disturbance);
-            // nodes[nodes.Count-3].Disturb(disturbance);
-            // nodes[nodes.Count-4].Disturb(disturbance);
-            // nodes[nodes.Count-5].Disturb(disturbance);
         }
         void ApplySpringForces()
         {
@@ -541,9 +537,6 @@ public partial class WaterGenerator : MonoBehaviour
         }
         void PropagateWaves()
         {
-            Vector2[] leftDeltas = new Vector2[nodes.Count];
-            Vector2[] rightDeltas = new Vector2[nodes.Count];
-                        
             // do some passes where nodes pull on their neighbours
             for (int j = 0; j < 8; j++)
             {
@@ -551,12 +544,12 @@ public partial class WaterGenerator : MonoBehaviour
                 {
                     if (i > 0)
                     {
-                        leftDeltas[i] = spread * (nodes[i].position - nodes[i - 1].position - Vector2.right * positionDelta);
+                        leftDeltas[i] = spread * (nodes[i].position.y - nodes[i - 1].position.y);
                         nodes[i - 1].velocity += leftDeltas[i];
                     }
                     if (i < nodes.Count - 1)
                     {
-                        rightDeltas[i] = spread * (nodes[i].position - nodes[i + 1].position + Vector2.right * positionDelta);
+                        rightDeltas[i] = spread * (nodes[i].position.y - nodes[i + 1].position.y);
                         nodes[i + 1].velocity += rightDeltas[i];
                     }
                 }
@@ -564,9 +557,9 @@ public partial class WaterGenerator : MonoBehaviour
                 for (int i = 0; i < nodes.Count; i++)
                 {
                     if (i > 0)
-                        nodes[i - 1].position += leftDeltas[i] * Time.fixedDeltaTime;
+                        nodes[i - 1].position.y += leftDeltas[i] * Time.fixedDeltaTime;
                     if (i < nodes.Count - 1)
-                        nodes[i + 1].position += rightDeltas[i] * Time.fixedDeltaTime;
+                        nodes[i + 1].position.y += rightDeltas[i] * Time.fixedDeltaTime;
                 }
             }
         }
@@ -589,18 +582,15 @@ public partial class WaterGenerator : MonoBehaviour
                         splashedNodes.Add(splasher, new List<WaterNode>());
 
                     splashedNodes[splasher].Add(node);
-
-                    // float mass = splasher.attachedRigidbody.mass;
-                    // Vector2 velocity = splasher.attachedRigidbody.velocity;
-
-                    // node.Splash(mass * velocity, massPerNode);
                 }
             }
 
+            float massPerSplash;
+            float velocity;
             foreach (Collider2D splasher in splashedNodes.Keys)
             {
-                float massPerSplash = splasher.attachedRigidbody.mass / splashedNodes[splasher].Count;
-                Vector2 velocity = splasher.attachedRigidbody.velocity;
+                massPerSplash = splasher.attachedRigidbody.mass / splashedNodes[splasher].Count;
+                velocity = splasher.attachedRigidbody.velocity.y;
 
                 foreach(WaterNode node in splashedNodes[splasher])
                     node.Splash(massPerSplash * velocity, massPerNode);
@@ -609,9 +599,10 @@ public partial class WaterGenerator : MonoBehaviour
     #endregion
 
     #region Draw Functions
-        void DrawSurfaceLine() 
+        void InitializeSurface() 
         {
             int nodeAmount = ((int)(longitude * nodesPerUnit));
+
             positionDelta = 1f / nodesPerUnit;
             surface.positionCount = nodeAmount + 1;
 
@@ -632,27 +623,43 @@ public partial class WaterGenerator : MonoBehaviour
             }
                 surface.SetPositions(positions.ToArray());
         }
-        void DrawBody()
+        void InitializeStructures()
         {
+            int nodeAmount = ((int)(longitude * nodesPerUnit)) + 1;
+
+            leftDeltas = new float[nodeAmount];
+            rightDeltas = new float[nodeAmount];
+
             mesh = new Mesh();
 
-            List<Vector3> vertices = new List<Vector3>();
-            List<Vector2> colliderPath = new List<Vector2>();
-            List<int> triangles = new List<int>();
+            meshVertices = new List<Vector3>();
+            colliderPath = new List<Vector2>();
+            meshTriangles = new List<int>();
+            meshColors = new Color[2*nodeAmount];
+        }
+        void DrawBody()
+        {
+            meshVertices.Clear();
+            colliderPath.Clear();
+            meshTriangles.Clear();
+
             for (int i = 0; i < nodes.Count; i++)
             {
                 // Weave the mesh by adding the nodes in pairs from left to right
-                vertices.AddRange(new Vector3[]
+                meshVertices.AddRange(new Vector3[]
                 {
                     (Vector3) nodes[i].position - transform.position,
-                    (nodes[i].position.x - transform.position.x) * Vector3.right + (transform.position.y - waterDepth) * Vector3.up,
+                    (nodes[i].position.x - transform.position.x) * Vector3.right + (transform.position.y - waterDepth) * Vector3.up
                 });
+
+                meshColors[2*i] = waterColor;
+                meshColors[2*i+1] = waterColor;
 
                 // Add each node's position, relative to the gameObject position
                 colliderPath.Add(nodes[i].position - (Vector2) transform.position);
                 
                 if (i > 0)
-                    triangles.AddRange(new int[] 
+                    meshTriangles.AddRange(new int[] 
                     {
                         0 + (i-1)*2,
                         2 + (i-1)*2,
@@ -668,14 +675,10 @@ public partial class WaterGenerator : MonoBehaviour
             colliderPath.Add(colliderPath[colliderPath.Count-1].x * Vector2.right + Vector2.up * (transform.position.y - waterDepth));
             colliderPath.Add(colliderPath[0].x * Vector2.right + Vector2.up * (transform.position.y - waterDepth));
 
-            Color[] colors = new Color[vertices.ToArray().Length];
-            for (int i = 0; i < vertices.ToArray().Length; i++)
-                colors[i] = waterColor;
-
             mesh.Clear();
-            mesh.vertices = vertices.ToArray();
-            mesh.triangles = triangles.ToArray();
-            mesh.colors = colors;
+            mesh.vertices = meshVertices.ToArray();
+            mesh.triangles = meshTriangles.ToArray();
+            mesh.colors = meshColors;
 
             mesh.RecalculateNormals();
             

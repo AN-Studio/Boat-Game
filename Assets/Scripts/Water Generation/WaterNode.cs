@@ -6,58 +6,49 @@ public partial class WaterGenerator
     {
         Vector2 positionBase;
         public Vector2 position;
-        public Vector2 velocity;
-        public Vector2 acceleration;
-        public Vector2 disturbance;
+        public float velocity;
+        public float acceleration;
+        public float disturbance;
 
         // const float massPerNode = 0.04f;
 
         #region Properties
-            public Vector2 Displacement {
-                get => position - positionBase;
+            public float Displacement {
+                get => position.y - positionBase.y;
             }
         #endregion
 
         #region Public Functions
             
             #region Construnctors
-                public WaterNode(Vector3 position)
-                {
-                    positionBase = position;
-                    this.position = position;
-                }
                 public WaterNode(Vector2 position)
                 {
                     positionBase = position;
                     this.position = position;
                 }
-                public WaterNode(Vector3 position, Vector2 disturbance)
+                public WaterNode(Vector2 position, float disturbance)
                 {
                     positionBase = position;
-                    this.position = positionBase + disturbance;
-                }
-                public WaterNode(Vector2 position, Vector2 disturbance)
-                {
-                    positionBase = position;
-                    this.position = positionBase + disturbance;
+                    this.position = positionBase;
+                    this.position.y += disturbance;
                 }
             #endregion
 
             public void Update(float springConstant, float damping, float massPerNode) 
             {
-                Vector2 force = springConstant * Displacement + velocity * damping;   
+                float force = springConstant * Displacement + velocity * damping;   
                 acceleration = -force / massPerNode + disturbance * Time.fixedDeltaTime;
                 disturbance += -disturbance * damping;
 
-                position += velocity * Time.fixedDeltaTime;
+                position.y += velocity * Time.fixedDeltaTime;
                 velocity += acceleration;
             }
-            public void Splash(Vector2 momentum, float massPerNode) {
-                momentum.y = Mathf.Min(0f, momentum.y);
+            public void Splash(float momentum, float massPerNode) {
+                momentum = Mathf.Min(0f, momentum);
                 this.velocity += momentum / massPerNode * Time.fixedDeltaTime;
             }
-            public void Disturb(Vector2 positionDelta){
-                this.position = positionBase + positionDelta;
+            public void Disturb(float positionDelta){
+                this.position.y = positionBase.y + positionDelta;
             }
         #endregion
     }
