@@ -142,7 +142,7 @@ public partial class WaterGenerator : MonoBehaviour
             Vector2 center = rb.worldCenterOfMass;
             Vector2 size = GetColliderSize(other);
             
-            List<Vector2> centroids = new List<Vector2>() {
+            Vector2[] centroids = new Vector2[] {
                 center,
                 center + (size * (Vector2.up) / 4).Rotate(rb.rotation),
                 center + (size * (Vector2.left) / 4).Rotate(rb.rotation),
@@ -155,7 +155,7 @@ public partial class WaterGenerator : MonoBehaviour
             };
 
             float volume = 0;
-            float volumePerDivision = size.x * size.y / centroids.Count;
+            float volumePerDivision = size.x * size.y / centroids.Length;
             foreach (Vector2 centroid in centroids)
             {
                 if (waterBody.OverlapPoint(centroid))
@@ -194,25 +194,22 @@ public partial class WaterGenerator : MonoBehaviour
 
             // Get ready to compute submerged volume
             float volume = 0;
-            WaterNode[] closestNodes = FindClosestSegment(vertices[upperCornerIndex]);
+            var (leftNode,rightNode) = FindClosestSegment(vertices[upperCornerIndex]);
 
-            if ((vertices[upperCornerIndex].y > closestNodes[0].position.y || vertices[upperCornerIndex].y > closestNodes[1].position.y)
-            && (vertices[(upperCornerIndex+2)%4].y <= closestNodes[0].position.y || vertices[(upperCornerIndex+2)%4].y <= closestNodes[1].position.y))
+            if ((vertices[upperCornerIndex].y > leftNode.position.y || vertices[upperCornerIndex].y > rightNode.position.y)
+            && (vertices[(upperCornerIndex+2)%4].y <= leftNode.position.y || vertices[(upperCornerIndex+2)%4].y <= rightNode.position.y))
             {
                 // Add contact points between water & collider
-                Vector2[] intersections = FindIntersectionsOnSurface(vertices, rb.rotation, upperCornerIndex);
+                var (p1,p2) = FindIntersectionsOnSurface(vertices, rb.rotation, upperCornerIndex);
 
                 // Debug.Log($"Intersections: {intersections[0]} {intersections[1]}");
                 // Debug.Log($"Submerged Area (approx.): {(intersections[0].y -(center.y - size.y/2)) * size.x}");
 
                 // Remove unsubmerged vertices
-                foreach (Vector2 vertex in vertices.ToArray())
-                {
-                    if (!waterBody.OverlapPoint(vertex))
-                        vertices.Remove(vertex);
-                }
+                vertices.RemoveAll(vertex => !waterBody.OverlapPoint(vertex));
                 
-                vertices.InsertRange(0, intersections);
+                vertices.Insert(0, p1);
+                vertices.Insert(1, p2);
             }
 
             // Debug.Log("Vertices:");
@@ -220,10 +217,10 @@ public partial class WaterGenerator : MonoBehaviour
             //     Debug.Log(vertex);
 
             // Split the unsubmerged volume into triangles
-            int[] triangles = SplitIntoTriangles(vertices.ToArray());
+            List<int> triangles = SplitIntoTriangles(vertices);
 
             // Compute the submerged volume & its centroid
-            Vector2 centroid = ComputeCentroid(vertices.ToArray(), triangles, out volume);
+            Vector2 centroid = ComputeCentroid(vertices, triangles, out volume);
 
             // Debug.Log($"Buoyancy Centroid: {centroid}\nSubmerged Volume: {volume}");
 
@@ -233,17 +230,15 @@ public partial class WaterGenerator : MonoBehaviour
             if (volume != 0 && !float.IsNaN(centroid.x) && !float.IsNaN(centroid.y))
                 rb.AddForceAtPosition(buoyancy, centroid);   
         }
-        Vector2[] FindIntersectionsOnSurface(List<Vector2> vertices, float rotation, int topIndex)
+        (Vector2 p1, Vector2 p2) FindIntersectionsOnSurface(List<Vector2> vertices, float rotation, int topIndex)
         {
-            Vector2[] intersections = new Vector2[2];
-
             Vector2 upperCorner = vertices[(topIndex) % 4];
             Vector2 leftCorner = vertices[(topIndex + 3) % 4];
             Vector2 lowerCorner = vertices[(topIndex + 2) % 4]; 
             Vector2 rightCorner = vertices[(topIndex + 1) % 4];
 
-            WaterNode leftNode = FindClosestSegment(leftCorner)[0];
-            WaterNode rightNode = FindClosestSegment(rightCorner)[1];
+            WaterNode leftNode = FindClosestSegment(leftCorner).leftNode;
+            WaterNode rightNode = FindClosestSegment(rightCorner).rightNode;
 
             // Compute the line function that approximates the water surface
             float waterIncline = rightNode.position.x - leftNode.position.x != 0 ?
@@ -293,81 +288,66 @@ public partial class WaterGenerator : MonoBehaviour
             }
 
             // Now compute each intersection
-            intersections[0] = Vector2.zero;
+            Vector2 p1 = Vector2.zero;
             if (float.IsNaN(leftIncline)) 
             {
-                intersections[0].x = leftCorner.x;
-                intersections[0].y = waterIncline * intersections[0].x + waterOffset;
+                p1.x = leftCorner.x;
+                p1.y = waterIncline * p1.x + waterOffset;
             }
             else 
             {
-                intersections[0].x = 
+                p1.x = 
                     (leftOffset - waterOffset) /
                     (waterIncline - leftIncline);
-                intersections[0].y = waterIncline * intersections[0].x + waterOffset;
+                p1.y = waterIncline * p1.x + waterOffset;
             }
 
-            intersections[1] = Vector2.zero;
+            Vector2 p2 = Vector2.zero;
             if (float.IsNaN(rightIncline)) 
             {
-                intersections[1].x = rightCorner.x;
-                intersections[1].y = waterIncline * intersections[1].x + waterOffset;
+                p2.x = rightCorner.x;
+                p2.y = waterIncline * p2.x + waterOffset;
             }
             else 
             {
-                intersections[1].x = 
+                p2.x = 
                     (rightOffset - waterOffset) /
                     (waterIncline - rightIncline);
-                intersections[1].y = waterIncline * intersections[1].x + waterOffset;
+                p2.y = waterIncline * p2.x + waterOffset;
             }
 
-            return intersections;
+            return (p1,p2);
         }
-        int[] SplitIntoTriangles(Vector2[] vertices) 
+        List<int> SplitIntoTriangles(List<Vector2> vertices) 
         {
             List<int> triangles = new List<int>();
             int origin = 0;
 
-            for (int i = 1; i < vertices.Length - 1; i++)
+            for (int i = 1; i < vertices.Count - 1; i++)
             {
                 triangles.AddRange(new int[] {
                     origin, i, i+1
                 });
             }
 
-            return triangles.ToArray();
-        }
-        float ComputePolygonArea(Vector2[] vertices, int[] triangles) 
-        {
-            float area = 0;
-            for (int i = 0; i < triangles.Length; i+=3)
-                area += ComputeTriangleArea(vertices[i], vertices[i+1], vertices[i+2]);
-
-            return area;
+            return triangles;
         }
         float ComputeTriangleArea(Vector2 p1, Vector2 p2, Vector2 p3)
         {
-            float area = 0;
-            float[,] matrix = new float[3,3];
-            Vector2[] points = new Vector2[] {p1,p2,p3};
-
-            for(int i = 0; i < 3; i++)
-            {
-                matrix[i,0] = points[i].x;
-                matrix[i,1] = points[i].y;
-                matrix[i,2] = 1;
-            }
-
-            area = Mathf.Abs(Compute3x3Determinant(matrix));
-
-            return area;
+            float[,] matrix = new float[,] {
+                {p1.x, p1.y, 1},
+                {p2.x, p2.y, 1},
+                {p3.x, p3.y, 1}
+            };
+            
+            return Mathf.Abs(Compute3x3Determinant(matrix));
         }
-        Vector2 ComputeCentroid(Vector2[] vertices, int[] triangles, out float area)
+        Vector2 ComputeCentroid(List<Vector2> vertices, List<int> triangles, out float area)
         {
-            Vector2 polygonCentroid = Vector2.zero;
-            float polygonArea = 0;
+            Vector2 centroid = Vector2.zero;
+            area = 0;
 
-            for (int i = 0; i < triangles.Length; i+=3)
+            for (int i = 0; i < triangles.Count; i+=3)
             {
                 Vector2 tCentroid = ComputeTriangleCentroid(
                     vertices[triangles[i]],
@@ -382,23 +362,17 @@ public partial class WaterGenerator : MonoBehaviour
                 );
 
                 // Debug.Log($"tArea: {tArea}");
-                polygonCentroid += tArea * tCentroid;
-                polygonArea += tArea;
+                centroid += tArea * tCentroid;
+                area += tArea;
             }
-            // Debug.Log($"Sum of centroids*area: {polygonCentroid}\nTotal area: {polygonArea}");
-            polygonCentroid = polygonCentroid / polygonArea;
-            area = polygonArea;
+            // Debug.Log($"Sum of centroids*area: {centroid}\nTotal area: {area}");
+            centroid = centroid / area;
 
-            return polygonCentroid;
+            return centroid;
         }
         Vector2 ComputeTriangleCentroid(Vector2 p1, Vector2 p2, Vector2 p3)
         {
-            Vector2 centroid = Vector2.zero;
-
-            centroid.x = (p1.x + p2.x + p3.x) / 3;
-            centroid.y = (p1.y + p2.y + p3.y) / 3;
-
-            return centroid;
+            return (p1 + p2 + p3) / 3;
         }
         float Compute3x3Determinant(float[,] matrix)
         {
@@ -437,7 +411,7 @@ public partial class WaterGenerator : MonoBehaviour
             return size * other.transform.localScale;
 
         }
-        WaterNode[] FindClosestSegment(Vector2 point)
+        (WaterNode leftNode, WaterNode rightNode) FindClosestSegment(Vector2 point)
         {
             float minDistance = float.PositiveInfinity;
             float secondToMin = minDistance;
@@ -463,9 +437,9 @@ public partial class WaterGenerator : MonoBehaviour
             }
 
             if (closestNode.position.x < secondToClosest.position.x) 
-                return new WaterNode[] {closestNode, secondToClosest};
+                return (closestNode, secondToClosest);
 
-            return new WaterNode[] {secondToClosest, closestNode};
+            return (secondToClosest, closestNode);
         }
         void ComputeCoeficients()
         {
