@@ -144,14 +144,14 @@ public partial class WaterGenerator : MonoBehaviour
             
             List<Vector2> centroids = new List<Vector2>() {
                 center,
-                center + RotateVector(size * (Vector2.up) / 4, rb.rotation),
-                center + RotateVector(size * (Vector2.left) / 4, rb.rotation),
-                center + RotateVector(size * (Vector2.right) / 4, rb.rotation),
-                center + RotateVector(size * (Vector2.down) / 4, rb.rotation),
-                center + RotateVector(size * (Vector2.up + Vector2.left) / 4, rb.rotation),
-                center + RotateVector(size * (Vector2.up + Vector2.right) / 4, rb.rotation),
-                center + RotateVector(size * (Vector2.down + Vector2.right) / 4, rb.rotation),
-                center + RotateVector(size * (Vector2.down + Vector2.left) / 4, rb.rotation)
+                center + (size * (Vector2.up) / 4).Rotate(rb.rotation),
+                center + (size * (Vector2.left) / 4).Rotate(rb.rotation),
+                center + (size * (Vector2.right) / 4).Rotate(rb.rotation),
+                center + (size * (Vector2.down) / 4).Rotate(rb.rotation),
+                center + (size * (Vector2.up + Vector2.left) / 4).Rotate(rb.rotation),
+                center + (size * (Vector2.up + Vector2.right) / 4).Rotate(rb.rotation),
+                center + (size * (Vector2.down + Vector2.right) / 4).Rotate(rb.rotation),
+                center + (size * (Vector2.down + Vector2.left) / 4).Rotate(rb.rotation)
             };
 
             float volume = 0;
@@ -181,10 +181,10 @@ public partial class WaterGenerator : MonoBehaviour
             Vector2 size = GetColliderSize(other);
             
             List<Vector2> vertices = new List<Vector2>() {
-                center + RotateVector(size * (Vector2.up + Vector2.left) / 2, rb.rotation),
-                center + RotateVector(size * (Vector2.up + Vector2.right) / 2, rb.rotation),
-                center + RotateVector(size * (Vector2.down + Vector2.right) / 2, rb.rotation),
-                center + RotateVector(size * (Vector2.down + Vector2.left) / 2, rb.rotation)
+                center + (size * (Vector2.up + Vector2.left) / 2).Rotate(rb.rotation),
+                center + (size * (Vector2.up + Vector2.right) / 2).Rotate(rb.rotation),
+                center + (size * (Vector2.down + Vector2.right) / 2).Rotate(rb.rotation),
+                center + (size * (Vector2.down + Vector2.left) / 2).Rotate(rb.rotation)
             };
 
             // Find the highest corner
@@ -466,16 +466,6 @@ public partial class WaterGenerator : MonoBehaviour
                 return new WaterNode[] {closestNode, secondToClosest};
 
             return new WaterNode[] {secondToClosest, closestNode};
-        }
-        public static Vector2 RotateVector(Vector2 vector, float degrees)
-        {
-            degrees = degrees % 360;
-            float radians = Mathf.Deg2Rad * degrees;
-
-            return new Vector2(
-                Mathf.Cos(radians) * vector.x - Mathf.Sin(radians) * vector.y,
-                Mathf.Sin(radians) * vector.x + Mathf.Cos(radians) * vector.y
-            );
         }
         void ComputeCoeficients()
         {

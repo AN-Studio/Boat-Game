@@ -102,7 +102,7 @@ public class BoatController : MonoBehaviour
         Vector2 center = rb.worldCenterOfMass;
         
         Vector2 keelWeight = rb.mass * properties.keelWeightRatio * Physics2D.gravity;
-        Vector2 keelPos = center + WaterGenerator.RotateVector((Vector2.down * size) * properties.keelRelativePos, rb.rotation);
+        Vector2 keelPos = center + ((Vector2.down * size) * properties.keelRelativePos).Rotate(rb.rotation);
 
         // Debug.Log($"Keel Position: {keelPos}");
 
@@ -118,7 +118,7 @@ public class BoatController : MonoBehaviour
 
         if (wantsToJump && isTouchingWater && !gameEnded)
         {
-            rb.AddForce(WaterGenerator.RotateVector(jumpForce * (new Vector2(.75f,1)).normalized, rb.rotation), ForceMode2D.Impulse);
+            rb.AddForce((jumpForce * (new Vector2(.75f,1)).normalized).Rotate(rb.rotation), ForceMode2D.Impulse);
             wantsToJump = false;
         }
     }
