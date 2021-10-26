@@ -1,33 +1,36 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public class ScoreScript : MonoBehaviour
 {
-    public Text highScore;
-    public Text score;
-    public static int scoreInt = 0;
+    public TextMeshProUGUI highScoreTMP;
+    public TextMeshProUGUI scoreTMP;
+    public int score = 0;
 
     private void Start()
     {
-        highScore.text = PlayerPrefs.GetInt("HighScore", 0).ToString();
+        highScoreTMP.text = "Highscore: " + PlayerPrefs.GetString("HighScore", "0");
     }
     private void Update()
     {
-        score.text = scoreInt.ToString();
-        if (scoreInt > PlayerPrefs.GetInt("HighScore", 0))
+        scoreTMP.text = $"Score: {score}";
+        if (score > PlayerPrefs.GetInt("HighScore", 0))
         {
-            highScore.text = scoreInt.ToString();
+            highScoreTMP.text = $"Highscore: {score}";
         }
-        if (Input.GetKey(KeyCode.Space))
-        {
-            scoreInt += 1;
-        }
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            ResetScore();
-        }
+
+        // #if (UNITY_STANDALONE || UNITY_EDITOR)
+            if (Input.GetKey(KeyCode.Space))
+            {
+                score += 1;
+            }
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                ResetScore();
+            }
+        // #endif
     }
     private void OnDestroy()
     {
@@ -35,14 +38,21 @@ public class ScoreScript : MonoBehaviour
     }
     public void SaveScore()
     {
-        if (scoreInt > PlayerPrefs.GetInt("HighScore", 0))
+        if (score > PlayerPrefs.GetInt("HighScore", 0))
         {
-            PlayerPrefs.SetInt("HighScore", scoreInt);
+            PlayerPrefs.SetInt("HighScore", score);
         }
     }
     public void ResetScore()
     {
-        PlayerPrefs.DeleteKey("HighScore");
-        highScore.text = "0";
+        // PlayerPrefs.DeleteKey("HighScore");
+        // highScoreTMP.text = "0";
+        score = 0;
     }
+    public void ResetHighScore() 
+    {
+        PlayerPrefs.SetInt("HighScore", 0);
+        // PlayerPrefs.DeleteKey("HighScore");
+        highScoreTMP.text = "0";
+    } 
 }
