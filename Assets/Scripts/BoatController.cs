@@ -1,19 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering.Universal;
 
 public class BoatController : MonoBehaviour
 {
-    public float forwardForce;
-    public float jumpForce;
-    public float tiltTorque;
-    public BoatProperties properties;
-    
-    #region Private Variables
+    #region References
+        [Header("References")]
         Rigidbody2D rb;
         new CapsuleCollider2D collider;
         new SpriteRenderer renderer;
+    #endregion
 
+    #region Settings
+        [Header("Settings")]
+        public float forwardForce;
+        public float jumpForce;
+        public float tiltTorque;
+        public BoatProperties properties;
+    #endregion
+    
+    #region Private Variables
         public bool gameStarted = false;
         public bool gameEnded = false;
         bool wantsToJump = false;
