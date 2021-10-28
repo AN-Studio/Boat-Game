@@ -1,28 +1,13 @@
 using UnityEngine;
-// using TMPro;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
-public class DataManager : MonoBehaviour
+public partial class DataManager : MonoBehaviour
 {
     #region Singleton
-        DataManager instance;
-        public DataManager Instance {get => instance;}
+        static DataManager instance;
+        public static DataManager Instance {get => instance;}
     #endregion
-
-    [System.Flags]
-    public enum Boat {
-        SailBoat = 0x01,
-        LongBoat = 0x02,
-        ModernFisher = 0x04
-
-    }
-
-    // #region References
-    //     [Header("References")]
-    //     public TextMeshProUGUI scoreUI;
-    //     public TextMeshProUGUI moneyUI; 
-    // #endregion
 
     #region Data
         [Header("Game Data")]
@@ -31,6 +16,14 @@ public class DataManager : MonoBehaviour
         public int score = 0;
         public int money = 0;
         public Boat ownedBoats = Boat.SailBoat;
+    #endregion
+
+    #region Properties
+        public int TotalScore {
+            get {
+                return score;
+            }
+        }
     #endregion
 
     #region MonoBehaviour Functions
@@ -98,6 +91,12 @@ public class DataManager : MonoBehaviour
                 totalMoney = data.totalMoney;
                 ownedBoats = (Boat) data.ownedBoats;        
             }
+        }
+
+        public void CommitGameData()
+        {
+            totalMoney += money;
+            if (TotalScore > highScore) highScore = TotalScore;
         }
     #endregion
 }

@@ -124,13 +124,16 @@ public partial class WaterGenerator : MonoBehaviour
             {
                 Collider2D obj = interactionQueue.Dequeue();
                 
-                if (!obj.attachedRigidbody.freezeRotation)
+                if (obj != null)
                 {
-                    AccuratePhysics(obj);
-                }
-                else
-                {
-                    SimplifiedPhysics(obj);
+                    if (!obj.attachedRigidbody.freezeRotation)
+                    {
+                        AccuratePhysics(obj);
+                    }
+                    else
+                    {
+                        SimplifiedPhysics(obj);
+                    }
                 }
             }
         }

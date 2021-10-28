@@ -50,7 +50,8 @@ public class BoatController : MonoBehaviour
             UpdateDrag();
         }
 
-        private void Update() {
+        private void Update() 
+        {
             ReadInputs();
         }
 
@@ -58,17 +59,24 @@ public class BoatController : MonoBehaviour
         {
             UpdateDrag();
             UpdateAngularDrag();
-            
-            ApplyAcceleration();
-            ApplyTilt();
-
-            ApplyForwardForce();
             ApplyKeelWeight();    
+            
+            GameManager gameManager = GameManager.Instance;
+            if (gameManager.gameStarted && !gameManager.gameEnded)
+            {
+                ApplyForwardForce();
+                ApplyJumpForce();
+                ApplyTilt();
+            }
+
         }
     #endregion
     void ApplyForwardForce()
     {
-        if (gameStarted && !gameEnded)
+        LayerMask mask = LayerMask.GetMask("Water");
+        GameManager gameManager = GameManager.Instance;
+
+        if (collider.IsTouchingLayers(mask))
             rb.AddForce(Vector2.right * forwardForce);
     }
 
@@ -116,7 +124,7 @@ public class BoatController : MonoBehaviour
         rb.AddForceAtPosition(keelWeight, keelPos);
     }
 
-    void ApplyAcceleration()
+    void ApplyJumpForce()
     {
         LayerMask mask = LayerMask.GetMask("Water");
         bool isTouchingWater = collider.IsTouchingLayers(mask);
