@@ -6509,7 +6509,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c93c86c5635c5384b9f963de82fd32f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameStarted: 0
+  gameStarted: 1
   gameEnded: 0
   cells:
   - prefab: {fileID: 9019849105338718847, guid: a387a3db27803c147b1bad51f7062ddf, type: 3}

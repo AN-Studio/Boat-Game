@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 [RequireComponent(typeof(LineRenderer), typeof(MeshFilter), typeof(PolygonCollider2D))]
 public partial class WaterGenerator : MonoBehaviour
@@ -40,9 +41,9 @@ public partial class WaterGenerator : MonoBehaviour
         private float[] leftDeltas;
         private float[] rightDeltas;
 
-        private List<Vector3> meshVertices;
-        private List<Vector2> colliderPath;
-        private List<int> meshTriangles;
+        private Vector3[] meshVertices;
+        private Vector2[] colliderPath;
+        private int[] meshTriangles;
         private Color[] meshColors;
 
         private float positionDelta;
@@ -105,7 +106,9 @@ public partial class WaterGenerator : MonoBehaviour
 
         void FixedUpdate() 
         {
+            // Profiler.BeginSample("GenerateWaves");
             GenerateWaves();
+            // Profiler.EndSample();
             
             ProcessInteractionQueue();
             ReactToCollisions();
@@ -505,8 +508,8 @@ public partial class WaterGenerator : MonoBehaviour
         void PropagateWaves()
         {
             // do some passes where nodes pull on their neighbours
-            for (int j = 0; j < 8; j++)
-            {
+            // for (int j = 0; j < 8; j++)
+            // {
                 for (int i = 0; i < nodes.Count; i++)
                 {
                     if (i > 0)
@@ -528,7 +531,7 @@ public partial class WaterGenerator : MonoBehaviour
                     if (i < nodes.Count - 1)
                         nodes[i + 1].position.y += rightDeltas[i] * Time.fixedDeltaTime;
                 }
-            }
+            // }
         }
         void ReactToCollisions()
         {
@@ -599,52 +602,67 @@ public partial class WaterGenerator : MonoBehaviour
 
             mesh = new Mesh();
 
-            meshVertices = new List<Vector3>();
-            colliderPath = new List<Vector2>();
-            meshTriangles = new List<int>();
+            meshVertices = new Vector3[2*nodeAmount];
+            colliderPath = new Vector2[nodeAmount+2];
+
+            meshTriangles = new int[6*(nodeAmount)];
+            for (int i=1; i < nodeAmount; i++)
+            {
+                meshTriangles[6*(i-1)]   = 0 + (i-1)*2;
+                meshTriangles[6*(i-1)+1] = 2 + (i-1)*2;
+                meshTriangles[6*(i-1)+2] = 1 + (i-1)*2;
+
+                meshTriangles[6*(i-1)+3] = 2 + (i-1)*2;
+                meshTriangles[6*(i-1)+4] = 3 + (i-1)*2;
+                meshTriangles[6*(i-1)+5] = 1 + (i-1)*2;
+            }
+                // meshTriangles.AddRange(new int[] 
+                // {
+                //     0 + (i-1)*2,
+                //     2 + (i-1)*2,
+                //     1 + (i-1)*2, 
+                    
+                //     2 + (i-1)*2,
+                //     3 + (i-1)*2,
+                //     1 + (i-1)*2
+                // });
+
             meshColors = new Color[2*nodeAmount];
+            for (int i=0; i<meshColors.Length; i++) 
+                meshColors[i] = waterColor;
         }
         void DrawBody()
         {
-            meshVertices.Clear();
-            colliderPath.Clear();
-            meshTriangles.Clear();
+            // meshVertices.Clear();
+            // colliderPath.Clear();
 
+            Vector3 node;
             for (int i = 0; i < nodes.Count; i++)
             {
                 // Weave the mesh by adding the nodes in pairs from left to right
-                meshVertices.AddRange(new Vector3[]
-                {
-                    (Vector3) nodes[i].position - transform.position,
-                    (nodes[i].position.x - transform.position.x) * Vector3.right + (transform.position.y - waterDepth) * Vector3.up
-                });
+                // First the upper node
+                node = (Vector3) nodes[i].position - transform.position;
+                meshVertices[2*i] = node;
+                colliderPath[i] = node;
+                // meshVertices.Add(node);
+                // colliderPath.Add(node); // Add the upper node as a vertex of the collider
 
-                meshColors[2*i] = waterColor;
-                meshColors[2*i+1] = waterColor;
-
-                // Add each node's position, relative to the gameObject position
-                colliderPath.Add(nodes[i].position - (Vector2) transform.position);
-                
-                if (i > 0)
-                    meshTriangles.AddRange(new int[] 
-                    {
-                        0 + (i-1)*2,
-                        2 + (i-1)*2,
-                        1 + (i-1)*2, 
-                        
-                        2 + (i-1)*2,
-                        3 + (i-1)*2,
-                        1 + (i-1)*2
-                    });
+                // Then the lower node
+                node.y = transform.position.y - waterDepth;
+                meshVertices[2*i+1] = node; 
+                // meshVertices.Add(node);
             }
 
             // Add the two last nodes that close the polygon properly, and that give it depth.
-            colliderPath.Add(colliderPath[colliderPath.Count-1].x * Vector2.right + Vector2.up * (transform.position.y - waterDepth));
-            colliderPath.Add(colliderPath[0].x * Vector2.right + Vector2.up * (transform.position.y - waterDepth));
+            // colliderPath.Add(colliderPath[colliderPath.Count-1].x * Vector2.right + Vector2.up * (transform.position.y - waterDepth));
+            // colliderPath.Add(colliderPath[0].x * Vector2.right + Vector2.up * (transform.position.y - waterDepth));
+            colliderPath[nodes.Count] = meshVertices[2*nodes.Count-1];
+            colliderPath[nodes.Count+1] = meshVertices[1];
+
 
             mesh.Clear();
-            mesh.vertices = meshVertices.ToArray();
-            mesh.triangles = meshTriangles.ToArray();
+            mesh.vertices = meshVertices;
+            mesh.triangles = meshTriangles;
             mesh.colors = meshColors;
 
             mesh.RecalculateNormals();
