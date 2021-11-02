@@ -13,6 +13,7 @@ public partial class DataManager : MonoBehaviour
         [Header("Game Data")]
         public int highScore = 0;
         public int totalMoney = 0;
+        [Space]
         public int score = 0;
         public int money = 0;
         public Boat ownedBoats = Boat.SailBoat;

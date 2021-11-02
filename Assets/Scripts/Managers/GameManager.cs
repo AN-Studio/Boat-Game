@@ -4,6 +4,13 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    [System.Serializable]
+    public struct RNGCell
+    {
+        public GameObject prefab;
+        public int weight; 
+    }
+
     #region Singleton
         static GameManager instance;
         public static GameManager Instance {get => instance;}
@@ -12,6 +19,10 @@ public class GameManager : MonoBehaviour
     #region Switches
         public bool gameStarted = false;
         public bool gameEnded = false;
+    #endregion
+
+    #region Prefabs
+        public List<RNGCell> cells;
     #endregion
 
     void Awake() 
@@ -34,7 +45,8 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        // GameObject prefab = GetRandomCell();
+        // Instantiate(prefab,new Vector3(120,0,0), Quaternion.identity);
     }
 
     // Update is called once per frame
@@ -42,4 +54,25 @@ public class GameManager : MonoBehaviour
     {
         
     }
+
+    #region Public Functions
+        public GameObject GetRandomCell() 
+        {
+            int totalWeight = 0;
+            foreach (var cell in cells) 
+                totalWeight += cell.weight;
+
+            float random = Random.value * totalWeight;
+
+            int index = 0;
+            int w = cells[index].weight;
+            while (w < random)
+            {
+                index++;
+                w += cells[index].weight;
+            }
+
+            return cells[index].prefab;
+        }
+    #endregion
 }

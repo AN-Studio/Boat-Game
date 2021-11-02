@@ -57,7 +57,7 @@ public partial class WaterGenerator : MonoBehaviour
         private void OnTriggerEnter2D(Collider2D other) 
         {
             ParticleSystem.ShapeModule shape = particles.shape;
-            shape.position = other.transform.position;
+            shape.position = other.transform.position - transform.position;
 
             particles.Play();
         }
@@ -70,7 +70,7 @@ public partial class WaterGenerator : MonoBehaviour
             if (other.attachedRigidbody.velocity.x != 0)
             {
                 ParticleSystem.ShapeModule shape = particles.shape;
-                shape.position = other.transform.position;
+                shape.position = other.transform.position - transform.position;
 
                 particles.Play();
             }
