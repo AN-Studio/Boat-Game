@@ -106,10 +106,8 @@ public partial class WaterGenerator : MonoBehaviour
 
         void FixedUpdate() 
         {
-            // Profiler.BeginSample("GenerateWaves");
             GenerateWaves();
-            // Profiler.EndSample();
-            
+           
             ProcessInteractionQueue();
             ReactToCollisions();
             
@@ -419,33 +417,38 @@ public partial class WaterGenerator : MonoBehaviour
         }
         (WaterNode leftNode, WaterNode rightNode) FindClosestSegment(Vector2 point)
         {
-            float minDistance = float.PositiveInfinity;
-            float secondToMin = minDistance;
-            WaterNode closestNode = nodes[0];
-            WaterNode secondToClosest = closestNode;
-            
-            foreach (WaterNode node in nodes)
-            {
-                float sqrDistance = (node.position - point).sqrMagnitude;
-                if (sqrDistance < minDistance)
+            #region Binary Search
+                int i;
+                int start = 0;
+                int end = nodes.Count-1;
+                
+                float distance;
+                float leftDistance;
+                float rightDistance;
+                
+                while (start <= end) 
                 {
-                    secondToMin = minDistance;
-                    secondToClosest = closestNode;
+                    i = (start + end) / 2;
 
-                    minDistance = sqrDistance;
-                    closestNode = node;
+                    distance = Mathf.Abs(nodes[i].position.x - point.x);
+                    leftDistance = 0 <= i-1 ? Mathf.Abs(nodes[i-1].position.x - point.x) : distance;
+                    rightDistance = i+1 < nodes.Count ? Mathf.Abs(nodes[i+1].position.x - point.x) : distance;
+                    
+                    if (leftDistance < distance) 
+                        end = i-1;
+                    else if (rightDistance < distance) 
+                        start = i+1;
+                    else
+                    {
+                        if (0 <= i-1 && leftDistance < rightDistance)
+                            return (nodes[i-1], nodes[i]);
+                        else
+                            return (nodes[i], nodes[i+1]);
+                    }
                 }
-                else if (sqrDistance < secondToMin) 
-                {
-                    secondToMin = sqrDistance;
-                    secondToClosest = node;
-                }
-            }
 
-            if (closestNode.position.x < secondToClosest.position.x) 
-                return (closestNode, secondToClosest);
-
-            return (secondToClosest, closestNode);
+                throw new System.Exception("Was unable to find closest segment to the node.");
+            #endregion
         }
         void ComputeCoeficients()
         {
@@ -508,30 +511,30 @@ public partial class WaterGenerator : MonoBehaviour
         void PropagateWaves()
         {
             // do some passes where nodes pull on their neighbours
-            // for (int j = 0; j < 8; j++)
-            // {
-                for (int i = 0; i < nodes.Count; i++)
+            for (int j = 0; j < 2; j++)
+            {
+                for (int i = nodes.Count-1; i >= 0; i--)
                 {
                     if (i > 0)
                     {
                         leftDeltas[i] = spread * (nodes[i].position.y - nodes[i - 1].position.y);
                         nodes[i - 1].velocity += leftDeltas[i];
+                        nodes[i - 1].position.y += leftDeltas[i] * Time.fixedDeltaTime;
                     }
                     if (i < nodes.Count - 1)
                     {
                         rightDeltas[i] = spread * (nodes[i].position.y - nodes[i + 1].position.y);
                         nodes[i + 1].velocity += rightDeltas[i];
+                        nodes[i + 1].position.y += rightDeltas[i] * Time.fixedDeltaTime;
                     }
                 }
 
-                for (int i = 0; i < nodes.Count; i++)
-                {
-                    if (i > 0)
-                        nodes[i - 1].position.y += leftDeltas[i] * Time.fixedDeltaTime;
-                    if (i < nodes.Count - 1)
-                        nodes[i + 1].position.y += rightDeltas[i] * Time.fixedDeltaTime;
-                }
-            // }
+                // for (int i = 0; i < nodes.Count; i++)
+                // {
+                //     if (i > 0)
+                //     if (i < nodes.Count - 1)
+                // }
+            }
         }
         void ReactToCollisions()
         {
@@ -616,16 +619,6 @@ public partial class WaterGenerator : MonoBehaviour
                 meshTriangles[6*(i-1)+4] = 3 + (i-1)*2;
                 meshTriangles[6*(i-1)+5] = 1 + (i-1)*2;
             }
-                // meshTriangles.AddRange(new int[] 
-                // {
-                //     0 + (i-1)*2,
-                //     2 + (i-1)*2,
-                //     1 + (i-1)*2, 
-                    
-                //     2 + (i-1)*2,
-                //     3 + (i-1)*2,
-                //     1 + (i-1)*2
-                // });
 
             meshColors = new Color[2*nodeAmount];
             for (int i=0; i<meshColors.Length; i++) 
@@ -633,9 +626,6 @@ public partial class WaterGenerator : MonoBehaviour
         }
         void DrawBody()
         {
-            // meshVertices.Clear();
-            // colliderPath.Clear();
-
             Vector3 node;
             for (int i = 0; i < nodes.Count; i++)
             {
@@ -644,21 +634,15 @@ public partial class WaterGenerator : MonoBehaviour
                 node = (Vector3) nodes[i].position - transform.position;
                 meshVertices[2*i] = node;
                 colliderPath[i] = node;
-                // meshVertices.Add(node);
-                // colliderPath.Add(node); // Add the upper node as a vertex of the collider
 
                 // Then the lower node
                 node.y = transform.position.y - waterDepth;
-                meshVertices[2*i+1] = node; 
-                // meshVertices.Add(node);
+                meshVertices[2*i+1] = node;
             }
 
             // Add the two last nodes that close the polygon properly, and that give it depth.
-            // colliderPath.Add(colliderPath[colliderPath.Count-1].x * Vector2.right + Vector2.up * (transform.position.y - waterDepth));
-            // colliderPath.Add(colliderPath[0].x * Vector2.right + Vector2.up * (transform.position.y - waterDepth));
             colliderPath[nodes.Count] = meshVertices[2*nodes.Count-1];
             colliderPath[nodes.Count+1] = meshVertices[1];
-
 
             mesh.Clear();
             mesh.vertices = meshVertices;

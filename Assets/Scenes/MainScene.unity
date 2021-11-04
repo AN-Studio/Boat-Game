@@ -1328,7 +1328,7 @@ MonoBehaviour:
   jumpForce: 100
   tiltTorque: 500
   properties: {fileID: 11400000, guid: 324abb66c2752d94d9a7fc1fe6f9b75f, type: 2}
-  gameStarted: 1
+  gameStarted: 0
   gameEnded: 0
 --- !u!1 &1648797092
 GameObject:
@@ -1594,7 +1594,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   waterColor: {r: 0.32156864, g: 0.4509804, b: 0.6156863, a: 0.78431374}
-  longitude: 240
+  longitude: 140
   nodesPerUnit: 1
   waterDepth: 100
   waveIntensity: 5
