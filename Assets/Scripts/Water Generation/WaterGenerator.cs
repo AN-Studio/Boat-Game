@@ -25,7 +25,7 @@ public partial class WaterGenerator : MonoBehaviour
         [Header("Physics")]
         [Range(0, 0.1f)] public float springConstant;
         [Range(0, 0.1f)] public float damping;
-        [Range(0.0f, 1f)] public float spread;
+        [Range(0.0f, .5f)] public float spread;
     #endregion
 
     #region References
@@ -61,6 +61,8 @@ public partial class WaterGenerator : MonoBehaviour
             shape.position = other.transform.position - transform.position;
 
             particles.Play();
+            
+            ReactToCollision(other);
         }
 
         void OnTriggerStay2D(Collider2D other) 
@@ -109,7 +111,7 @@ public partial class WaterGenerator : MonoBehaviour
             GenerateWaves();
            
             ProcessInteractionQueue();
-            ReactToCollisions();
+            // ReactToCollisions(); 
             
             ApplySpringForces();
             PropagateWaves();
@@ -135,6 +137,8 @@ public partial class WaterGenerator : MonoBehaviour
                     {
                         SimplifiedPhysics(obj);
                     }
+
+                    // ReactToCollision(obj);
                 }
             }
         }
@@ -511,7 +515,7 @@ public partial class WaterGenerator : MonoBehaviour
         void PropagateWaves()
         {
             // do some passes where nodes pull on their neighbours
-            for (int j = 0; j < 2; j++)
+            for (int j = 0; j < 4; j++)
             {
                 for (int i = nodes.Count-1; i >= 0; i--)
                 {
@@ -519,21 +523,21 @@ public partial class WaterGenerator : MonoBehaviour
                     {
                         leftDeltas[i] = spread * (nodes[i].position.y - nodes[i - 1].position.y);
                         nodes[i - 1].velocity += leftDeltas[i];
-                        nodes[i - 1].position.y += leftDeltas[i] * Time.fixedDeltaTime;
                     }
                     if (i < nodes.Count - 1)
                     {
                         rightDeltas[i] = spread * (nodes[i].position.y - nodes[i + 1].position.y);
                         nodes[i + 1].velocity += rightDeltas[i];
-                        nodes[i + 1].position.y += rightDeltas[i] * Time.fixedDeltaTime;
                     }
-                }
+                } 
 
-                // for (int i = 0; i < nodes.Count; i++)
-                // {
-                //     if (i > 0)
-                //     if (i < nodes.Count - 1)
-                // }
+                for (int i = 0; i < nodes.Count; i++)
+                {
+                    if (i > 0)
+                        nodes[i - 1].position.y += leftDeltas[i] * Time.fixedDeltaTime;
+                    if (i < nodes.Count - 1)
+                        nodes[i + 1].position.y += rightDeltas[i] * Time.fixedDeltaTime;
+                }
             }
         }
         void ReactToCollisions()
@@ -566,8 +570,31 @@ public partial class WaterGenerator : MonoBehaviour
                 velocity = splasher.attachedRigidbody.velocity.y;
 
                 foreach(WaterNode node in splashedNodes[splasher])
-                    node.Splash(massPerSplash * velocity, massPerNode);
+                    node.Splash(massPerSplash, velocity, massPerNode);
             } 
+        }
+        void ReactToCollision(Collider2D splasher)
+        {
+            int start = Mathf.FloorToInt((splasher.bounds.center.x - splasher.bounds.extents.x) - nodes[0].position.x) * nodesPerUnit;
+            int end = Mathf.CeilToInt((splasher.bounds.center.x + splasher.bounds.extents.x) - nodes[0].position.x) * nodesPerUnit;
+            LayerMask mask = LayerMask.GetMask("Default", "Coin");
+
+            float splasherMass = splasher.attachedRigidbody.mass;
+            float massPerSplash = splasherMass / (end-start);
+            Vector2 velocity = splasher.attachedRigidbody.velocity;
+
+            for (int i = start; i <= end; i++)
+            {
+                bool splashed = Physics2D.OverlapCircle(
+                    nodes[i].position + Vector2.down * positionDelta, 
+                    positionDelta, 
+                    mask
+                );
+
+                if (splashed) 
+                    velocity.y += nodes[i].Splash(massPerSplash, velocity.y, massPerNode) * massPerSplash / splasher.attachedRigidbody.mass;
+            }
+            splasher.attachedRigidbody.velocity = velocity;
         }
     #endregion
 

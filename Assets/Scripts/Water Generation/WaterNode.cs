@@ -43,9 +43,27 @@ public partial class WaterGenerator
                 position.y += velocity * Time.fixedDeltaTime;
                 velocity += acceleration;
             }
-            public void Splash(float momentum, float massPerNode) {
-                momentum = Mathf.Min(0f, momentum);
-                this.velocity += momentum / massPerNode * Time.fixedDeltaTime;
+            public float Splash(float splasherMass, float splasherVelocity, float massPerNode) 
+            {
+                splasherVelocity = Mathf.Min(0f, splasherVelocity);
+
+                this.velocity = 
+                    (2*splasherMass*splasherVelocity + (massPerNode - splasherMass)*this.velocity) /
+                    (splasherMass + massPerNode)
+                ;
+
+                // this.velocity += (splasherMass / massPerNode) * .3f * splasherVelocity;
+                return 
+                    ((splasherMass - massPerNode)*splasherVelocity + 2*massPerNode*this.velocity) /
+                    (splasherMass + massPerNode)
+                ;
+            }
+            public void SplashPrime(float staticVelocity, float splasherMass, float massPerNode)
+            {
+                this.velocity = 
+                    (massPerNode - splasherMass) * this.velocity /
+                    (splasherMass + massPerNode)
+                ;
             }
             public void Disturb(float positionDelta){
                 this.position.y = positionBase.y + positionDelta;
