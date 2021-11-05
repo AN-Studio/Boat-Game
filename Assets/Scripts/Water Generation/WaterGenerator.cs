@@ -51,6 +51,8 @@ public partial class WaterGenerator : MonoBehaviour
         private Queue<Collider2D> interactionQueue;
         private System.Random random;
         private float time = 0;
+
+        private Camera cam;
     #endregion
 
     #region MonoBehaviour Functions
@@ -89,6 +91,7 @@ public partial class WaterGenerator : MonoBehaviour
             nodes = new List<WaterNode>();
             interactionQueue = new Queue<Collider2D>();
             random = new System.Random();
+            cam = Camera.main;
         }
 
         // Start is called before the first frame update
@@ -444,14 +447,20 @@ public partial class WaterGenerator : MonoBehaviour
                         start = i+1;
                     else
                     {
-                        if (0 <= i-1 && leftDistance < rightDistance)
+                        if (0 == i) 
+                            return (nodes[i], nodes[i+1]);
+                        else if (i == nodes.Count-1)
+                            return (nodes[i-1], nodes[i]);
+                        if (0 < i-1 && leftDistance < rightDistance)
                             return (nodes[i-1], nodes[i]);
                         else
                             return (nodes[i], nodes[i+1]);
                     }
                 }
 
-                throw new System.Exception("Was unable to find closest segment to the node.");
+                
+                return (null,null);
+                // throw new System.Exception("Was unable to find closest segment to the node.");
             #endregion
         }
         void ComputeCoeficients()
@@ -465,7 +474,7 @@ public partial class WaterGenerator : MonoBehaviour
         void CheckCameraBounds() 
         {
             Vector2 WorldUnitsInCamera;
-            WorldUnitsInCamera.y = Camera.main.orthographicSize * 2;
+            WorldUnitsInCamera.y = cam.orthographicSize * 2;
             WorldUnitsInCamera.x = WorldUnitsInCamera.y * Screen.width / Screen.height;
             
             Vector2 leftMostPos = nodes[0].position;
@@ -577,7 +586,11 @@ public partial class WaterGenerator : MonoBehaviour
         {
             int start = Mathf.FloorToInt((splasher.bounds.center.x - splasher.bounds.extents.x) - nodes[0].position.x) * nodesPerUnit;
             int end = Mathf.CeilToInt((splasher.bounds.center.x + splasher.bounds.extents.x) - nodes[0].position.x) * nodesPerUnit;
-            LayerMask mask = LayerMask.GetMask("Default", "Coin");
+
+            start = start >= 0 ? start : 0;
+            end = end < nodes.Count ? end : nodes.Count-1;
+
+            LayerMask mask = LayerMask.GetMask("Default", "Player", "Coin");
 
             float splasherMass = splasher.attachedRigidbody.mass;
             float massPerSplash = splasherMass / (end-start);

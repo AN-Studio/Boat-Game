@@ -7,30 +7,32 @@ public class GameManager : MonoBehaviour
     [System.Serializable]
     public struct RNGCell
     {
-        public GameObject prefab;
+        public Cell prefab;
         public int weight; 
     }
 
     #region Singleton
-        static GameManager instance;
-        public static GameManager Instance {get => instance;}
+        public static GameManager Instance {get; private set;}
     #endregion
 
-    #region Switches
+    #region Game State
+        [SerializeField] int maxCellCount;
+        private int cellCount = 1;
         public bool gameStarted = false;
         public bool gameEnded = false;
     #endregion
 
-    #region Prefabs
+    #region References
+        public Transform lastEndpoint;
         public List<RNGCell> cells;
     #endregion
 
     void Awake() 
     {
         #region Singleton
-            if (instance == null)
+            if (Instance == null)
             {
-                instance = this;
+                Instance = this;
             } 
             else
             {
@@ -52,11 +54,11 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        while (cellCount < maxCellCount) SpawnCell();
     }
 
     #region Public Functions
-        public GameObject GetRandomCell() 
+        public Cell GetRandomCell() 
         {
             int totalWeight = 0;
             foreach (var cell in cells) 
@@ -74,5 +76,15 @@ public class GameManager : MonoBehaviour
 
             return cells[index].prefab;
         }
+        public void SpawnCell()
+        {
+            Cell cell = GetRandomCell();
+
+            Cell instance  = Instantiate(cell, lastEndpoint.position, Quaternion.identity);
+            lastEndpoint = instance.EndPoint;
+            
+            cellCount++;
+        }
+        public void DecreaseCellCount() => cellCount--;
     #endregion
 }

@@ -5,8 +5,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 public partial class DataManager : MonoBehaviour
 {
     #region Singleton
-        static DataManager instance;
-        public static DataManager Instance {get => instance;}
+        public static DataManager Instance {get; private set;}
     #endregion
 
     #region Data
@@ -31,9 +30,9 @@ public partial class DataManager : MonoBehaviour
         void Awake() 
         {
             #region Singleton
-                if (instance == null)
+                if (Instance == null)
                 {
-                    instance = this;
+                    Instance = this;
                 } 
                 else
                 {
