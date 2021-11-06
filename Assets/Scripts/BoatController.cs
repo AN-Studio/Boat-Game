@@ -21,8 +21,6 @@ public class BoatController : MonoBehaviour
     #endregion
     
     #region Private Variables
-        public bool gameStarted = false;
-        public bool gameEnded = false;
         bool wantsToJump = false;
         float tilt = 0;
     #endregion
@@ -131,7 +129,7 @@ public class BoatController : MonoBehaviour
 
         // Debug.Log($"IsTouchingWater: {isTouchingWater}");
 
-        if (wantsToJump && isTouchingWater && !gameEnded)
+        if (wantsToJump && isTouchingWater && !GameManager.Instance.gameEnded)
         {
             rb.AddForce((jumpForce * (new Vector2(.75f,1)).normalized).Rotate(rb.rotation), ForceMode2D.Impulse);
             wantsToJump = false;
