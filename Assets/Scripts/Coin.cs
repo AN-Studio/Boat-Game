@@ -6,12 +6,13 @@ public class Coin : MonoBehaviour
 {
     public int value = 1;
 
-    private void OnCollisionEnter2D(Collision2D other) 
+    private void OnTriggerEnter2D(Collider2D other) 
     {
+        // print("COLLISION!");
         if (other.gameObject.CompareTag("Player"))
         {
             DataManager.Instance.money += value;
-            Destroy(gameObject);
+            Destroy(transform.parent.gameObject);
         }
     }
 }

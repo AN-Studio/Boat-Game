@@ -25,7 +25,8 @@ public partial class WaterGenerator : MonoBehaviour
         [Header("Physics")]
         [Range(0, 0.1f)] public float springConstant;
         [Range(0, 0.1f)] public float damping;
-        [Range(0.0f, .5f)] public float spread;
+        [Range(0.0f, .5f)] public float spreadRatio;
+        [Range(1,10)] public int spreadSpeed;
     #endregion
 
     #region References
@@ -524,18 +525,18 @@ public partial class WaterGenerator : MonoBehaviour
         void PropagateWaves()
         {
             // do some passes where nodes pull on their neighbours
-            for (int j = 0; j < 4; j++)
+            for (int j = 0; j < spreadSpeed; j++)
             {
                 for (int i = nodes.Count-1; i >= 0; i--)
                 {
                     if (i > 0)
                     {
-                        leftDeltas[i] = spread * (nodes[i].position.y - nodes[i - 1].position.y);
+                        leftDeltas[i] = spreadRatio * (nodes[i].position.y - nodes[i - 1].position.y);
                         nodes[i - 1].velocity += leftDeltas[i];
                     }
                     if (i < nodes.Count - 1)
                     {
-                        rightDeltas[i] = spread * (nodes[i].position.y - nodes[i + 1].position.y);
+                        rightDeltas[i] = spreadRatio * (nodes[i].position.y - nodes[i + 1].position.y);
                         nodes[i + 1].velocity += rightDeltas[i];
                     }
                 } 
@@ -679,6 +680,11 @@ public partial class WaterGenerator : MonoBehaviour
                 node.y = transform.position.y - waterDepth;
                 meshVertices[2*i+1] = node;
             }
+
+            #if UNITY_EDITOR
+                for (int i=0; i<meshColors.Length; i++) 
+                    meshColors[i] = waterColor;
+            #endif
 
             // Add the two last nodes that close the polygon properly, and that give it depth.
             colliderPath[nodes.Count] = meshVertices[2*nodes.Count-1];

@@ -51,6 +51,11 @@ public class BoatController : MonoBehaviour
         private void Update() 
         {
             ReadInputs();
+            if (!GameManager.Instance.gameStarted && Input.GetButtonDown("Fire1")) 
+            {
+                GameManager.Instance.gameStarted = true;
+                WaterGenerator.Instance.waveIntensity = 5;
+            }
         }
 
         private void FixedUpdate() 
@@ -144,37 +149,37 @@ public class BoatController : MonoBehaviour
     void ReadInputs()
     {
         #if (UNITY_ANDROID || UNITY_IOS) 
-            if (Input.touchCount > 0)
-            {
-                Touch touch = Input.GetTouch(0);
+            // if (Input.touchCount > 0)
+            // {
+            //     Touch touch = Input.GetTouch(0);
                 
-                switch(touch.phase)
-                {
-                    case TouchPhase.Began:
-                        wantsToJump = true;
-                        break;
-                    case TouchPhase.Ended:    
-                        wantsToJump = false;
-                        break;
-                    default:
-                        break;
-                }
+            //     switch(touch.phase)
+            //     {
+            //         case TouchPhase.Began:
+            //             wantsToJump = true;
+            //             break;
+            //         case TouchPhase.Ended:    
+            //             wantsToJump = false;
+            //             break;
+            //         default:
+            //             break;
+            //     }
 
-            }
+            // }
 
             tilt = Input.acceleration.x;
         #endif
 
-        #if (UNITY_EDITOR || UNITY_STANDALONE)
+        // #if (UNITY_EDITOR || UNITY_STANDALONE)
             tilt = -Input.GetAxis("Horizontal");
             tilt = Mathf.Clamp(tilt, -1, 1);
 
-            if (Input.GetMouseButtonDown(0)){
+            if (Input.GetButtonDown("Fire1")){
                 wantsToJump = true;
             } else {
                 wantsToJump = false;
             }
-        #endif
+        // #endif
     }
 
 }
