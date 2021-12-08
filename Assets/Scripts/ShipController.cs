@@ -1,0 +1,183 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class ShipController : MonoBehaviour
+{
+    BoatSpecs properties;
+
+    Rigidbody2D rb;
+    CapsuleCollider2D body;
+    FixedJoint2D[] masts;
+    Sail[] sails;
+
+    [SerializeField] bool wantsToJump = false;
+    [Range(0,1)] public float sailThrottle = 0;
+    public float jumpForce = 100;
+
+    #region MonoBehaviour Functions
+        // Start is called before the first frame update
+        void Start()
+        {
+            body = GetComponentInChildren<CapsuleCollider2D>();
+            masts = GetComponentsInChildren<FixedJoint2D>();
+            sails = GetComponentsInChildren<Sail>();
+            
+            rb = body.attachedRigidbody;
+            
+            Setup();
+        }
+
+        private void Update() 
+        {
+            ReadInputs();
+            if (!GameManager.Instance.gameStarted && Input.GetButtonDown("Fire1")) 
+            {
+                GameManager.Instance.gameStarted = true;
+                WaterGenerator.Instance.waveIntensity = 5;
+            }
+
+            foreach(Sail sail in sails) sail.SetThrottle(sailThrottle);
+        }
+
+        private void FixedUpdate() 
+        {
+            UpdateDrag();
+            UpdateAngularDrag();
+            ApplyKeelWeight();    
+            
+            GameManager gameManager = GameManager.Instance;
+            if (gameManager.gameStarted && !gameManager.gameEnded)
+            {
+                // ApplyForwardForce();
+                ApplyJumpForce();
+                // ApplyTilt();
+            }
+
+        }
+    #endregion
+
+    public void SetProperties(BoatSpecs data) => properties = data;
+    public void Setup()
+    {
+        body.density = properties.colliderDensity;
+
+        foreach (var mast in masts) 
+        {
+            mast.breakForce = properties.mastStrength;
+            mast.frequency = properties.mastRigidity;
+        }
+
+        foreach (Sail sail in sails) 
+        {
+            sail.dragCoefficient = properties.averageSailDrag;
+        }
+    }
+
+    // void ApplyForwardForce()
+    // {
+    //     LayerMask mask = LayerMask.GetMask("Water");
+    //     GameManager gameManager = GameManager.Instance;
+
+    //     if (body.IsTouchingLayers(mask))
+    //         rb.AddForce(Vector2.right * forwardForce);
+    // }
+
+    void UpdateDrag()
+    {
+        float depth = Mathf.Min(body.size.x, body.size.y);
+        
+        Vector2 dragCoefficient = 
+            properties.bodyDrag * body.size * depth
+        ;
+
+        LayerMask mask = LayerMask.GetMask("Water");
+        if (!body.IsTouchingLayers(mask))
+            dragCoefficient *= .001f;
+
+        rb.drag = (dragCoefficient * rb.velocity.normalized).magnitude;
+    }
+
+    void UpdateAngularDrag()
+    {
+        float depth = Mathf.Min(body.size.x, body.size.y);
+        
+        LayerMask mask = LayerMask.GetMask("Water");
+        if (body.IsTouchingLayers(mask))
+        {
+            rb.angularDrag = 2 * depth * Mathf.Max(properties.bodyDrag.x, properties.bodyDrag.y);
+        }
+        else
+        {
+            rb.angularDrag = 2 * .001f * depth * Mathf.Max(properties.bodyDrag.x, properties.bodyDrag.y);
+        }
+    }
+
+    void ApplyKeelWeight()
+    {
+        Vector2 size = WaterGenerator.GetColliderSize(body);
+        Vector2 center = rb.worldCenterOfMass;
+        
+        Vector2 keelWeight = rb.mass * properties.keelWeightRatio * Physics2D.gravity;
+        Vector2 keelPos = center + ((Vector2.down * size) * properties.keelRelativePos).Rotate(rb.rotation);
+
+        // Debug.Log($"Keel Position: {keelPos}");
+
+        rb.AddForceAtPosition(keelWeight, keelPos);
+    }
+
+    void ApplyJumpForce()
+    {
+        LayerMask mask = LayerMask.GetMask("Water");
+        bool isTouchingWater = body.IsTouchingLayers(mask);
+
+        // Debug.Log($"IsTouchingWater: {isTouchingWater}");
+
+        if (wantsToJump && isTouchingWater && !GameManager.Instance.gameEnded)
+        {
+            rb.AddForce((jumpForce * (new Vector2(.75f,1)).normalized).Rotate(rb.rotation), ForceMode2D.Impulse);
+            wantsToJump = false;
+        }
+    }
+
+    // void ApplyTilt()
+    // {
+    //     rb.AddTorque(tilt * tiltTorque);
+    // }
+
+    void ReadInputs()
+    {
+        #if (UNITY_ANDROID || UNITY_IOS) 
+            // if (Input.touchCount > 0)
+            // {
+            //     Touch touch = Input.GetTouch(0);
+                
+            //     switch(touch.phase)
+            //     {
+            //         case TouchPhase.Began:
+            //             wantsToJump = true;
+            //             break;
+            //         case TouchPhase.Ended:    
+            //             wantsToJump = false;
+            //             break;
+            //         default:
+            //             break;
+            //     }
+
+            // }
+
+            // tilt = Input.acceleration.x;
+        #endif
+
+        // #if (UNITY_EDITOR || UNITY_STANDALONE)
+            // tilt = -Input.GetAxis("Horizontal");
+            // tilt = Mathf.Clamp(tilt, -1, 1);
+
+            if (Input.GetButtonDown("Fire1")){
+                wantsToJump = true;
+            } else {
+                wantsToJump = false;
+            }
+        // #endif
+    }
+}

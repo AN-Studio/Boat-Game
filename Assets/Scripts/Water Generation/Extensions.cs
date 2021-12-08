@@ -12,4 +12,5 @@ public static class Extensions
             Mathf.Sin(radians) * vector.x + Mathf.Cos(radians) * vector.y
         );    
     }
+    
 }
