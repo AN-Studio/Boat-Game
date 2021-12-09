@@ -9,6 +9,7 @@ public class Sail : MonoBehaviour {
     private float loweredHeight;
     private float throttle = 0;
     public float dragCoefficient = 2.2f;
+    const float airDensity = 0.001f;
 
     private void Start() 
     {
@@ -34,7 +35,7 @@ public class Sail : MonoBehaviour {
         Vector2 relativeVelocity = (gameManager.windSpeed - rb.velocity.x) * Vector2.right;
         float sailArea = Mathf.Max(collider.size.x*collider.size.x, collider.size.y*collider.size.y);
 
-        Vector2 dragForce = dragCoefficient * relativeVelocity.sqrMagnitude * sailArea * throttle * relativeVelocity.normalized; 
+        Vector2 dragForce = airDensity * dragCoefficient * relativeVelocity.sqrMagnitude * sailArea * throttle * relativeVelocity.normalized; 
 
         rb.AddForce(dragForce);
     }
