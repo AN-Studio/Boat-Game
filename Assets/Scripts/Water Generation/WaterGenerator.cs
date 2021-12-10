@@ -19,7 +19,6 @@ public partial class WaterGenerator : MonoBehaviour
         public float longitude;
         public int nodesPerUnit = 5;
         public float waterDepth;
-        public int waveIntensity = 10;
         public int despawnDistance = 5;
         
         [Header("Physics")]
@@ -70,7 +69,7 @@ public partial class WaterGenerator : MonoBehaviour
 
         void OnTriggerStay2D(Collider2D other) 
         {
-            if (!interactionQueue.Contains(other))
+            if (!interactionQueue.Contains(other) && other.gameObject.GetComponent<Joint2D>() == null)
                 interactionQueue.Enqueue(other);
 
             if (other.attachedRigidbody.velocity.x != 0)
@@ -490,6 +489,7 @@ public partial class WaterGenerator : MonoBehaviour
         {
             float disturbance;
             WaterNode cycledNode;
+            int waveIntensity = GameManager.Instance.waveIntensity;
             for (int i = 1; i <= nodesPerUnit; i++)
             {
                 cycledNode = nodes[0];
@@ -508,6 +508,7 @@ public partial class WaterGenerator : MonoBehaviour
 
         void GenerateWaves()
         {
+            int waveIntensity = GameManager.Instance.waveIntensity;
             float disturbance = waveIntensity * Mathf.Sin(time);
             time = (time + Time.fixedDeltaTime) % (2*Mathf.PI);
 

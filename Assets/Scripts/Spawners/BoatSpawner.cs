@@ -1,11 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Cinemachine;
 
 public class BoatSpawner : MonoBehaviour
 {
     public CinemachineVirtualCamera cam;
+    public Slider slider;
     [SerializeField] BoatSpecs boatData;
     GameObject boatInstance;
 
@@ -37,6 +37,7 @@ public class BoatSpawner : MonoBehaviour
         ShipController controller = boatInstance.GetComponentInChildren<ShipController>();
 
         controller.SetProperties(boatData);
+        slider.onValueChanged.AddListener(controller.OnThrottleChange);
     }
 
     void OnBeginRun() 

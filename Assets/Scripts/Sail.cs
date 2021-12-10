@@ -36,8 +36,14 @@ public class Sail : MonoBehaviour {
         float sailArea = Mathf.Max(collider.size.x*collider.size.x, collider.size.y*collider.size.y);
 
         Vector2 dragForce = airDensity * dragCoefficient * relativeVelocity.sqrMagnitude * sailArea * throttle * relativeVelocity.normalized; 
+        Vector2 centerOfDrag = transform.TransformPoint(0, -collider.size.y * .5f, 0);
 
-        rb.AddForce(dragForce);
+        // rb.AddForce(dragForce);
+        rb.AddForceAtPosition(dragForce, centerOfDrag);
+
+        float mastStrength = GetComponentInParent<ShipController>().properties.mastStrength;
+        // print($"Drag Force: {dragForce}");
+        if (Mathf.Abs(dragForce.x) > mastStrength) Destroy(GetComponentInParent<Joint2D>());
     }
 
     public void SetThrottle(float value) => throttle = Mathf.Clamp01(value);

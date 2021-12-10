@@ -16,6 +16,7 @@ public class BoatSpecs : ScriptableObject
         [Range(0,3f)] public float averageSailDrag = 2.2f;
         public float mastStrength = 500f;
         [Min(0f)] public float mastRigidity = 2f;
+        public float mastDensity = 0.6f;
         [Range(0,1)] [SerializeField] float bodyDensity = 0.5f;
         [Range(1f,2f)]public float keelRelativePos;
         [Min(0f)] public float keelWeightRatio = 1f;
