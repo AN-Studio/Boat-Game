@@ -20,6 +20,7 @@ public class CustomSlider : MonoBehaviour
         GraphicRaycaster raycaster;
         PointerEventData pointerEventData;
         EventSystem eventSystem;
+        Camera cam;
     #endregion
     
     #region Settings
@@ -40,6 +41,7 @@ public class CustomSlider : MonoBehaviour
     {
         raycaster = GetComponentInParent<GraphicRaycaster>();
         eventSystem = FindObjectOfType<EventSystem>();
+        cam = Camera.main;
     }
 
     // Update is called once per frame
@@ -94,19 +96,22 @@ public class CustomSlider : MonoBehaviour
         float yMax = corners[2].y;
 
         Vector3 position = handleRect.localPosition;
+        Vector3 touchPosition = cam.ScreenToWorldPoint(touch.position);
+        touchPosition = fillRect.InverseTransformPoint(touch.position);
         float delta = 1;
+
 
         if (direction == Direction.LeftToRight || direction == Direction.RightToLeft)
         {
-            print($"xMin {xMin} xMax {xMax}");
-            position.x = Mathf.Clamp(touch.position.x, xMin, xMax);
-            delta = xMax - xMin;
+            // print($"xMin {xMin} xMax {xMax}");
+            position.x = Mathf.Clamp(touchPosition.x, xMin, xMax);
+            delta = Mathf.Abs(xMax - xMin);
         }
         else if (direction == Direction.BottomToTop || direction == Direction.TopToBottom)
         {
-            print($"yMin {yMin} yMax {yMax}");
-            position.y = Mathf.Clamp(touch.position.y, yMin, yMax);
-            delta = yMax - yMin;
+            // print($"yMin {yMin} yMax {yMax}");
+            position.y = Mathf.Clamp(touchPosition.y, yMin, yMax);
+            delta = Mathf.Abs(yMax - yMin);
         }
 
         handleRect.localPosition = position;
@@ -114,20 +119,22 @@ public class CustomSlider : MonoBehaviour
         switch(direction)
         {
             case Direction.LeftToRight:
-                value = Mathf.Abs(position.x - xMin / delta);
+                value = Mathf.Abs((position.x - xMin) / delta);
                 break;
             case Direction.RightToLeft:
-                value = Mathf.Abs(position.x - xMax / delta);
+                value = Mathf.Abs((position.x - xMax) / delta);
                 break;
             case Direction.BottomToTop:
-                value = Mathf.Abs(position.y - yMin / delta);
+                value = Mathf.Abs((position.y - yMin) / delta);
                 break;
             case Direction.TopToBottom:
-                value = Mathf.Abs(position.y - yMax / delta);
+                value = Mathf.Abs((position.y - yMax) / delta);
                 break;
             default:
                 break;
         }
+
+        value = (maxValue - minValue) * value + minValue;
 
         if (onValueChanged != null) onValueChanged(value);
     }

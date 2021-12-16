@@ -4,6 +4,7 @@ public class Sail : MonoBehaviour {
     public Rigidbody2D rb;
     public new BoxCollider2D collider;
     public Transform sailTransform;
+    Material sailMaterial;
 
     private float raisedHeight;
     private float loweredHeight;
@@ -16,6 +17,7 @@ public class Sail : MonoBehaviour {
         collider = GetComponent<BoxCollider2D>();
         sailTransform = transform.GetChild(0);
         SpriteRenderer sailSprite = sailTransform.GetComponentInChildren<SpriteRenderer>();
+        sailMaterial = sailSprite.material;
         raisedHeight = sailTransform.localPosition.y;
         loweredHeight = raisedHeight - sailSprite.bounds.size.y;
         
@@ -25,6 +27,7 @@ public class Sail : MonoBehaviour {
     {
         Vector3 position = sailTransform.localPosition;
         position.y = Mathf.Lerp(raisedHeight, loweredHeight, 1-throttle);
+        sailMaterial.SetFloat("_AlphaThreshold", throttle);
         sailTransform.localPosition = position;
     }
 

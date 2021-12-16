@@ -46,7 +46,7 @@ public class ShipController : MonoBehaviour
             if (!GameManager.Instance.gameStarted && Input.GetButtonDown("Fire1")) 
             {
                 GameManager.Instance.gameStarted = true;
-                GameManager.Instance.waveIntensity = 5;
+                GameManager.Instance.waveIntensity = 2;
             }
 
             foreach(Sail sail in sails) sail.SetThrottle(sailThrottle);
