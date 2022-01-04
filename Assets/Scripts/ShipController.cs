@@ -87,7 +87,7 @@ public class ShipController : MonoBehaviour
             // mast.breakForce = properties.mastStrength;
             mast.frequency = properties.mastRigidity;
             mast.gameObject.GetComponent<Collider2D>().density = properties.mastDensity;
-            mast.gameObject.layer = LayerMask.NameToLayer("Masts");
+            mast.gameObject.tag = "Mast";
         }
 
         foreach (Sail sail in sails) 
@@ -95,15 +95,6 @@ public class ShipController : MonoBehaviour
             sail.dragCoefficient = properties.averageSailDrag;
         }
     }
-
-    // void ApplyForwardForce()
-    // {
-    //     LayerMask mask = LayerMask.GetMask("Water");
-    //     GameManager gameManager = GameManager.Instance;
-
-    //     if (body.IsTouchingLayers(mask))
-    //         rb.AddForce(Vector2.right * forwardForce);
-    // }
 
     void UpdateDrag()
     {
@@ -113,7 +104,12 @@ public class ShipController : MonoBehaviour
             properties.bodyDrag * body.size * depth
         ;
 
-        LayerMask mask = LayerMask.GetMask("Water");
+        LayerMask mask;
+        if (gameObject.layer == LayerMask.NameToLayer("Back Entities"))
+            mask = LayerMask.GetMask("Back Water");
+        else 
+            mask = LayerMask.GetMask("Front Water");
+
         if (!body.IsTouchingLayers(mask))
             dragCoefficient *= .001f;
 
@@ -123,8 +119,13 @@ public class ShipController : MonoBehaviour
     void UpdateAngularDrag()
     {
         float depth = Mathf.Min(body.size.x, body.size.y);
-        
-        LayerMask mask = LayerMask.GetMask("Water");
+
+        LayerMask mask;
+        if (gameObject.layer == LayerMask.NameToLayer("Back Entities"))
+            mask = LayerMask.GetMask("Back Water");
+        else 
+            mask = LayerMask.GetMask("Front Water");
+
         if (body.IsTouchingLayers(mask))
         {
             rb.angularDrag = 2 * depth * Mathf.Max(properties.bodyDrag.x, properties.bodyDrag.y);
@@ -150,7 +151,12 @@ public class ShipController : MonoBehaviour
 
     void ApplyJumpForce()
     {
-        LayerMask mask = LayerMask.GetMask("Water");
+        LayerMask mask;
+        if (gameObject.layer == LayerMask.NameToLayer("Back Entities"))
+            mask = LayerMask.GetMask("Back Water");
+        else 
+            mask = LayerMask.GetMask("Front Water");
+
         bool isTouchingWater = body.IsTouchingLayers(mask);
 
         // Debug.Log($"IsTouchingWater: {isTouchingWater}");

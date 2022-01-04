@@ -3,18 +3,20 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Currency
+  - Mast
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Player
+  - Front Water
   - Water
   - UI
-  - Bounds
-  - Currency
-  - Ignore Player
-  - Masts
+  - Back Water
+  - Front Entities
+  - Back Entities
+  - 
   - 
   - 
   - 
@@ -52,6 +54,9 @@ TagManager:
     locked: 0
   - name: Objects
     uniqueID: 3336487857
+    locked: 0
+  - name: Back Water
+    uniqueID: 2033344139
     locked: 0
   - name: Default
     uniqueID: 0

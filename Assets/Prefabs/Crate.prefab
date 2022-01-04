@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1743643346018703143}
   - component: {fileID: 7619391767391725080}
   - component: {fileID: 5339113019939534223}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Trigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -83,7 +83,7 @@ GameObject:
   - component: {fileID: 9019849105338718843}
   - component: {fileID: 9019849105338718844}
   - component: {fileID: 9019849105338718845}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Crate
   m_TagString: Untagged
   m_Icon: {fileID: 0}

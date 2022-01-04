@@ -15,11 +15,13 @@ public partial class WaterGenerator : MonoBehaviour
 
     #region Settings
         [Header("Settings")]
+        [SerializeField] bool isTwin = false;
         public Color waterColor;
         public float longitude;
         public int nodesPerUnit = 5;
         public float waterDepth;
         public int despawnDistance = 5;
+        [Min(1)] public int performanceFactor = 2;
         
         [Header("Physics")]
         [Range(0, 0.1f)] public float springConstant;
@@ -495,7 +497,7 @@ public partial class WaterGenerator : MonoBehaviour
                 cycledNode = nodes[0];
                 nodes.Remove(cycledNode);
 
-                disturbance = waveIntensity * Mathf.Sin(time);
+                disturbance = waveIntensity * (isTwin ? Mathf.Cos(time) : Mathf.Sin(time));
                 
                 cycledNode.position.x = nodes[nodes.Count-1].position.x + (positionDelta);
                 cycledNode.position.y = transform.position.y + disturbance;
@@ -509,7 +511,7 @@ public partial class WaterGenerator : MonoBehaviour
         void GenerateWaves()
         {
             int waveIntensity = GameManager.Instance.waveIntensity;
-            float disturbance = waveIntensity * Mathf.Sin(time);
+            float disturbance = waveIntensity * (isTwin ? Mathf.Cos(time) : Mathf.Sin(time));
             time = (time + Time.fixedDeltaTime) % (2*Mathf.PI);
 
             nodes[nodes.Count-1].Disturb(disturbance);
@@ -555,7 +557,12 @@ public partial class WaterGenerator : MonoBehaviour
         {
             Dictionary<Collider2D,List<WaterNode>> splashedNodes = new Dictionary<Collider2D, List<WaterNode>>();
 
-            LayerMask mask = LayerMask.GetMask("Default");
+            LayerMask mask;
+            if (gameObject.layer == LayerMask.NameToLayer("Back Water"))
+                mask = LayerMask.GetMask("Back Entities");
+            else 
+                mask = LayerMask.GetMask("Default");
+
             foreach (WaterNode node in nodes)
             {
                 Collider2D splasher = Physics2D.OverlapCircle(
@@ -592,7 +599,11 @@ public partial class WaterGenerator : MonoBehaviour
             start = start >= 0 ? start : 0;
             end = end < nodes.Count ? end : nodes.Count-1;
 
-            LayerMask mask = LayerMask.GetMask("Default", "Player", "Coin");
+            LayerMask mask;
+            if (gameObject.layer == LayerMask.NameToLayer("Back Water"))
+                mask = LayerMask.GetMask("Back Entities");
+            else 
+                mask = LayerMask.GetMask("Default");
 
             float splasherMass = splasher.attachedRigidbody.mass;
             float massPerSplash = splasherMass / (end-start);
@@ -648,7 +659,7 @@ public partial class WaterGenerator : MonoBehaviour
             mesh = new Mesh();
 
             meshVertices = new Vector3[2*nodeAmount];
-            colliderPath = new Vector2[nodeAmount+2];
+            colliderPath = new Vector2[nodeAmount/performanceFactor+2];
 
             meshTriangles = new int[6*(nodeAmount)];
             for (int i=1; i < nodeAmount; i++)
@@ -675,7 +686,7 @@ public partial class WaterGenerator : MonoBehaviour
                 // First the upper node
                 node = (Vector3) nodes[i].position - transform.position;
                 meshVertices[2*i] = node;
-                colliderPath[i] = node;
+                if (i % performanceFactor == 0) colliderPath[i / performanceFactor] = node;
 
                 // Then the lower node
                 node.y = transform.position.y - waterDepth;
@@ -688,8 +699,8 @@ public partial class WaterGenerator : MonoBehaviour
             #endif
 
             // Add the two last nodes that close the polygon properly, and that give it depth.
-            colliderPath[nodes.Count] = meshVertices[2*nodes.Count-1];
-            colliderPath[nodes.Count+1] = meshVertices[1];
+            colliderPath[nodes.Count/performanceFactor] = meshVertices[2*nodes.Count-1];
+            colliderPath[nodes.Count/performanceFactor+1] = meshVertices[1];
 
             mesh.Clear();
             mesh.vertices = meshVertices;

@@ -30,7 +30,7 @@ public class BoatSpawner : MonoBehaviour
 
         boatInstance = Instantiate(boatData.prefab, transform.position, Quaternion.identity);
         boatInstance.tag = "Player";
-        boatInstance.layer = LayerMask.NameToLayer("Player");
+        boatInstance.layer = LayerMask.NameToLayer("Default");
 
         cam.Follow = boatInstance.transform;
 
