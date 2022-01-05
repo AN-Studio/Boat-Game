@@ -491,7 +491,7 @@ public partial class WaterGenerator : MonoBehaviour
         {
             float disturbance;
             WaterNode cycledNode;
-            int waveIntensity = GameManager.Instance.waveIntensity;
+            float waveIntensity = GameManager.Instance.waveIntensity;
             for (int i = 1; i <= nodesPerUnit; i++)
             {
                 cycledNode = nodes[0];
@@ -510,7 +510,7 @@ public partial class WaterGenerator : MonoBehaviour
 
         void GenerateWaves()
         {
-            int waveIntensity = GameManager.Instance.waveIntensity;
+            float waveIntensity = GameManager.Instance.waveIntensity;
             float disturbance = waveIntensity * (isTwin ? Mathf.Cos(time) : Mathf.Sin(time));
             time = (time + Time.fixedDeltaTime) % (2*Mathf.PI);
 
@@ -708,6 +708,10 @@ public partial class WaterGenerator : MonoBehaviour
             mesh.colors = meshColors;
 
             mesh.RecalculateNormals();
+            
+            MeshRenderer renderer = GetComponent<MeshRenderer>();
+            renderer.sortingLayerName = isTwin? "Back Water" : "Default";
+            renderer.sortingOrder = 1; 
             
             GetComponent<MeshFilter>().mesh = mesh;
             GetComponent<PolygonCollider2D>().SetPath(0, colliderPath);

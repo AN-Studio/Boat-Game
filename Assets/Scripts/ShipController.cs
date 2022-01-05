@@ -62,7 +62,7 @@ public class ShipController : MonoBehaviour
             if (gameManager.gameStarted && !gameManager.gameEnded)
             {
                 // ApplyForwardForce();
-                ApplyJumpForce();
+                // ApplyJumpForce();
                 // ApplyTilt();
             }
 
