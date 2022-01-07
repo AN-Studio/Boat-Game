@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Currency
   - Mast
+  - IgnoreWater
   layers:
   - Default
   - TransparentFX

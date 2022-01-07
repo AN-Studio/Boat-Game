@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class ShipController : MonoBehaviour
 {
@@ -46,7 +48,7 @@ public class ShipController : MonoBehaviour
             if (!GameManager.Instance.gameStarted && Input.GetButtonDown("Fire1")) 
             {
                 GameManager.Instance.gameStarted = true;
-                GameManager.Instance.waveIntensity = 2;
+                // GameManager.Instance.waveIntensity = 2;
             }
 
             foreach(Sail sail in sails) sail.SetThrottle(sailThrottle);
@@ -200,6 +202,7 @@ public class ShipController : MonoBehaviour
         // #if (UNITY_EDITOR || UNITY_STANDALONE)
             // tilt = -Input.GetAxis("Horizontal");
             // tilt = Mathf.Clamp(tilt, -1, 1);
+
 
             if (Input.GetButtonDown("Fire1")){
                 wantsToJump = true;
