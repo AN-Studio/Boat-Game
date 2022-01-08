@@ -1,6 +1,7 @@
 using UnityEngine;
 
 public class Sail : MonoBehaviour {
+    public ShipController controller;
     public Rigidbody2D rb;
     public new BoxCollider2D collider;
     public Transform sailTransform;
@@ -14,6 +15,7 @@ public class Sail : MonoBehaviour {
 
     private void Start() 
     {
+        controller = GetComponentInParent<ShipController>();
         collider = GetComponent<BoxCollider2D>();
         sailTransform = transform.GetChild(0);
         SpriteRenderer sailSprite = sailTransform.GetComponentInChildren<SpriteRenderer>();
@@ -44,7 +46,9 @@ public class Sail : MonoBehaviour {
         // rb.AddForce(dragForce);
         rb.AddForceAtPosition(dragForce, centerOfDrag);
 
-        float mastStrength = GetComponentInParent<ShipController>().properties.mastStrength;
+        float mastStrength = controller.properties.mastStrength;
+        controller.gui.UpdateTension(dragForce.x, mastStrength);
+        
         // print($"Drag Force: {dragForce}");
         if (Mathf.Abs(dragForce.x) > mastStrength)
         {

@@ -8,6 +8,7 @@ public class ShipController : MonoBehaviour
 {
     public BoatSpecs properties;
     public ActionRegion jumpRegion;
+    public GUIDisplay gui;
 
     Rigidbody2D rb;
     CapsuleCollider2D body;

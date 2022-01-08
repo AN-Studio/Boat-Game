@@ -8,6 +8,7 @@ public class BoatSpawner : MonoBehaviour
         [Header("References")]
         public CinemachineVirtualCamera cam;
         public Slider slider;
+        public GUIDisplay gUI;
         public ActionRegion jumpRegion;
         GameObject boatInstance;
     #endregion
@@ -51,6 +52,7 @@ public class BoatSpawner : MonoBehaviour
         slider.onValueChanged.AddListener(controller.OnThrottleChange);
         controller.jumpRegion = jumpRegion;
         controller.jumpAcceleration = jumpAcceleration;
+        controller.gui = gUI;
     }
 
     void OnBeginRun() 
