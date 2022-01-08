@@ -46,7 +46,15 @@ public class Sail : MonoBehaviour {
 
         float mastStrength = GetComponentInParent<ShipController>().properties.mastStrength;
         // print($"Drag Force: {dragForce}");
-        if (Mathf.Abs(dragForce.x) > mastStrength) Destroy(GetComponentInParent<Joint2D>());
+        if (Mathf.Abs(dragForce.x) > mastStrength)
+        {
+            Destroy(GetComponent<Joint2D>());
+            gameObject.layer = transform.parent.gameObject.layer == LayerMask.NameToLayer("Default")?
+                LayerMask.NameToLayer("Default") :
+                LayerMask.NameToLayer("Back Entities") 
+            ;
+
+        }
     }
 
     public void SetThrottle(float value) => throttle = Mathf.Clamp01(value);

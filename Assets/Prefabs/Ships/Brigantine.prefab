@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2669926721226028984}
   - component: {fileID: 8517759131970836760}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Sail
-  m_TagString: Player
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -96,9 +96,9 @@ GameObject:
   - component: {fileID: 3955714156111603565}
   - component: {fileID: 7071107835783055164}
   - component: {fileID: 6486132524199781448}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Forward Mast
-  m_TagString: Player
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -260,9 +260,9 @@ GameObject:
   m_Component:
   - component: {fileID: 5076417255517912083}
   - component: {fileID: 5310704306303859249}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Sail
-  m_TagString: Player
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -469,8 +469,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   properties: {fileID: 0}
+  jumpRegion: {fileID: 0}
   sailThrottle: 0
-  jumpForce: 100
+  jumpAcceleration: 10
 --- !u!1 &5774131889791658462
 GameObject:
   m_ObjectHideFlags: 0
@@ -485,9 +486,9 @@ GameObject:
   - component: {fileID: 893437133118209958}
   - component: {fileID: 216358582142349775}
   - component: {fileID: 5614400075016918859}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Main Mast
-  m_TagString: Player
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

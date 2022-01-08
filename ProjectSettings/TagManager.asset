@@ -11,12 +11,12 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Front Water
+  - Ignore Collisions
   - Water
   - UI
   - Back Water
   - Back Entities
-  - Mast
+  - 
   - 
   - 
   - 

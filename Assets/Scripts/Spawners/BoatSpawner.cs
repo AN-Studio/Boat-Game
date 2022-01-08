@@ -4,10 +4,21 @@ using Cinemachine;
 
 public class BoatSpawner : MonoBehaviour
 {
-    public CinemachineVirtualCamera cam;
-    public Slider slider;
+    #region References
+        [Header("References")]
+        public CinemachineVirtualCamera cam;
+        public Slider slider;
+        public ActionRegion jumpRegion;
+        GameObject boatInstance;
+    #endregion
+
+    #region Settings
+        [Header("Global Ship Settings")]
+        [SerializeField] float jumpAcceleration = 10;
+    #endregion
+
+    [Space]
     [SerializeField] BoatSpecs boatData;
-    GameObject boatInstance;
 
     // Start is called before the first frame update
     void Start()
@@ -38,6 +49,8 @@ public class BoatSpawner : MonoBehaviour
 
         controller.SetProperties(boatData);
         slider.onValueChanged.AddListener(controller.OnThrottleChange);
+        controller.jumpRegion = jumpRegion;
+        controller.jumpAcceleration = jumpAcceleration;
     }
 
     void OnBeginRun() 

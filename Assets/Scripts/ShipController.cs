@@ -7,18 +7,21 @@ using UnityEngine.EventSystems;
 public class ShipController : MonoBehaviour
 {
     public BoatSpecs properties;
+    public ActionRegion jumpRegion;
 
     Rigidbody2D rb;
     CapsuleCollider2D body;
     FixedJoint2D[] masts;
     Sail[] sails;
+    SpriteRenderer[] renderers;
 
     [Range(0,1)] public float sailThrottle = 0;
-    public float jumpForce = 100;
+    public float jumpAcceleration = 10;
     
     bool wantsToJump = false;
     float totalMass;
     Vector2 centerOfMass;
+
 
     #region MonoBehaviour Functions
         // Start is called before the first frame update
@@ -27,6 +30,7 @@ public class ShipController : MonoBehaviour
             body = GetComponentInChildren<CapsuleCollider2D>();
             masts = GetComponentsInChildren<FixedJoint2D>();
             sails = GetComponentsInChildren<Sail>();
+            renderers = GetComponentsInChildren<SpriteRenderer>();
             
             rb = body.attachedRigidbody;
 
@@ -64,7 +68,7 @@ public class ShipController : MonoBehaviour
             if (gameManager.gameStarted && !gameManager.gameEnded)
             {
                 // ApplyForwardForce();
-                // ApplyJumpForce();
+                ApplyJumpForce();
                 // ApplyTilt();
             }
 
@@ -96,6 +100,9 @@ public class ShipController : MonoBehaviour
         {
             sail.dragCoefficient = properties.averageSailDrag;
         }
+
+        jumpRegion.onBegin += InitiateJump;
+        // jumpRegion.OnEnded ;
     }
 
     void UpdateDrag()
@@ -110,7 +117,7 @@ public class ShipController : MonoBehaviour
         if (gameObject.layer == LayerMask.NameToLayer("Back Entities"))
             mask = LayerMask.GetMask("Back Water");
         else 
-            mask = LayerMask.GetMask("Front Water");
+            mask = LayerMask.GetMask("Water");
 
         if (!body.IsTouchingLayers(mask))
             dragCoefficient *= .001f;
@@ -126,7 +133,7 @@ public class ShipController : MonoBehaviour
         if (gameObject.layer == LayerMask.NameToLayer("Back Entities"))
             mask = LayerMask.GetMask("Back Water");
         else 
-            mask = LayerMask.GetMask("Front Water");
+            mask = LayerMask.GetMask("Water");
 
         if (body.IsTouchingLayers(mask))
         {
@@ -157,7 +164,7 @@ public class ShipController : MonoBehaviour
         if (gameObject.layer == LayerMask.NameToLayer("Back Entities"))
             mask = LayerMask.GetMask("Back Water");
         else 
-            mask = LayerMask.GetMask("Front Water");
+            mask = LayerMask.GetMask("Water");
 
         bool isTouchingWater = body.IsTouchingLayers(mask);
 
@@ -165,10 +172,56 @@ public class ShipController : MonoBehaviour
 
         if (wantsToJump && isTouchingWater && !GameManager.Instance.gameEnded)
         {
-            rb.AddForceAtPosition((jumpForce * Vector2.up).Rotate(rb.rotation), transform.TransformPoint(centerOfMass), ForceMode2D.Impulse);
+            rb.AddForceAtPosition((jumpAcceleration * rb.mass * Vector2.up), transform.TransformPoint(centerOfMass), ForceMode2D.Impulse);
             wantsToJump = false;
+
+            StartCoroutine(ScaleLerp(rb.velocity.y, gameObject.layer != LayerMask.NameToLayer("Back Entities")));
         }
     }
+
+    void SwitchLane()
+    {
+        gameObject.layer = gameObject.layer == LayerMask.NameToLayer("Back Entities") ? 
+            LayerMask.NameToLayer("Default") :
+            LayerMask.NameToLayer("Back Entities")
+        ;
+
+        foreach (var renderer in renderers)
+        {
+            renderer.sortingLayerName = gameObject.layer == LayerMask.NameToLayer("Back Entities") ?
+                "Back Water" :
+                "Default"
+            ;
+        }
+    }
+
+    IEnumerator ScaleLerp(float startSpeed, bool scalingToBackLane = true)
+    {
+        float startScale = scalingToBackLane? 1f : .75f;
+        float endScale = scalingToBackLane? .75f : 1f;
+
+        float currentScale = startScale; 
+        Vector3 localScale = new Vector3(currentScale, currentScale, 1);
+        while (rb.velocity.y > 0)
+        {
+            float t = (startSpeed - rb.velocity.y) / startSpeed;
+            currentScale = Mathf.Lerp(startScale, endScale, t);
+
+            localScale.x = currentScale;
+            localScale.y = currentScale;
+            transform.localScale = localScale;
+
+            yield return null;
+        }
+        
+        localScale.x = endScale;
+        localScale.y = endScale;
+        transform.localScale = localScale;
+
+        SwitchLane();
+    }
+
+    void InitiateJump() => wantsToJump = true;
 
     // void ApplyTilt()
     // {
@@ -204,11 +257,11 @@ public class ShipController : MonoBehaviour
             // tilt = Mathf.Clamp(tilt, -1, 1);
 
 
-            if (Input.GetButtonDown("Fire1")){
-                wantsToJump = true;
-            } else {
-                wantsToJump = false;
-            }
+            // if (Input.GetButtonDown("Fire1")){
+            //     wantsToJump = true;
+            // } else {
+            //     wantsToJump = false;
+            // }
         // #endif
     }
 }

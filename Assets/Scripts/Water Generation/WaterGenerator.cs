@@ -257,7 +257,7 @@ public partial class WaterGenerator : MonoBehaviour
             // Compute the submerged volume & its centroid
             Vector2 centroid = ComputeCentroid(vertices, triangles, out volume);
 
-            Debug.Log($"Buoyancy Centroid: {centroid}\nSubmerged Volume: {volume}");
+            // Debug.Log($"Buoyancy Centroid: {centroid}\nSubmerged Volume: {volume}");
 
             float fluidDensity = 1f;
             Vector2 buoyancy = -fluidDensity * Physics2D.gravity * volume;
@@ -265,7 +265,7 @@ public partial class WaterGenerator : MonoBehaviour
             if (volume != 0 && !float.IsNaN(centroid.x) && !float.IsNaN(centroid.y))
                 rb.AddForceAtPosition(buoyancy, centroid);
 
-            print($"Buoyancy: {buoyancy}\nWeight: {Physics2D.gravity * rb.mass}");
+            // print($"Buoyancy: {buoyancy}\nWeight: {Physics2D.gravity * rb.mass}");
             // print($"1/2 A Triangle Area: {ComputeTriangleArea(new Vector2(0,0),new Vector2(0,1),new Vector2(1,0))}");
         }
         (Vector2 p1, Vector2 p2) FindIntersectionsOnSurface(List<Vector2> vertices, float rotation, int topIndex)
