@@ -18,7 +18,8 @@ public class WindGustInterface : MonoBehaviour
     void Update() 
     {
         // windSpeed = GameManager.Instance.windSpeed;
-        instance.setParameterByName("EQ", windSpeed);
+        // instance.setParameterByName("EQ", windSpeed);
+        FMODUnity.RuntimeManager.StudioSystem.setParameterByName("EQ", windSpeed);
     }
 
     private void OnDestroy() {
