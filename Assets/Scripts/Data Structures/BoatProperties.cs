@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Boat", menuName = "Boat")]
+[CreateAssetMenu(fileName = "New Boat", menuName = "Scriptable Objects/Data/Boat")]
 public class BoatProperties : ScriptableObject
 {
     #region Basic Details

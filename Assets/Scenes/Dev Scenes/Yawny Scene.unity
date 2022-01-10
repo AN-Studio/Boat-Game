@@ -315,7 +315,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fmodEvent: event:/Winds/Strong_Gusting(mono)
-  windSpeed: 0
+  paramenters:
+  - name: EQ
+    value: 0
+    isGlobal: 1
 --- !u!43 &113661691
 Mesh:
   m_ObjectHideFlags: 0
@@ -2207,7 +2210,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1248490441}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.1198921, y: 16.3, z: -10}
+  m_LocalPosition: {x: -0.61491585, y: 16.3, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1190952366}
@@ -3105,7 +3108,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1648797092}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.1198921, y: 16.3, z: -10}
+  m_LocalPosition: {x: -0.61491585, y: 16.3, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 789424229}
