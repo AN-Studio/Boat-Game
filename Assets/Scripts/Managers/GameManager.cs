@@ -25,8 +25,13 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region References
+        [SerializeField] GlobalEvents globalEvents;
         public Transform lastEndpoint;
         public List<RNGCell> cells;
+    #endregion
+
+    #region Private Variables
+        FMOD.Studio.EventInstance gustSE;
     #endregion
 
     void Awake() 
@@ -51,12 +56,20 @@ public class GameManager : MonoBehaviour
     {
         // GameObject prefab = GetRandomCell();
         // Instantiate(prefab,new Vector3(120,0,0), Quaternion.identity);
+        gustSE = FMODUnity.RuntimeManager.CreateInstance(globalEvents.gustingWind.fmodEvent);
     }
 
     // Update is called once per frame
     void Update()
     {
         while (cellCount < maxCellCount) SpawnCell();
+        
+        List<FMODParameter> list = globalEvents.gustingWind.parameters;
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (list[i].name == "Wind Speed")
+                list[i].value = windSpeed;
+        }
     }
 
     #region Public Functions

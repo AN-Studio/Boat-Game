@@ -1,5 +1,5 @@
 [System.Serializable]
-public struct FMODParameter
+public class FMODParameter
 {
     [FMODUnity.ParamRef] public string name;
     public float value;

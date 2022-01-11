@@ -14891,6 +14891,7 @@ MonoBehaviour:
   gameEnded: 0
   waveIntensity: 1
   windSpeed: 60
+  globalEvents: {fileID: 11400000, guid: 9838475a7f59fca4bbb494a7541d3af8, type: 2}
   lastEndpoint: {fileID: 962992077}
   cells:
   - prefab: {fileID: 7202216468708285303, guid: 80b16ed8503fbbf44ba01589f75b6d06, type: 3}
