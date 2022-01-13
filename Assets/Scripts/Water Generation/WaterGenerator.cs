@@ -1,7 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Profiling;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(LineRenderer), typeof(MeshFilter), typeof(PolygonCollider2D))]
 public partial class WaterGenerator : MonoBehaviour
@@ -16,12 +15,15 @@ public partial class WaterGenerator : MonoBehaviour
     #region Settings
         [Header("Settings")]
         [SerializeField] bool isTwin = false;
-        public Color waterColor;
+        [SerializeField] Material material;
+        [FormerlySerializedAs("waterColor")] public Color upperWaterColor;
+        public Color lowerWaterColor;
         public float longitude;
         public int nodesPerUnit = 5;
         public float waterDepth;
         public int despawnDistance = 5;
         [Min(1)] public int performanceFactor = 2;
+        public int unitsPerUVSlice = 1;
         
         [Header("Physics")]
         [Range(0, 0.1f)] public float springConstant;
@@ -33,7 +35,8 @@ public partial class WaterGenerator : MonoBehaviour
     #region References
         [Header("References")]
         public LineRenderer surface;
-        public Mesh mesh;
+        private MeshRenderer meshRenderer;
+        private Mesh mesh;
         public ParticleSystem particles;
         public AreaEffector2D effector;
     #endregion
@@ -48,6 +51,7 @@ public partial class WaterGenerator : MonoBehaviour
         private Vector2[] colliderPath;
         private int[] meshTriangles;
         private Color[] meshColors;
+        private Vector2[] meshUVs;
 
         private float positionDelta;
         private float massPerNode;
@@ -112,6 +116,7 @@ public partial class WaterGenerator : MonoBehaviour
             effector = GetComponent<AreaEffector2D>();
             particles = GetComponent<ParticleSystem>();
             surface = GetComponent<LineRenderer>();
+            meshRenderer = GetComponent<MeshRenderer>();
             nodes = new List<WaterNode>();
             interactionQueue = new Queue<Collider2D>();
             random = new System.Random();
@@ -687,29 +692,34 @@ public partial class WaterGenerator : MonoBehaviour
 
             mesh = new Mesh();
 
-            meshVertices = new Vector3[2*nodeAmount];
+            meshVertices = new Vector3[4*nodeAmount];
             colliderPath = new Vector2[nodeAmount/performanceFactor+3];
+            meshUVs = new Vector2[4*nodeAmount];
 
             meshTriangles = new int[6*(nodeAmount)];
-            for (int i=1; i < nodeAmount; i++)
+            for (int i=0; i < nodeAmount; i++)
             {
-                meshTriangles[6*(i-1)]   = 0 + (i-1)*2;
-                meshTriangles[6*(i-1)+1] = 2 + (i-1)*2;
-                meshTriangles[6*(i-1)+2] = 1 + (i-1)*2;
+                meshTriangles[6*i]   = 0 + (i)*4;
+                meshTriangles[6*i+1] = 2 + (i)*4;
+                meshTriangles[6*i+2] = 1 + (i)*4;
 
-                meshTriangles[6*(i-1)+3] = 2 + (i-1)*2;
-                meshTriangles[6*(i-1)+4] = 3 + (i-1)*2;
-                meshTriangles[6*(i-1)+5] = 1 + (i-1)*2;
+                meshTriangles[6*i+3] = 2 + (i)*4;
+                meshTriangles[6*i+4] = 3 + (i)*4;
+                meshTriangles[6*i+5] = 1 + (i)*4;
             }
 
-            meshColors = new Color[2*nodeAmount];
+            meshColors = new Color[4*nodeAmount];
             for (int i=0; i<meshColors.Length; i++) 
-                meshColors[i] = waterColor;
+                meshColors[i] = i % 2 == 0 ? upperWaterColor : lowerWaterColor;
+
+            meshRenderer.material = material;
+            meshRenderer.sortingLayerName = isTwin? "Back Water" : "Default";
+            meshRenderer.sortingOrder = 1; 
         }
         void DrawBody()
         {
             Vector3 node;
-            for (int i = 0; i < nodes.Count; i++)
+            for (int i = 0; i < nodes.Count-1; i++)
             {
                 // Weave the mesh by adding the nodes in pairs from left to right
                 // First the upper node
@@ -720,11 +730,21 @@ public partial class WaterGenerator : MonoBehaviour
                 // Then the lower node
                 node.y = transform.position.y - waterDepth;
                 meshVertices[2*i+1] = node;
+
+                node = (Vector3) nodes[i+1].position - transform.position;
+                meshVertices[2*(i+1)] = node;
+                node.y = transform.position.y - waterDepth;
+                meshVertices[2*(i+1)+1] = node;
+
+                meshUVs[2*i] = new Vector2((float) (i % unitsPerUVSlice) / unitsPerUVSlice, 0);
+                meshUVs[2*i+1] = new Vector2((float) (i % unitsPerUVSlice) / unitsPerUVSlice, 1);
+                meshUVs[2*(i+1)] = new Vector2((float) ((i+1) % unitsPerUVSlice) / unitsPerUVSlice, 0);
+                meshUVs[2*(i+1)+1] = new Vector2((float) ((i+1) % unitsPerUVSlice) / unitsPerUVSlice, 1);
             }
 
             #if UNITY_EDITOR
                 for (int i=0; i<meshColors.Length; i++) 
-                    meshColors[i] = waterColor;
+                    meshColors[i] = i % 2 == 0 ? upperWaterColor : lowerWaterColor;
             #endif
 
             // Add the two last nodes that close the polygon properly, and that give it depth.
@@ -736,12 +756,9 @@ public partial class WaterGenerator : MonoBehaviour
             mesh.vertices = meshVertices;
             mesh.triangles = meshTriangles;
             mesh.colors = meshColors;
+            mesh.uv = meshUVs;
 
             mesh.RecalculateNormals();
-            
-            MeshRenderer renderer = GetComponent<MeshRenderer>();
-            renderer.sortingLayerName = isTwin? "Back Water" : "Default";
-            renderer.sortingOrder = 1; 
             
             GetComponent<MeshFilter>().mesh = mesh;
             GetComponent<PolygonCollider2D>().SetPath(0, colliderPath);
@@ -752,7 +769,7 @@ public partial class WaterGenerator : MonoBehaviour
     #region Gizmos
         private void OnDrawGizmos() {
             #if UNITY_EDITOR
-                Gizmos.color = waterColor;
+                Gizmos.color = upperWaterColor;
                 Gizmos.DrawLine(
                     transform.position - Vector3.right * longitude/2, 
                     transform.position + Vector3.right * longitude/2);
