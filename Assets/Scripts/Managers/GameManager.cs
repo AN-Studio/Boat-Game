@@ -25,13 +25,16 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region References
-        [SerializeField] GlobalEvents globalEvents;
+    
+        #region FMOD Global Parameters
+            [Header("Global FMOD Parameters")]
+            [FMODUnity.ParamRef] [SerializeField] string windSpeedParameter;
+            [FMODUnity.ParamRef] [SerializeField] string waveIntesityParameter;
+        #endregion
+
+        [Header("World Generation")]
         public Transform lastEndpoint;
         public List<RNGCell> cells;
-    #endregion
-
-    #region Private Variables
-        FMOD.Studio.EventInstance gustSE;
     #endregion
 
     void Awake() 
@@ -56,20 +59,18 @@ public class GameManager : MonoBehaviour
     {
         // GameObject prefab = GetRandomCell();
         // Instantiate(prefab,new Vector3(120,0,0), Quaternion.identity);
-        gustSE = FMODUnity.RuntimeManager.CreateInstance(globalEvents.gustingWind.fmodEvent);
     }
 
     // Update is called once per frame
     void Update()
     {
         while (cellCount < maxCellCount) SpawnCell();
-        
-        List<FMODParameter> list = globalEvents.gustingWind.parameters;
-        for (int i = 0; i < list.Count; i++)
-        {
-            if (list[i].name == "Wind Speed")
-                list[i].value = windSpeed;
-        }
+
+        if (windSpeedParameter != null)
+            FMODUnity.RuntimeManager.StudioSystem.setParameterByName(windSpeedParameter, windSpeed);
+
+        if (waveIntesityParameter != null)
+            FMODUnity.RuntimeManager.StudioSystem.setParameterByName(waveIntesityParameter, waveIntensity);
     }
 
     #region Public Functions

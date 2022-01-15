@@ -1,16 +1,11 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Player Sheet", menuName = "Scriptable Objects/Audio/Player", order = 0)]
-public class PlayerEvents : ScriptableObject 
+public class PlayerEventSheet : ScriptableObject 
 {
-    [Header("Controller Events")]
+    [Header("Player Input Events")]
     [FMODUnity.EventRef] public string jump = null;
     [FMODUnity.EventRef] public string raiseSail = null;
     [FMODUnity.EventRef] public string lowerSail = null;
-
-    [Header("Game Events")]
-    [FMODUnity.EventRef] public string collectCoin = null;
-    [FMODUnity.EventRef] public string collectCrate = null;
-    [FMODUnity.EventRef] public string collectChest = null;
 
 }

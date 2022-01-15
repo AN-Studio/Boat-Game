@@ -11,6 +11,9 @@ GameObject:
   - component: {fileID: 1743643346018703143}
   - component: {fileID: 7619391767391725080}
   - component: {fileID: 5339113019939534223}
+  - component: {fileID: 324060602197599616}
+  - component: {fileID: 5142122416337142711}
+  - component: {fileID: 239802341579056266}
   m_Layer: 0
   m_Name: Trigger
   m_TagString: IgnoreWater
@@ -71,6 +74,64 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   value: 1
+--- !u!114 &324060602197599616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2893540996796559812}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75e92a6856e1e884a91e391be632864d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playEventOn: 5
+  soundEvent: event:/Boat/Deck_Creak
+  delayDuration: 0
+  isGlobalSFX: 0
+--- !u!114 &5142122416337142711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2893540996796559812}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 744a208c85da6d04c861d81b992e4ead, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: Player
+  Emitters:
+  - Target: {fileID: 239802341579056266}
+    Params:
+    - Name: Pitch
+      Value: 0
+  TriggerEvent: 5
+--- !u!114 &239802341579056266
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2893540996796559812}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  Event: event:/At the dock/Calm_Waters
+  PlayEvent: 1
+  StopEvent: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 0
+  OverrideMaxDistance: 0
 --- !u!1 &9019849105338718847
 GameObject:
   m_ObjectHideFlags: 0
@@ -168,7 +229,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 1
-  m_Mass: 3.36875
+  m_Mass: 1.8375001
   m_LinearDrag: 0.0032
   m_AngularDrag: 3
   m_GravityScale: 1

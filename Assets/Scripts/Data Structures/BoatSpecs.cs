@@ -6,6 +6,7 @@ public class BoatSpecs : ScriptableObject
     #region Basic Details
         [Header("Details")]
         public GameObject prefab;
+        public PlayerEventSheet audioEvents;
         public new string name;
         [TextArea]public string description;
     #endregion
