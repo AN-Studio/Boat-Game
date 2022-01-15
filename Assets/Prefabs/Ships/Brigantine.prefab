@@ -25,7 +25,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 125695939065644454}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.785, y: 0, z: 0}
+  m_LocalPosition: {x: -2.48, y: -0.21, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 6490741246425631952}
@@ -111,7 +111,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 307555763042644476}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.825, y: 4.04, z: 0}
+  m_LocalPosition: {x: 1.514, y: 2.383, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2669926721226028984}
@@ -207,7 +207,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.1969697, y: 7.757576}
+    oldSize: {x: 0.09848485, y: 3.878788}
     newSize: {x: 0.08800017, y: 3.4799001}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -230,8 +230,8 @@ FixedJoint2D:
   m_BreakForce: Infinity
   m_BreakTorque: Infinity
   m_AutoConfigureConnectedAnchor: 0
-  m_Anchor: {x: 0, y: -4.04}
-  m_ConnectedAnchor: {x: 1.825, y: 0}
+  m_Anchor: {x: -0.049242377, y: -1.939394}
+  m_ConnectedAnchor: {x: 1.4647577, y: 0.44360584}
   m_DampingRatio: 0
   m_Frequency: 0
 --- !u!114 &6486132524199781448
@@ -246,6 +246,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b37c30ac5f6b4848bc6abff1af6052f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  controller: {fileID: 0}
   rb: {fileID: 3394351931320892327}
   collider: {fileID: 3955714156111603565}
   sailTransform: {fileID: 2669926721226028984}
@@ -275,7 +276,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3787077078916957214}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.785, y: 0, z: 0}
+  m_LocalPosition: {x: 2.9, y: -0.36, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 7138928074875219919}
@@ -360,7 +361,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5135836877057246769}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.14, y: 0.59, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 7138928074875219919}
@@ -470,6 +471,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   properties: {fileID: 0}
   jumpRegion: {fileID: 0}
+  gui: {fileID: 0}
   sailThrottle: 0
   jumpAcceleration: 10
 --- !u!1 &5774131889791658462
@@ -501,7 +503,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5774131889791658462}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -3.825, y: 3.75, z: 0}
+  m_LocalPosition: {x: -1.217, y: 2.464, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 5076417255517912083}
@@ -597,7 +599,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.1969697, y: 7.757576}
+    oldSize: {x: 0.09848485, y: 3.878788}
     newSize: {x: 0.08800017, y: 3.4799001}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -620,8 +622,8 @@ FixedJoint2D:
   m_BreakForce: Infinity
   m_BreakTorque: Infinity
   m_AutoConfigureConnectedAnchor: 0
-  m_Anchor: {x: 0, y: -3.75}
-  m_ConnectedAnchor: {x: -3.825, y: 0}
+  m_Anchor: {x: 0.004976034, y: -1.3358579}
+  m_ConnectedAnchor: {x: -1.217, y: 0.52460593}
   m_DampingRatio: 0
   m_Frequency: 0
 --- !u!114 &5614400075016918859
@@ -636,6 +638,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b37c30ac5f6b4848bc6abff1af6052f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  controller: {fileID: 0}
   rb: {fileID: 4548389221685797277}
   collider: {fileID: 893437133118209958}
   sailTransform: {fileID: 5076417255517912083}
