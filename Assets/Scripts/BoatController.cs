@@ -54,7 +54,7 @@ public class BoatController : MonoBehaviour
             if (!GameManager.Instance.gameStarted && Input.GetButtonDown("Fire1")) 
             {
                 GameManager.Instance.gameStarted = true;
-                WaterGenerator.Instance.waveIntensity = 5;
+                GameManager.Instance.waveIntensity = 5;
             }
         }
 

@@ -20,6 +20,8 @@ public class GameManager : MonoBehaviour
         private int cellCount = 1;
         public bool gameStarted = false;
         public bool gameEnded = false;
+        [Range(.1f,10f)] public float waveIntensity = 1;
+        [Range(0,60f)] public float windSpeed = 0;
     #endregion
 
     #region References

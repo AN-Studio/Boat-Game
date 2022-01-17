@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce5228f4e437a494184b76d7b8bd1bbc, type: 3}
   m_Name: Sail Boat
   m_EditorClassIdentifier: 
-  sprite: {fileID: 3286163911610860551, guid: 820028717ef78cd499196f4f30d54279, type: 3}
+  sprite: {fileID: 3286163911610860551, guid: 7b8c6497a6b15c049b6f916f1ce33272, type: 3}
   name: Sail Boat
   description: The most basic of wind-powered boats
   dragCoefficient: {x: 0.09, y: 0.6}

@@ -3,17 +3,20 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Currency
+  - Mast
+  - IgnoreWater
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Player
+  - Ignore Collisions
   - Water
   - UI
-  - Bounds
-  - Currency
-  - Ignore Player
+  - Back Water
+  - Back Entities
+  - 
   - 
   - 
   - 
@@ -50,8 +53,11 @@ TagManager:
   - name: Land Objects
     uniqueID: 2016421259
     locked: 0
-  - name: Objects
-    uniqueID: 3336487857
+  - name: Back Water
+    uniqueID: 2033344139
+    locked: 0
+  - name: Between Waters
+    uniqueID: 993256091
     locked: 0
   - name: Default
     uniqueID: 0
