@@ -56,6 +56,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Rocks
+    uniqueID: 1490021219
+    locked: 0
   - name: UI
     uniqueID: 823686505
     locked: 0

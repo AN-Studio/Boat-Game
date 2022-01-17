@@ -363,8 +363,7 @@ MonoBehaviour:
   RealChannelSettings: []
   Plugins: []
   MasterBanks:
-  - Desktop/Dirk-Master
-  - Mobile/Dirk-Master
+  - Master
   Banks: []
   BanksToLoad: []
   LiveUpdatePort: 9264
