@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Brigantine
   m_EditorClassIdentifier: 
   prefab: {fileID: 5135836877057246769, guid: 03eac26da6913fe4fbbbe9517031e132, type: 3}
+  audioEvents: {fileID: 11400000, guid: 4324566b30dc19a43aa309505a1a2f38, type: 2}
   name: Brigantine
   description: A medium-sized ship distiguished by its twin sails.
   bodyDrag: {x: 0.09, y: 0.6}

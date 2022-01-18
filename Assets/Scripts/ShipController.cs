@@ -23,8 +23,28 @@ public class ShipController : MonoBehaviour
     float totalMass;
     Vector2 centerOfMass;
 
+    #region Audio Event Instances
+        FMOD.Studio.EventInstance jumpEvent;
+        FMOD.Studio.EventInstance raiseSailEvent;
+        FMOD.Studio.EventInstance lowerSailEvent;
+    #endregion
 
     #region MonoBehaviour Functions
+        private void OnDestroy() 
+        {
+            jumpEvent.release();
+            raiseSailEvent.release();
+            lowerSailEvent.release();
+        }
+
+        void Awake() 
+        {
+            jumpEvent = FMODUnity.RuntimeManager.CreateInstance(properties.audioEvents.jump);
+            raiseSailEvent = FMODUnity.RuntimeManager.CreateInstance(properties.audioEvents.raiseSail);
+            lowerSailEvent = FMODUnity.RuntimeManager.CreateInstance(properties.audioEvents.lowerSail);
+            
+        }
+
         // Start is called before the first frame update
         void Start()
         {
@@ -53,7 +73,6 @@ public class ShipController : MonoBehaviour
             if (!GameManager.Instance.gameStarted && Input.GetButtonDown("Fire1")) 
             {
                 GameManager.Instance.gameStarted = true;
-                // GameManager.Instance.waveIntensity = 2;
             }
 
             foreach(Sail sail in sails) sail.SetThrottle(sailThrottle);
@@ -68,9 +87,7 @@ public class ShipController : MonoBehaviour
             GameManager gameManager = GameManager.Instance;
             if (gameManager.gameStarted && !gameManager.gameEnded)
             {
-                // ApplyForwardForce();
                 ApplyJumpForce();
-                // ApplyTilt();
             }
 
             // print("This FixedUpdate:");
@@ -82,7 +99,13 @@ public class ShipController : MonoBehaviour
         }
     #endregion
 
-    public void OnThrottleChange(float value) => sailThrottle = value;
+    public void OnThrottleChange(float value)
+    {
+        if (value > sailThrottle) raiseSailEvent.start();
+        else lowerSailEvent.start();
+        
+        sailThrottle = value;    
+    } 
 
     public void SetProperties(BoatSpecs data) => properties = data;
     public void Setup()
@@ -175,6 +198,7 @@ public class ShipController : MonoBehaviour
         {
             rb.AddForceAtPosition((jumpAcceleration * rb.mass * Vector2.up), transform.TransformPoint(centerOfMass), ForceMode2D.Impulse);
             wantsToJump = false;
+            jumpEvent.start();
 
             StartCoroutine(ScaleLerp(rb.velocity.y, gameObject.layer != LayerMask.NameToLayer("Back Entities")));
         }
