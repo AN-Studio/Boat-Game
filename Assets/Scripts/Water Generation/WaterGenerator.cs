@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Profiling;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(LineRenderer), typeof(MeshFilter), typeof(PolygonCollider2D))]
 public partial class WaterGenerator : MonoBehaviour
@@ -15,8 +15,9 @@ public partial class WaterGenerator : MonoBehaviour
 
     #region Settings
         [Header("Settings")]
-        [SerializeField] bool isTwin = false;
-        public Color waterColor;
+        [SerializeField] bool isBackLane = false;
+        [FormerlySerializedAs("waterColor")] public Color upperWaterColor;
+        public Color lowerWaterColor;
         public float longitude;
         public int nodesPerUnit = 5;
         public float waterDepth;
@@ -31,11 +32,11 @@ public partial class WaterGenerator : MonoBehaviour
     #endregion
 
     #region References
-        [Header("References")]
-        public LineRenderer surface;
-        public Mesh mesh;
-        public ParticleSystem particles;
-        public AreaEffector2D effector;
+        // [Header("References")]
+        private LineRenderer surface;
+        private Mesh mesh;
+        private ParticleSystem particles;
+        private AreaEffector2D effector;
     #endregion
 
     #region Private Variables
@@ -524,7 +525,7 @@ public partial class WaterGenerator : MonoBehaviour
                 cycledNode = nodes[0];
                 nodes.Remove(cycledNode);
 
-                disturbance = waveIntensity * (isTwin ? Mathf.Cos(time) : Mathf.Sin(time));
+                disturbance = waveIntensity * (isBackLane ? Mathf.Cos(time) : Mathf.Sin(time));
                 
                 cycledNode.position.x = nodes[nodes.Count-1].position.x + (positionDelta);
                 cycledNode.position.y = transform.position.y + disturbance;
@@ -538,7 +539,7 @@ public partial class WaterGenerator : MonoBehaviour
         void GenerateWaves()
         {
             float waveIntensity = GameManager.Instance.waveIntensity;
-            float disturbance = waveIntensity * (isTwin ? Mathf.Cos(time) : Mathf.Sin(time));
+            float disturbance = waveIntensity * (isBackLane ? Mathf.Cos(time) : Mathf.Sin(time));
             time = (time + Time.fixedDeltaTime) % (2*Mathf.PI);
 
             nodes[nodes.Count-1].Disturb(disturbance);
@@ -704,7 +705,7 @@ public partial class WaterGenerator : MonoBehaviour
 
             meshColors = new Color[2*nodeAmount];
             for (int i=0; i<meshColors.Length; i++) 
-                meshColors[i] = waterColor;
+                meshColors[i] = i % 2 == 0 ? upperWaterColor : lowerWaterColor;
         }
         void DrawBody()
         {
@@ -724,7 +725,7 @@ public partial class WaterGenerator : MonoBehaviour
 
             #if UNITY_EDITOR
                 for (int i=0; i<meshColors.Length; i++) 
-                    meshColors[i] = waterColor;
+                    meshColors[i] = i % 2 == 0 ? upperWaterColor : lowerWaterColor;
             #endif
 
             // Add the two last nodes that close the polygon properly, and that give it depth.
@@ -740,7 +741,7 @@ public partial class WaterGenerator : MonoBehaviour
             mesh.RecalculateNormals();
             
             MeshRenderer renderer = GetComponent<MeshRenderer>();
-            renderer.sortingLayerName = isTwin? "Back Water" : "Default";
+            renderer.sortingLayerName = isBackLane? "Back Water" : "Default";
             renderer.sortingOrder = 1; 
             
             GetComponent<MeshFilter>().mesh = mesh;
@@ -752,7 +753,7 @@ public partial class WaterGenerator : MonoBehaviour
     #region Gizmos
         private void OnDrawGizmos() {
             #if UNITY_EDITOR
-                Gizmos.color = waterColor;
+                Gizmos.color = upperWaterColor;
                 Gizmos.DrawLine(
                     transform.position - Vector3.right * longitude/2, 
                     transform.position + Vector3.right * longitude/2);
