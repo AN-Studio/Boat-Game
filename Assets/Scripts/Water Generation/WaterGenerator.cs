@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Profiling;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(LineRenderer), typeof(MeshFilter), typeof(PolygonCollider2D))]
 public partial class WaterGenerator : MonoBehaviour
@@ -15,12 +15,14 @@ public partial class WaterGenerator : MonoBehaviour
 
     #region Settings
         [Header("Settings")]
-        public Color waterColor;
+        [SerializeField] bool isBackLane = false;
+        [FormerlySerializedAs("waterColor")] public Color upperWaterColor;
+        public Color lowerWaterColor;
         public float longitude;
         public int nodesPerUnit = 5;
         public float waterDepth;
-        public int waveIntensity = 10;
         public int despawnDistance = 5;
+        [Min(1)] public int performanceFactor = 2;
         
         [Header("Physics")]
         [Range(0, 0.1f)] public float springConstant;
@@ -30,10 +32,11 @@ public partial class WaterGenerator : MonoBehaviour
     #endregion
 
     #region References
-        [Header("References")]
-        public LineRenderer surface;
-        public Mesh mesh;
-        public ParticleSystem particles;
+        // [Header("References")]
+        private LineRenderer surface;
+        private Mesh mesh;
+        private ParticleSystem particles;
+        private AreaEffector2D effector;
     #endregion
 
     #region Private Variables
@@ -54,6 +57,8 @@ public partial class WaterGenerator : MonoBehaviour
         private float time = 0;
 
         private Camera cam;
+
+        private const float standardDrag = 1.05f;
     #endregion
 
     #region MonoBehaviour Functions
@@ -66,20 +71,38 @@ public partial class WaterGenerator : MonoBehaviour
             particles.Play();
             
             ReactToCollision(other);
+
+            Vector2 normal = other.attachedRigidbody.velocity.normalized;
+            float crossArea = (normal * other.bounds.size).magnitude;
+            other.attachedRigidbody.drag = standardDrag * crossArea ;
         }
 
         void OnTriggerStay2D(Collider2D other) 
         {
-            if (!interactionQueue.Contains(other))
+            if (!interactionQueue.Contains(other) && other.gameObject.GetComponent<Joint2D>() == null)
                 interactionQueue.Enqueue(other);
 
-            if (other.attachedRigidbody.velocity.x != 0)
+            if (Mathf.Abs(other.attachedRigidbody.velocity.x) >= 1)
             {
                 ParticleSystem.ShapeModule shape = particles.shape;
                 shape.position = other.transform.position - transform.position;
 
                 particles.Play();
             }
+
+            Vector2 normal = other.attachedRigidbody.velocity.normalized;
+            float crossArea = (normal * other.bounds.size).magnitude;
+            other.attachedRigidbody.drag = standardDrag * crossArea ;
+        }
+        
+        void OnTriggerExit2D(Collider2D other) 
+        {
+            if (!other.gameObject.CompareTag("Player"))
+            {
+                Vector2 normal = other.attachedRigidbody.velocity.normalized;
+                float crossArea = (normal * other.bounds.size).magnitude;
+                other.attachedRigidbody.drag = .001f * standardDrag * crossArea;
+            }    
         }
 
         void Awake() 
@@ -87,6 +110,7 @@ public partial class WaterGenerator : MonoBehaviour
             if (instance is null)
                 instance = this;
 
+            effector = GetComponent<AreaEffector2D>();
             particles = GetComponent<ParticleSystem>();
             surface = GetComponent<LineRenderer>();
             nodes = new List<WaterNode>();
@@ -131,16 +155,16 @@ public partial class WaterGenerator : MonoBehaviour
             {
                 Collider2D obj = interactionQueue.Dequeue();
                 
-                if (obj != null)
+                if (obj != null && !obj.gameObject.CompareTag("IgnoreWater"))
                 {
-                    if (!obj.attachedRigidbody.freezeRotation)
-                    {
+                    // if (!obj.attachedRigidbody.freezeRotation)
+                    // {
                         AccuratePhysics(obj);
-                    }
-                    else
-                    {
-                        SimplifiedPhysics(obj);
-                    }
+                    // }
+                    // else
+                    // {
+                    //     // SimplifiedPhysics(obj);
+                    // }
 
                     // ReactToCollision(obj);
                 }
@@ -240,7 +264,10 @@ public partial class WaterGenerator : MonoBehaviour
             Vector2 buoyancy = -fluidDensity * Physics2D.gravity * volume;
             
             if (volume != 0 && !float.IsNaN(centroid.x) && !float.IsNaN(centroid.y))
-                rb.AddForceAtPosition(buoyancy, centroid);   
+                rb.AddForceAtPosition(buoyancy, centroid);
+
+            // print($"Buoyancy: {buoyancy}\nWeight: {Physics2D.gravity * rb.mass}");
+            // print($"1/2 A Triangle Area: {ComputeTriangleArea(new Vector2(0,0),new Vector2(0,1),new Vector2(1,0))}");
         }
         (Vector2 p1, Vector2 p2) FindIntersectionsOnSurface(List<Vector2> vertices, float rotation, int topIndex)
         {
@@ -335,6 +362,7 @@ public partial class WaterGenerator : MonoBehaviour
             List<int> triangles = new List<int>();
             int origin = 0;
 
+            // print($"Vertex Count: {vertices.Count}");
             for (int i = 1; i < vertices.Count - 1; i++)
             {
                 triangles.AddRange(new int[] {
@@ -352,13 +380,14 @@ public partial class WaterGenerator : MonoBehaviour
                 {p3.x, p3.y, 1}
             };
             
-            return Mathf.Abs(Compute3x3Determinant(matrix));
+            return Mathf.Abs(Compute3x3Determinant(matrix)) / 2;
         }
         Vector2 ComputeCentroid(List<Vector2> vertices, List<int> triangles, out float area)
         {
             Vector2 centroid = Vector2.zero;
             area = 0;
 
+            // print($"Triangle Count: {triangles.Count}");
             for (int i = 0; i < triangles.Count; i+=3)
             {
                 Vector2 tCentroid = ComputeTriangleCentroid(
@@ -490,12 +519,13 @@ public partial class WaterGenerator : MonoBehaviour
         {
             float disturbance;
             WaterNode cycledNode;
+            float waveIntensity = GameManager.Instance.waveIntensity;
             for (int i = 1; i <= nodesPerUnit; i++)
             {
                 cycledNode = nodes[0];
                 nodes.Remove(cycledNode);
 
-                disturbance = waveIntensity * Mathf.Sin(time);
+                disturbance = waveIntensity * (isBackLane ? Mathf.Cos(time) : Mathf.Sin(time));
                 
                 cycledNode.position.x = nodes[nodes.Count-1].position.x + (positionDelta);
                 cycledNode.position.y = transform.position.y + disturbance;
@@ -508,7 +538,8 @@ public partial class WaterGenerator : MonoBehaviour
 
         void GenerateWaves()
         {
-            float disturbance = waveIntensity * Mathf.Sin(time);
+            float waveIntensity = GameManager.Instance.waveIntensity;
+            float disturbance = waveIntensity * (isBackLane ? Mathf.Cos(time) : Mathf.Sin(time));
             time = (time + Time.fixedDeltaTime) % (2*Mathf.PI);
 
             nodes[nodes.Count-1].Disturb(disturbance);
@@ -554,7 +585,12 @@ public partial class WaterGenerator : MonoBehaviour
         {
             Dictionary<Collider2D,List<WaterNode>> splashedNodes = new Dictionary<Collider2D, List<WaterNode>>();
 
-            LayerMask mask = LayerMask.GetMask("Default");
+            LayerMask mask;
+            if (gameObject.layer == LayerMask.NameToLayer("Back Water"))
+                mask = LayerMask.GetMask("Back Entities");
+            else 
+                mask = LayerMask.GetMask("Default");
+
             foreach (WaterNode node in nodes)
             {
                 Collider2D splasher = Physics2D.OverlapCircle(
@@ -591,7 +627,11 @@ public partial class WaterGenerator : MonoBehaviour
             start = start >= 0 ? start : 0;
             end = end < nodes.Count ? end : nodes.Count-1;
 
-            LayerMask mask = LayerMask.GetMask("Default", "Player", "Coin");
+            LayerMask mask;
+            if (gameObject.layer == LayerMask.NameToLayer("Back Water"))
+                mask = LayerMask.GetMask("Back Entities");
+            else 
+                mask = LayerMask.GetMask("Default");
 
             float splasherMass = splasher.attachedRigidbody.mass;
             float massPerSplash = splasherMass / (end-start);
@@ -608,7 +648,9 @@ public partial class WaterGenerator : MonoBehaviour
                 if (splashed) 
                     velocity.y += nodes[i].Splash(massPerSplash, velocity.y, massPerNode) * massPerSplash / splasher.attachedRigidbody.mass;
             }
-            splasher.attachedRigidbody.velocity = velocity;
+
+            if (!float.IsNaN(velocity.x) && !float.IsNaN(velocity.y))
+                splasher.attachedRigidbody.velocity = velocity;
         }
     #endregion
 
@@ -647,7 +689,7 @@ public partial class WaterGenerator : MonoBehaviour
             mesh = new Mesh();
 
             meshVertices = new Vector3[2*nodeAmount];
-            colliderPath = new Vector2[nodeAmount+2];
+            colliderPath = new Vector2[nodeAmount/performanceFactor+3];
 
             meshTriangles = new int[6*(nodeAmount)];
             for (int i=1; i < nodeAmount; i++)
@@ -663,7 +705,7 @@ public partial class WaterGenerator : MonoBehaviour
 
             meshColors = new Color[2*nodeAmount];
             for (int i=0; i<meshColors.Length; i++) 
-                meshColors[i] = waterColor;
+                meshColors[i] = i % 2 == 0 ? upperWaterColor : lowerWaterColor;
         }
         void DrawBody()
         {
@@ -674,7 +716,7 @@ public partial class WaterGenerator : MonoBehaviour
                 // First the upper node
                 node = (Vector3) nodes[i].position - transform.position;
                 meshVertices[2*i] = node;
-                colliderPath[i] = node;
+                if (i % performanceFactor == 0) colliderPath[i / performanceFactor] = node;
 
                 // Then the lower node
                 node.y = transform.position.y - waterDepth;
@@ -683,12 +725,13 @@ public partial class WaterGenerator : MonoBehaviour
 
             #if UNITY_EDITOR
                 for (int i=0; i<meshColors.Length; i++) 
-                    meshColors[i] = waterColor;
+                    meshColors[i] = i % 2 == 0 ? upperWaterColor : lowerWaterColor;
             #endif
 
             // Add the two last nodes that close the polygon properly, and that give it depth.
-            colliderPath[nodes.Count] = meshVertices[2*nodes.Count-1];
-            colliderPath[nodes.Count+1] = meshVertices[1];
+            colliderPath[nodes.Count/performanceFactor] = meshVertices[2*nodes.Count-2];
+            colliderPath[nodes.Count/performanceFactor+1] = meshVertices[2*nodes.Count-1];
+            colliderPath[nodes.Count/performanceFactor+2] = meshVertices[1];
 
             mesh.Clear();
             mesh.vertices = meshVertices;
@@ -696,6 +739,10 @@ public partial class WaterGenerator : MonoBehaviour
             mesh.colors = meshColors;
 
             mesh.RecalculateNormals();
+            
+            MeshRenderer renderer = GetComponent<MeshRenderer>();
+            renderer.sortingLayerName = isBackLane? "Back Water" : "Default";
+            renderer.sortingOrder = 1; 
             
             GetComponent<MeshFilter>().mesh = mesh;
             GetComponent<PolygonCollider2D>().SetPath(0, colliderPath);
@@ -706,7 +753,7 @@ public partial class WaterGenerator : MonoBehaviour
     #region Gizmos
         private void OnDrawGizmos() {
             #if UNITY_EDITOR
-                Gizmos.color = waterColor;
+                Gizmos.color = upperWaterColor;
                 Gizmos.DrawLine(
                     transform.position - Vector3.right * longitude/2, 
                     transform.position + Vector3.right * longitude/2);

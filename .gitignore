@@ -71,6 +71,12 @@
 #**/*.prof
 **/*.validationcache
 
+<<<<<<< HEAD
+##############
+#### FMOD ####
+
+=======
+>>>>>>> 698a99fb0e5b406376ea4cc59027961521938b9c
 # Never ignore DLLs in the FMOD subfolder.
 !/[Aa]ssets/Plugins/FMOD/**/lib/*
 

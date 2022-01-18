@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: ccd665e775502ec4aae8943d7e690898
+guid: 4dfd34e8c8b7c024182dcc7e8235441b
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -8,9 +8,9 @@ ScriptedImporter:
   assetBundleName: 
   assetBundleVariant: 
   script: {fileID: 11500000, guid: a57477913897c46af95d590f580878bd, type: 3}
-  svgType: 0
-  texturedSpriteMeshType: 0
-  svgPixelsPerUnit: 20
+  svgType: 1
+  texturedSpriteMeshType: 1
+  svgPixelsPerUnit: 160
   gradientResolution: 64
   alignment: 0
   customPivot: {x: 0, y: 0}
@@ -20,7 +20,7 @@ ScriptedImporter:
   advancedMode: 0
   predefinedResolutionIndex: 1
   targetResolution: 1080
-  resolutionMultiplier: 10
+  resolutionMultiplier: 1
   stepDistance: 10
   samplingStepDistance: 100
   maxCordDeviationEnabled: 0
@@ -28,28 +28,50 @@ ScriptedImporter:
   maxTangentAngleEnabled: 0
   maxTangentAngle: 5
   keepTextureAspectRatio: 1
-  textureSize: 256
+  textureSize: 512
   textureWidth: 256
   textureHeight: 256
-  wrapMode: 0
+  wrapMode: 1
   filterMode: 1
   sampleCount: 4
   preserveSVGImageAspect: 0
   useSVGPixelsPerUnit: 0
   spriteData:
-    TessellationDetail: 0
+    TessellationDetail: 0.05
     SpriteRect:
-      name: 
+      name: Big - Sail - Boat - Sail - 2
       originalName: 
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       alignment: 0
       border: {x: 0, y: 0, z: 0, w: 0}
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 0
-        height: 0
-      spriteID: 86fea4d83b1637b43a2f089106ab71d5
+        width: 412
+        height: 512
+      spriteID: 1270429c1050a424e8e6e6070805311f
       internalID: 0
-    PhysicsOutlines: []
+    PhysicsOutlines:
+    - Vertices:
+      - {x: 135, y: -32}
+      - {x: 90, y: 54}
+      - {x: 28, y: 147}
+      - {x: -26, y: 219}
+      - {x: -62, y: 256}
+      - {x: -68, y: 256}
+      - {x: -71, y: 244}
+      - {x: -86, y: 111}
+      - {x: -134, y: -66}
+      - {x: -174, y: -163}
+      - {x: -206, y: -232}
+      - {x: -206, y: -238}
+      - {x: -204, y: -238}
+      - {x: -152, y: -227}
+      - {x: -99, y: -230}
+      - {x: -23, y: -250}
+      - {x: 8, y: -256}
+      - {x: 159, y: -256}
+      - {x: 206, y: -240}
+      - {x: 206, y: -218}
+      - {x: 190, y: -165}
