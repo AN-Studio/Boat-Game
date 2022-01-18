@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public enum GameState {Calm, Hostile}
+
     [System.Serializable]
     public struct RNGCell
     {
@@ -16,12 +18,14 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Game State
+        [Header("Game State")]
         [SerializeField] int maxCellCount;
         private int cellCount = 1;
         public bool gameStarted = false;
         public bool gameEnded = false;
         [Range(.1f,10f)] public float waveIntensity = 1;
         [Range(0,60f)] public float windSpeed = 0;
+        public GameState state = GameState.Calm;
     #endregion
 
     #region References

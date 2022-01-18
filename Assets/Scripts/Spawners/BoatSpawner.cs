@@ -18,8 +18,10 @@ public class BoatSpawner : MonoBehaviour
         [SerializeField] float jumpAcceleration = 10;
     #endregion
 
-    [Space]
-    [SerializeField] BoatSpecs boatData;
+    #region Ship
+        [Header("Ship")]
+        [SerializeField] BoatSpecs boatData;
+    #endregion
 
     // Start is called before the first frame update
     void Start()

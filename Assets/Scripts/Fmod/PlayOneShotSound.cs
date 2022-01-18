@@ -9,9 +9,9 @@ public class PlayOneShotSound : MonoBehaviour
         [Header("Settings")]
         [SerializeField] EmitterGameEvent playEventOn;
         [FMODUnity.EventRef] [SerializeField] string soundEvent;
-        [SerializeField] float delayDuration = 0;
-        [SerializeField] bool isGlobalSFX = false;
-        public StudioParameterTrigger trigger;
+        [SerializeField] float delayUntilPlay = 0;
+        // [SerializeField] bool isGlobalSFX = false;
+        // public StudioParameterTrigger trigger;
     #endregion
 
     #region Variables
@@ -132,7 +132,7 @@ public class PlayOneShotSound : MonoBehaviour
 
     IEnumerator PlayOneShot()
     {
-        yield return new WaitForSeconds(delayDuration);
+        yield return new WaitForSeconds(delayUntilPlay);
 
         instance = RuntimeManager.CreateInstance(soundEvent);
         instance.start();
