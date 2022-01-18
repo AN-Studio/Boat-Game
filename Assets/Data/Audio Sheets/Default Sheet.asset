@@ -12,9 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b28ee433c18704c4fb9dc50566719665, type: 3}
   m_Name: Default Sheet
   m_EditorClassIdentifier: 
-  jump: 
-  raiseSail: 
-  lowerSail: 
-  collectCoin: 
-  collectCrate: 
-  collectChest: 
+  jump: event:/Boat/Deck_Creak
+  raiseSail: event:/Boat/Deck_Creak
+  lowerSail: event:/Boat/Deck_Creak

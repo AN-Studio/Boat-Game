@@ -7,6 +7,7 @@ using UnityEngine.EventSystems;
 public class ShipController : MonoBehaviour
 {
     public BoatSpecs properties;
+    // public PlayerEventSheet audioEvents;
     public ActionRegion jumpRegion;
     public GUIDisplay gui;
 
@@ -39,10 +40,6 @@ public class ShipController : MonoBehaviour
 
         void Awake() 
         {
-            jumpEvent = FMODUnity.RuntimeManager.CreateInstance(properties.audioEvents.jump);
-            raiseSailEvent = FMODUnity.RuntimeManager.CreateInstance(properties.audioEvents.raiseSail);
-            lowerSailEvent = FMODUnity.RuntimeManager.CreateInstance(properties.audioEvents.lowerSail);
-            
         }
 
         // Start is called before the first frame update
@@ -65,6 +62,14 @@ public class ShipController : MonoBehaviour
             centerOfMass /= totalMass;
 
             Setup();
+
+            // if (string.IsNullOrEmpty(audioEvents.jump)) 
+                // jumpEvent = FMODUnity.RuntimeManager.CreateInstance(audioEvents.jump);
+            // if (string.IsNullOrEmpty(audioEvents.raiseSail)) 
+                // raiseSailEvent = FMODUnity.RuntimeManager.CreateInstance(audioEvents.raiseSail);
+            // if (string.IsNullOrEmpty(audioEvents.lowerSail)) 
+                // lowerSailEvent = FMODUnity.RuntimeManager.CreateInstance(audioEvents.lowerSail);
+            
         }
 
         private void Update() 
@@ -101,13 +106,14 @@ public class ShipController : MonoBehaviour
 
     public void OnThrottleChange(float value)
     {
-        if (value > sailThrottle) raiseSailEvent.start();
-        else lowerSailEvent.start();
+        if (value > sailThrottle && raiseSailEvent.isValid()) raiseSailEvent.start();
+        else if (value < sailThrottle && lowerSailEvent.isValid()) lowerSailEvent.start();
         
         sailThrottle = value;    
     } 
 
     public void SetProperties(BoatSpecs data) => properties = data;
+    // // public void SetAudioEvents(PlayerEventSheet sheet) => audioEvents = sheet;
     public void Setup()
     {
         body.density = properties.colliderDensity;
@@ -196,9 +202,10 @@ public class ShipController : MonoBehaviour
 
         if (wantsToJump && isTouchingWater && !GameManager.Instance.gameEnded)
         {
+            print("Triggering jump");
             rb.AddForceAtPosition((jumpAcceleration * rb.mass * Vector2.up), transform.TransformPoint(centerOfMass), ForceMode2D.Impulse);
             wantsToJump = false;
-            jumpEvent.start();
+            if (jumpEvent.isValid()) jumpEvent.start();
 
             StartCoroutine(ScaleLerp(rb.velocity.y, gameObject.layer != LayerMask.NameToLayer("Back Entities")));
         }

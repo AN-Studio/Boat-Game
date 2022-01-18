@@ -222,6 +222,7 @@ public partial class WaterGenerator : MonoBehaviour
                 center + (size * (Vector2.down + Vector2.right) / 2).Rotate(rb.rotation),
                 center + (size * (Vector2.down + Vector2.left) / 2).Rotate(rb.rotation)
             };
+            
 
             // Find the highest corner
             int upperCornerIndex = 0;

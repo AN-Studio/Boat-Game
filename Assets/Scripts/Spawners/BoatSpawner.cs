@@ -21,6 +21,7 @@ public class BoatSpawner : MonoBehaviour
     #region Ship
         [Header("Ship")]
         [SerializeField] BoatSpecs boatData;
+        [SerializeField] PlayerEventSheet audioEvents;
     #endregion
 
     // Start is called before the first frame update
@@ -51,6 +52,7 @@ public class BoatSpawner : MonoBehaviour
         ShipController controller = boatInstance.GetComponentInChildren<ShipController>();
 
         controller.SetProperties(boatData);
+        // controller.SetAudioEvents(audioEvents);
         slider.onValueChanged.AddListener(controller.OnThrottleChange);
         controller.jumpRegion = jumpRegion;
         controller.jumpAcceleration = jumpAcceleration;
