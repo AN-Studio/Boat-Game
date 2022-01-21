@@ -23,6 +23,7 @@ public class ShipController : MonoBehaviour
     bool wantsToJump = false;
     float totalMass;
     Vector2 centerOfMass;
+    Coroutine scaleLerp;
 
     #region Audio Event Instances
         FMOD.Studio.EventInstance jumpEvent;
@@ -207,7 +208,8 @@ public class ShipController : MonoBehaviour
             wantsToJump = false;
             if (jumpEvent.isValid()) jumpEvent.start();
 
-            StartCoroutine(ScaleLerp(rb.velocity.y, gameObject.layer != LayerMask.NameToLayer("Back Entities")));
+            if (scaleLerp != null) StopCoroutine(scaleLerp);
+            scaleLerp = StartCoroutine(ScaleLerp(rb.velocity.y, gameObject.layer != LayerMask.NameToLayer("Back Entities")));
         }
     }
 
@@ -249,6 +251,16 @@ public class ShipController : MonoBehaviour
         localScale.x = endScale;
         localScale.y = endScale;
         transform.localScale = localScale;
+
+        SwitchLane();
+    }
+
+    IEnumerator LerpScaleAndSwitch(bool scalingToBackLane = true) 
+    {
+        while (rb.velocity.y > 0)
+        {
+            yield return ScaleLerp(rb.velocity.y);
+        }
 
         SwitchLane();
     }
