@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -68,7 +69,7 @@ public partial class WaterGenerator : MonoBehaviour
             ParticleSystem.ShapeModule shape = particles.shape;
             shape.position = other.transform.position - transform.position;
 
-            particles.Play();
+            // particles.Play();
             
             ReactToCollision(other);
 
@@ -87,7 +88,7 @@ public partial class WaterGenerator : MonoBehaviour
                 ParticleSystem.ShapeModule shape = particles.shape;
                 shape.position = other.transform.position - transform.position;
 
-                particles.Play();
+                // particles.Play();
             }
 
             Vector2 normal = other.attachedRigidbody.velocity.normalized;
@@ -228,44 +229,66 @@ public partial class WaterGenerator : MonoBehaviour
             for (int i = 0; i < 4; i++)
                 if (vertices[i].y > vertices[upperCornerIndex].y) upperCornerIndex = i;
 
+            // string debug = "Collider Vertices:\n";
+            // foreach (var vertex in vertices)
+            //     debug += $"{vertex}\n";
+            // Debug.Log(debug);
+
             // Get ready to compute submerged volume
             float volume = 0;
+            Vector2 centroid = rb.centerOfMass;
             var (leftNode,rightNode) = FindClosestSegment(vertices[upperCornerIndex]);
 
+            float surfaceNormalAngle = 90;
+
+            bool waterOverlaps = false;
             if ((vertices[upperCornerIndex].y > leftNode.position.y || vertices[upperCornerIndex].y > rightNode.position.y)
             && (vertices[(upperCornerIndex+2)%4].y <= leftNode.position.y || vertices[(upperCornerIndex+2)%4].y <= rightNode.position.y))
             {
                 // Add contact points between water & collider
                 var (p1,p2) = FindIntersectionsOnSurface(vertices, rb.rotation, upperCornerIndex);
 
-                // Debug.Log($"Intersections: {intersections[0]} {intersections[1]}");
+                // Compute the angle of the water's surface normal
+                var surfaceSlope = (p2.y - p1.y) / (p2.x - p1.x);
+                surfaceNormalAngle = (Mathf.Rad2Deg * Mathf.Atan(-1 / surfaceSlope)) % 360 ;
+                surfaceNormalAngle = surfaceNormalAngle < 0 ? 180 + surfaceNormalAngle : surfaceNormalAngle;
+
+                // Debug.Log($"Intersections: {p1} {p2}");
                 // Debug.Log($"Submerged Area (approx.): {(intersections[0].y -(center.y - size.y/2)) * size.x}");
 
                 // Remove unsubmerged vertices
                 vertices.RemoveAll(vertex => !waterBody.OverlapPoint(vertex));
+                waterOverlaps = vertices.Count < 4;
                 
                 vertices.Insert(0, p1);
                 vertices.Insert(1, p2);
             }
 
             // Debug.Log("Vertices:");
+            // debug = "Submerged Volume Vertices:\n";
             // foreach (var vertex in vertices)
-            //     Debug.Log(vertex);
+            //     debug += $"{vertex}\n";
+            // Debug.Log(debug);
 
-            // Split the unsubmerged volume into triangles
-            List<int> triangles = SplitIntoTriangles(vertices);
+            
+            if (vertices.Any(vertex => waterBody.OverlapPoint(vertex)))
+            {
+                // Split the unsubmerged volume into triangles
+                List<int> triangles = SplitIntoTriangles(vertices);
 
-            // Compute the submerged volume & its centroid
-            Vector2 centroid = ComputeCentroid(vertices, triangles, out volume);
+                // Compute the submerged volume & its centroid
+                centroid = ComputeCentroid(vertices, triangles, out volume);
+            }
 
             // Debug.Log($"Buoyancy Centroid: {centroid}\nSubmerged Volume: {volume}");
 
             float fluidDensity = 1f;
-            Vector2 buoyancy = -fluidDensity * Physics2D.gravity * volume;
+            Vector2 buoyancy = (-fluidDensity * Physics2D.gravity * volume).Rotate(surfaceNormalAngle - 90);
             
             if (volume != 0 && !float.IsNaN(centroid.x) && !float.IsNaN(centroid.y))
                 rb.AddForceAtPosition(buoyancy, centroid);
 
+            // print($"SurfaceNormal: {surfaceNormalAngle}");
             // print($"Buoyancy: {buoyancy}\nWeight: {Physics2D.gravity * rb.mass}");
             // print($"1/2 A Triangle Area: {ComputeTriangleArea(new Vector2(0,0),new Vector2(0,1),new Vector2(1,0))}");
         }
@@ -422,7 +445,7 @@ public partial class WaterGenerator : MonoBehaviour
 
             float det = 0;
             for(int i=0;i<3;i++)
-                det += (matrix[0,i]*(matrix[1,(i+1)%3]*matrix[2,(i+2)%3] - matrix[1,(i+2)%3]*matrix[2,(i+1)%3]));
+                det += matrix[0,i] * (matrix[1,(i+1)%3] * matrix[2,(i+2)%3] - matrix[1,(i+2)%3] * matrix[2,(i+1)%3]);
 
             return det;
         }
