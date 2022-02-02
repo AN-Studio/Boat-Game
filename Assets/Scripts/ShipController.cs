@@ -173,7 +173,7 @@ public class ShipController : MonoBehaviour
 
         if (wantsToJump && isTouchingWater && !GameManager.Instance.gameEnded)
         {
-            rb.AddForceAtPosition((jumpAcceleration * rb.mass * Vector2.up), transform.TransformPoint(centerOfMass), ForceMode2D.Impulse);
+            rb.AddForceAtPosition((jumpAcceleration * rb.mass * Vector2.up), transform.TransformPoint(centerOfMass));
             wantsToJump = false;
 
             StartCoroutine(ScaleLerp(rb.velocity.y, gameObject.layer != LayerMask.NameToLayer("Back Entities")));

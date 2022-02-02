@@ -217,6 +217,7 @@ public partial class WaterGenerator : MonoBehaviour
             Vector2 center = rb.worldCenterOfMass;
             Vector2 size = GetColliderSize(other);
             
+            // Vertices are sorted clockwise
             List<Vector2> vertices = new List<Vector2>() {
                 center + (size * (Vector2.up + Vector2.left) / 2).Rotate(rb.rotation),
                 center + (size * (Vector2.up + Vector2.right) / 2).Rotate(rb.rotation),
@@ -224,7 +225,7 @@ public partial class WaterGenerator : MonoBehaviour
                 center + (size * (Vector2.down + Vector2.left) / 2).Rotate(rb.rotation)
             };
 
-            // Find the highest corner
+            // Find the corner with the highest Y value
             int upperCornerIndex = 0;
             for (int i = 0; i < 4; i++)
                 if (vertices[i].y > vertices[upperCornerIndex].y) upperCornerIndex = i;
@@ -235,60 +236,93 @@ public partial class WaterGenerator : MonoBehaviour
             // Debug.Log(debug);
 
             // Get ready to compute submerged volume
+            float normalForceAngle = 90;
             float volume = 0;
             Vector2 centroid = rb.centerOfMass;
             var (leftNode,rightNode) = FindClosestSegment(vertices[upperCornerIndex]);
 
-            float surfaceNormalAngle = 90;
+            var (nodeLL, _) = FindClosestSegment(vertices[(upperCornerIndex+3)%4]);
+            var (_, nodeRR) = FindClosestSegment(vertices[(upperCornerIndex+1)%4]);
 
-            bool waterOverlaps = false;
-            if ((vertices[upperCornerIndex].y > leftNode.position.y || vertices[upperCornerIndex].y > rightNode.position.y)
-            && (vertices[(upperCornerIndex+2)%4].y <= leftNode.position.y || vertices[(upperCornerIndex+2)%4].y <= rightNode.position.y))
+            float surfaceSlope = (nodeRR.position.y - nodeLL.position.y) / (nodeRR.position.x - nodeLL.position.x);
+            float surfaceOffset = nodeRR.position.y - surfaceSlope * nodeRR.position.x;
+
+            if (vertices.Any(vertex => vertex.y < surfaceSlope * vertex.x + surfaceOffset))
             {
-                // Add contact points between water & collider
-                var (p1,p2) = FindIntersectionsOnSurface(vertices, rb.rotation, upperCornerIndex);
+                if (!vertices.All(vertex => vertex.y < surfaceSlope * vertex.x + surfaceOffset))
+                {
+                    // Compute the angle of the water's surface normal
+                    normalForceAngle = (Mathf.Rad2Deg * Mathf.Atan(-1 / surfaceSlope)) % 360 ;
+                    normalForceAngle = normalForceAngle < 0 ? 180 + normalForceAngle : normalForceAngle;
+                    
+                    // Add contact points between water & collider
+                    var (p1,p2) = FindIntersectionsOnSurface(vertices, rb.rotation, upperCornerIndex);
 
-                // Compute the angle of the water's surface normal
-                var surfaceSlope = (p2.y - p1.y) / (p2.x - p1.x);
-                surfaceNormalAngle = (Mathf.Rad2Deg * Mathf.Atan(-1 / surfaceSlope)) % 360 ;
-                surfaceNormalAngle = surfaceNormalAngle < 0 ? 180 + surfaceNormalAngle : surfaceNormalAngle;
+                    // Remove unsubmerged vertices
+                    vertices.RemoveAll(vertex => vertex.y > surfaceSlope * vertex.x + surfaceOffset);
 
-                // Debug.Log($"Intersections: {p1} {p2}");
-                // Debug.Log($"Submerged Area (approx.): {(intersections[0].y -(center.y - size.y/2)) * size.x}");
+                    vertices.Insert(0, p1);
+                    vertices.Insert(1, p2);
+                }
 
-                // Remove unsubmerged vertices
-                vertices.RemoveAll(vertex => !waterBody.OverlapPoint(vertex));
-                waterOverlaps = vertices.Count < 4;
-                
-                vertices.Insert(0, p1);
-                vertices.Insert(1, p2);
+                // Split the unsubmerged volume into triangles
+                List<int> triangles = SplitIntoTriangles(vertices);
+
+                // Compute the submerged volume & its centroid
+                centroid = ComputeCentroid(vertices, triangles, out volume);
+
             }
 
-            // Debug.Log("Vertices:");
+            // bool waterOverlaps = false;
+            // if ((vertices[upperCornerIndex].y > leftNode.position.y || vertices[upperCornerIndex].y > rightNode.position.y)
+            // && (vertices[(upperCornerIndex+2)%4].y <= leftNode.position.y || vertices[(upperCornerIndex+2)%4].y <= rightNode.position.y))
+            // {
+            //     // Add contact points between water & collider
+            //     var (p1,p2) = FindIntersectionsOnSurface(vertices, rb.rotation, upperCornerIndex);
+
+            //     // Interpolate the linear function that includes the segment of water surface.
+            //     var surfaceSlope = (p2.y - p1.y) / (p2.x - p1.x);
+            //     var surfaceOffset = p2.y - surfaceSlope * p2.x;
+
+            //     // Compute the angle of the water's surface normal
+            //     normalForceAngle = (Mathf.Rad2Deg * Mathf.Atan(-1 / surfaceSlope)) % 360 ;
+            //     normalForceAngle = normalForceAngle < 0 ? 180 + normalForceAngle : normalForceAngle;
+
+            //     // Debug.Log($"Intersections: {p1} {p2}");
+            //     // Debug.Log($"Submerged Area (approx.): {(intersections[0].y -(center.y - size.y/2)) * size.x}");
+
+            //     // Remove unsubmerged vertices
+            //     vertices.RemoveAll(vertex => vertex.y > surfaceSlope * vertex.x + surfaceOffset);
+            //     waterOverlaps = vertices.Count < 4;
+                
+            //     vertices.Insert(0, p1);
+            //     vertices.Insert(1, p2);
+            // }
+
             // debug = "Submerged Volume Vertices:\n";
             // foreach (var vertex in vertices)
             //     debug += $"{vertex}\n";
             // Debug.Log(debug);
 
             
-            if (vertices.Any(vertex => waterBody.OverlapPoint(vertex)))
-            {
-                // Split the unsubmerged volume into triangles
-                List<int> triangles = SplitIntoTriangles(vertices);
+            // if (vertices.Any(vertex => waterBody.OverlapPoint(vertex)))
+            // {
+            //     // Split the unsubmerged volume into triangles
+            //     List<int> triangles = SplitIntoTriangles(vertices);
 
-                // Compute the submerged volume & its centroid
-                centroid = ComputeCentroid(vertices, triangles, out volume);
-            }
+            //     // Compute the submerged volume & its centroid
+            //     centroid = ComputeCentroid(vertices, triangles, out volume);
+            // }
 
             // Debug.Log($"Buoyancy Centroid: {centroid}\nSubmerged Volume: {volume}");
 
             float fluidDensity = 1f;
-            Vector2 buoyancy = (-fluidDensity * Physics2D.gravity * volume).Rotate(surfaceNormalAngle - 90);
+            Vector2 buoyancy = (-fluidDensity * Physics2D.gravity * volume).Rotate(normalForceAngle - 90);
             
             if (volume != 0 && !float.IsNaN(centroid.x) && !float.IsNaN(centroid.y))
                 rb.AddForceAtPosition(buoyancy, centroid);
 
-            // print($"SurfaceNormal: {surfaceNormalAngle}");
+            // print($"SurfaceNormal: {normalForceAngle}");
             // print($"Buoyancy: {buoyancy}\nWeight: {Physics2D.gravity * rb.mass}");
             // print($"1/2 A Triangle Area: {ComputeTriangleArea(new Vector2(0,0),new Vector2(0,1),new Vector2(1,0))}");
         }
@@ -303,79 +337,79 @@ public partial class WaterGenerator : MonoBehaviour
             WaterNode rightNode = FindClosestSegment(rightCorner).rightNode;
 
             // Compute the line function that approximates the water surface
-            float waterIncline = rightNode.position.x - leftNode.position.x != 0 ?
+            float waterSlope = rightNode.position.x - leftNode.position.x != 0 ?
                 (rightNode.position.y - leftNode.position.y) /
                 (rightNode.position.x - leftNode.position.x) :
                 float.NaN;
-            float waterOffset = rightNode.position.y - waterIncline * rightNode.position.x;
+            float waterOffset = rightNode.position.y - waterSlope * rightNode.position.x;
             
             // Compute the line function that describes the left side of the collider
-            float leftIncline;
+            float leftSlope;
             float leftOffset;
             if (leftNode.position.y < leftCorner.y)
             {
-                leftIncline = lowerCorner.x - leftCorner.x != 0 ?
+                leftSlope = lowerCorner.x - leftCorner.x != 0 ?
                     (lowerCorner.y - leftCorner.y) /
                     (lowerCorner.x - leftCorner.x) :
                     float.NaN;
-                leftOffset = lowerCorner.y - leftIncline * lowerCorner.x;
+                leftOffset = lowerCorner.y - leftSlope * lowerCorner.x;
             }
             else
             {
-                leftIncline = upperCorner.x - leftCorner.x != 0 ?
+                leftSlope = upperCorner.x - leftCorner.x != 0 ?
                     (upperCorner.y - leftCorner.y) /
                     (upperCorner.x - leftCorner.x) :
                     float.NaN;
-                leftOffset = upperCorner.y - leftIncline * upperCorner.x;
+                leftOffset = upperCorner.y - leftSlope * upperCorner.x;
             }
             
             // Compute the line function that describes the right side of the collider
-            float rightIncline;
+            float rightSlope;
             float rightOffset;
             if (rightNode.position.y < rightCorner.y)
             {
-                rightIncline = lowerCorner.x - rightCorner.x != 0 ?
+                rightSlope = lowerCorner.x - rightCorner.x != 0 ?
                     (lowerCorner.y - rightCorner.y) /
                     (lowerCorner.x - rightCorner.x) :
                     float.NaN;
-                rightOffset = lowerCorner.y - rightIncline * lowerCorner.x;
+                rightOffset = lowerCorner.y - rightSlope * lowerCorner.x;
             }
             else
             {
-                rightIncline = upperCorner.x - rightCorner.x != 0 ?
+                rightSlope = upperCorner.x - rightCorner.x != 0 ?
                     (upperCorner.y - rightCorner.y) /
                     (upperCorner.x - rightCorner.x) :
                     float.NaN;
-                rightOffset = upperCorner.y - rightIncline * upperCorner.x;
+                rightOffset = upperCorner.y - rightSlope * upperCorner.x;
             }
 
             // Now compute each intersection
             Vector2 p1 = Vector2.zero;
-            if (float.IsNaN(leftIncline)) 
+            if (float.IsNaN(leftSlope)) 
             {
                 p1.x = leftCorner.x;
-                p1.y = waterIncline * p1.x + waterOffset;
+                p1.y = waterSlope * p1.x + waterOffset;
             }
             else 
             {
                 p1.x = 
                     (leftOffset - waterOffset) /
-                    (waterIncline - leftIncline);
-                p1.y = waterIncline * p1.x + waterOffset;
+                    (waterSlope - leftSlope);
+                p1.y = waterSlope * p1.x + waterOffset;
             }
 
             Vector2 p2 = Vector2.zero;
-            if (float.IsNaN(rightIncline)) 
+            if (float.IsNaN(rightSlope)) 
             {
                 p2.x = rightCorner.x;
-                p2.y = waterIncline * p2.x + waterOffset;
+                p2.y = waterSlope * p2.x + waterOffset;
             }
             else 
             {
                 p2.x = 
                     (rightOffset - waterOffset) /
-                    (waterIncline - rightIncline);
-                p2.y = waterIncline * p2.x + waterOffset;
+                    (waterSlope - rightSlope);
+                p2.y = waterSlope * p2.x + waterOffset;
             }
 
             return (p1,p2);
@@ -531,14 +565,21 @@ public partial class WaterGenerator : MonoBehaviour
             WorldUnitsInCamera.x = WorldUnitsInCamera.y * Screen.width / Screen.height;
             
             Vector2 leftMostPos = nodes[0].position;
-            float bound = Camera.main.transform.position.x - WorldUnitsInCamera.x / 2 - despawnDistance;
+            Vector2 rightMostPos = nodes[nodes.Count - 1].position;
+            
+            float leftBound = Camera.main.transform.position.x - WorldUnitsInCamera.x / 2 - despawnDistance;
+            float rightBound = Camera.main.transform.position.x + WorldUnitsInCamera.x / 2 + despawnDistance;
 
-            if (leftMostPos.x < bound) {
-                for (int i = 0; i < bound - leftMostPos.x; i++) CycleNodes();
+            if (leftMostPos.x < leftBound) {
+                for (int i = 0; i < leftBound - leftMostPos.x; i++) CycleNodesRight(leftBound - leftMostPos.x);
+            }
+
+            if (rightMostPos.x > rightBound) {
+                for (int i = 0; i < rightMostPos.x - rightBound; i++) CycleNodesLeft(rightMostPos.x - rightBound);
             }
         }
 
-        public void CycleNodes()
+        public void CycleNodesRight(float cycleDelta)
         {
             float disturbance;
             WaterNode cycledNode;
@@ -548,12 +589,48 @@ public partial class WaterGenerator : MonoBehaviour
                 cycledNode = nodes[0];
                 nodes.Remove(cycledNode);
 
-                disturbance = waveIntensity * (isBackLane ? Mathf.Cos(time) : Mathf.Sin(time));
-                
+                cycledNode.Reset();
                 cycledNode.position.x = nodes[nodes.Count-1].position.x + (positionDelta);
-                cycledNode.position.y = transform.position.y + disturbance;
+                
 
+                disturbance = 
+                    waveIntensity * (isBackLane ? 
+                        Mathf.Cos(cycledNode.position.x + time) : 
+                        Mathf.Sin(cycledNode.position.x + time))
+                ;
+                
+                cycledNode.position.y = transform.position.y + disturbance;
+                // cycledNode.disturbance = disturbance;
+                
                 nodes.Add(cycledNode);
+
+                time = (time + Time.fixedDeltaTime) % (2*Mathf.PI); 
+            }
+        }
+
+        public void CycleNodesLeft(float cycleDelta)
+        {
+            float disturbance;
+            WaterNode cycledNode;
+            float waveIntensity = GameManager.Instance.waveIntensity;
+            for (int i = 1; i <= nodesPerUnit; i++)
+            {
+                cycledNode = nodes[nodes.Count -1];
+                nodes.Remove(cycledNode);
+
+                cycledNode.Reset();
+                cycledNode.position.x = nodes[0].position.x - (positionDelta);
+                
+                disturbance = 
+                    waveIntensity * (isBackLane ? 
+                        Mathf.Cos(cycledNode.position.x + time) : 
+                        Mathf.Sin(cycledNode.position.x + time))
+                ;
+                
+                cycledNode.position.y = transform.position.y + disturbance;
+                // cycledNode.disturbance = disturbance;
+
+                nodes.Insert(0, cycledNode);
                 
                 time = (time + Time.fixedDeltaTime) % (2*Mathf.PI); 
             }
@@ -562,7 +639,12 @@ public partial class WaterGenerator : MonoBehaviour
         void GenerateWaves()
         {
             float waveIntensity = GameManager.Instance.waveIntensity;
-            float disturbance = waveIntensity * (isBackLane ? Mathf.Cos(time) : Mathf.Sin(time));
+            float disturbance = 
+                waveIntensity * (isBackLane ? 
+                    Mathf.Cos(nodes[nodes.Count-1].position.x + time) : 
+                    Mathf.Sin(nodes[nodes.Count-1].position.x + time))
+            ;
+            
             time = (time + Time.fixedDeltaTime) % (2*Mathf.PI);
 
             nodes[nodes.Count-1].Disturb(disturbance);

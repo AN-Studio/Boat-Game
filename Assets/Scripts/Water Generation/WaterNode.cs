@@ -68,6 +68,13 @@ public partial class WaterGenerator
             public void Disturb(float positionDelta){
                 this.position.y = positionBase.y + positionDelta;
             }
+
+            public void Reset() 
+            {
+                position = positionBase;
+                velocity = 0;
+                acceleration = 0;
+            }
         #endregion
     }
 
