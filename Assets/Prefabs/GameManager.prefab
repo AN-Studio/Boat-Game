@@ -46,9 +46,19 @@ MonoBehaviour:
   maxCellCount: 3
   gameStarted: 0
   gameEnded: 0
-  waveIntensity: 1
-  windSpeed: 60
+  waveIntensity: 0.5
+  windSpeed: 9
   lastEndpoint: {fileID: 0}
   cells:
   - prefab: {fileID: 7202216468708285303, guid: 80b16ed8503fbbf44ba01589f75b6d06, type: 3}
+    weight: 10
+  - prefab: {fileID: -9072952185721564542, guid: be524944ce5579f4d90b1ac5b548f1d6, type: 3}
+    weight: 9
+  - prefab: {fileID: -2773172611578402284, guid: 7bda9c3dcc5f4ab4a8bf6933c4994d6a, type: 3}
     weight: 1
+  - prefab: {fileID: 6303818878859203289, guid: 42540fae64ac8964ebb78af32e3ad004, type: 3}
+    weight: 2
+  - prefab: {fileID: 6974904986571784436, guid: c5b48f837bb6bdd47911bf066f570196, type: 3}
+    weight: 15
+  - prefab: {fileID: 2175103613288481718, guid: afe20df90e4cf33428669a7fdac11b15, type: 3}
+    weight: 5

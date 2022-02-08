@@ -4779,6 +4779,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 7619391767391725080, guid: a387a3db27803c147b1bad51f7062ddf, type: 3}
+      propertyPath: m_Size.x
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7619391767391725080, guid: a387a3db27803c147b1bad51f7062ddf, type: 3}
+      propertyPath: m_Size.y
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 9019849105338718842, guid: a387a3db27803c147b1bad51f7062ddf, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -4827,6 +4835,18 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 3286163911610860551, guid: 19cd2c88affcfda4ab7c51fc74512089, type: 3}
+    - target: {fileID: 9019849105338718844, guid: a387a3db27803c147b1bad51f7062ddf, type: 3}
+      propertyPath: m_Mass
+      value: 7.3500004
+      objectReference: {fileID: 0}
+    - target: {fileID: 9019849105338718845, guid: a387a3db27803c147b1bad51f7062ddf, type: 3}
+      propertyPath: m_Size.x
+      value: 3.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9019849105338718845, guid: a387a3db27803c147b1bad51f7062ddf, type: 3}
+      propertyPath: m_Size.y
+      value: 3.5
+      objectReference: {fileID: 0}
     - target: {fileID: 9019849105338718845, guid: a387a3db27803c147b1bad51f7062ddf, type: 3}
       propertyPath: m_SpriteTilingProperty.oldSize.x
       value: 3.4133334
@@ -4837,7 +4857,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9019849105338718847, guid: a387a3db27803c147b1bad51f7062ddf, type: 3}
       propertyPath: m_Name
-      value: Crate
+      value: Crate Variant
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a387a3db27803c147b1bad51f7062ddf, type: 3}

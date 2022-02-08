@@ -32,7 +32,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7088383645303388025}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.69, z: 10}
+  m_LocalPosition: {x: 0, y: 0, z: 10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 7088383645307293225}
@@ -232,8 +232,8 @@ MonoBehaviour:
   lowerWaterColor: {r: 0, g: 0, b: 0, a: 1}
   longitude: 70
   nodesPerUnit: 1
-  waterDepth: 30
-  despawnDistance: 5
+  waterDepth: 20
+  despawnDistance: 7
   performanceFactor: 10
   springConstant: 0.0204
   damping: 0.02
@@ -5154,7 +5154,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7088383646092349112}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -3.88, z: 0}
+  m_LocalPosition: {x: 0, y: -2.19, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 7088383645307293225}
@@ -5355,7 +5355,7 @@ MonoBehaviour:
   longitude: 70
   nodesPerUnit: 1
   waterDepth: 20
-  despawnDistance: 5
+  despawnDistance: 7
   performanceFactor: 10
   springConstant: 0.0204
   damping: 0.02
