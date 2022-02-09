@@ -641,8 +641,8 @@ public partial class WaterGenerator : MonoBehaviour
             float waveIntensity = GameManager.Instance.waveIntensity;
             float disturbance = 
                 waveIntensity * (isBackLane ? 
-                    Mathf.Cos(nodes[nodes.Count-1].position.x + time) : 
-                    Mathf.Sin(nodes[nodes.Count-1].position.x + time))
+                    Mathf.Cos(nodes[nodes.Count-1].position.x * (spreadSpeed*Time.fixedDeltaTime)+ time) : 
+                    Mathf.Sin(nodes[nodes.Count-1].position.x * (spreadSpeed*Time.fixedDeltaTime)+ time))
             ;
             
             time = (time + Time.fixedDeltaTime) % (2*Mathf.PI);
