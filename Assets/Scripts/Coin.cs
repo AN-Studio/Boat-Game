@@ -4,7 +4,17 @@ using UnityEngine;
 
 public class Coin : MonoBehaviour
 {
-    public int value = 1;
+    #region References
+        [Header("References")]
+        public ParticleSystem particles;
+        public GameObject sprite;
+        private Coroutine breakAnimation;
+    #endregion
+
+    #region Settings
+        [Header("Settings")]
+        public int value = 1;
+    #endregion
 
     private void OnTriggerEnter2D(Collider2D other) 
     {
@@ -12,7 +22,27 @@ public class Coin : MonoBehaviour
         if (other.gameObject.CompareTag("Player"))
         {
             DataManager.Instance.money += value;
-            Destroy(transform.parent.gameObject);
+            GameManager.Instance.IncreaseCoinCombo();
+            
+            sprite.SetActive(false);
+            
+            breakAnimation = StartCoroutine(BreakContainer());
         }
     }
+
+    private void OnDestroy() {
+        if (breakAnimation != null) StopCoroutine(breakAnimation);
+    }
+
+    private IEnumerator BreakContainer()
+    {
+        particles.Play();
+        while (particles.isPlaying)
+        {
+            yield return null;
+        }
+
+        Destroy(transform.parent.gameObject);
+    }
+
 }

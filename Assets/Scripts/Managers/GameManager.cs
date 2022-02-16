@@ -29,6 +29,12 @@ public class GameManager : MonoBehaviour
         public List<RNGCell> cells;
     #endregion
 
+    #region Private Variables
+        private int coinCombo = 0;
+        private Coroutine comboTimer;
+        private WaitForSeconds waitFor2Seconds = new WaitForSeconds(2f);
+    #endregion
+
     void Awake() 
     {
         #region Singleton
@@ -88,5 +94,28 @@ public class GameManager : MonoBehaviour
             cellCount++;
         }
         public void DecreaseCellCount() => cellCount--;
+
+        public void IncreaseCoinCombo() 
+        {
+            // Set FMOD global parameter 'Coin Combo'
+            FMODUnity.RuntimeManager.StudioSystem.setParameterByName("Coin Combo", coinCombo);
+            coinCombo = coinCombo <= 15? coinCombo+1 : 0;
+            BeginComboTimer(); 
+        }
+
+        public void BeginComboTimer()
+        {
+            if (comboTimer != null) StopCoroutine(comboTimer);
+            comboTimer = StartCoroutine(CoinComboTimer());
+        }
+
+        private IEnumerator CoinComboTimer()
+        {
+            yield return waitFor2Seconds;
+            
+            // Set FMOD global parameter 'Coin Combo'
+            coinCombo = 0;
+            FMODUnity.RuntimeManager.StudioSystem.setParameterByName("Coin Combo", coinCombo);
+        }
     #endregion
 }
