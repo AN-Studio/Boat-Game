@@ -506,7 +506,7 @@ public partial class WaterGenerator : MonoBehaviour
                     break;
             }
             
-            return size * other.transform.localScale;
+            return size * other.transform.lossyScale;
 
         }
         (WaterNode leftNode, WaterNode rightNode) FindClosestSegment(Vector2 point)
