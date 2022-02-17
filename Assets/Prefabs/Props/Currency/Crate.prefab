@@ -73,9 +73,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01404895bd60df344aa4f5443df0979d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  item: {fileID: 2241068596279730497, guid: add4af299bf08f9479800d68ee934947, type: 3}
+  amountRange: {x: 1, y: 3}
   particles: {fileID: 8539639307879127830}
   sprite: {fileID: 6028262056473645296}
-  value: 1
 --- !u!114 &6564948844375281398
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -89,7 +90,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CollisionTag: Player
-  Event: event:/Collect Crate
+  Event: event:/Crate Break
   PlayEvent: 5
   StopEvent: 0
   AllowFadeout: 1
@@ -214,7 +215,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 3
+      scalar: 10
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -267,7 +268,7 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 10
+      scalar: 20
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -705,7 +706,7 @@ ParticleSystem:
     gravityModifier:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 2
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -1125,7 +1126,7 @@ ParticleSystem:
           m_PostInfinity: 2
           m_RotationOrder: 4
       cycleCount: 3
-      repeatInterval: 0.01
+      repeatInterval: 0.1
       probability: 1
   SizeModule:
     enabled: 0
