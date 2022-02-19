@@ -1,6 +1,10 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Sail : MonoBehaviour {
+    [FMODUnity.EventRef] public string mastBreakSFX;
+    private FMOD.Studio.EventInstance mastBreakSFXInstance;
     public ShipController controller;
     public Rigidbody2D rb;
     public new BoxCollider2D collider;
@@ -12,9 +16,14 @@ public class Sail : MonoBehaviour {
     private float throttle = 0;
     public float dragCoefficient = 2.2f;
     const float airDensity = 0.001f;
+    private bool isBroken = false;
+    private Coroutine breakSequence;
+    private WaitForSeconds timeUntilBreak = new WaitForSeconds(3f);
 
     private void Start() 
     {
+        mastBreakSFXInstance = FMODUnity.RuntimeManager.CreateInstance(mastBreakSFX);
+
         controller = GetComponentInParent<ShipController>();
         collider = GetComponent<BoxCollider2D>();
         sailTransform = transform.GetChild(0);
@@ -48,17 +57,46 @@ public class Sail : MonoBehaviour {
 
         float mastStrength = controller.properties.mastStrength;
         controller.gui.UpdateTension(dragForce.x, mastStrength);
+        FMODUnity.RuntimeManager.StudioSystem.setParameterByName("Tension", dragForce.x / mastStrength);
         
         // print($"Drag Force: {dragForce}");
         if (Mathf.Abs(dragForce.x) > mastStrength)
         {
-            Destroy(GetComponent<Joint2D>());
-            gameObject.layer = transform.parent.gameObject.layer == LayerMask.NameToLayer("Default")?
-                LayerMask.NameToLayer("Default") :
-                LayerMask.NameToLayer("Back Entities") 
-            ;
-
+            if (!isBroken && breakSequence == null) 
+                breakSequence = StartCoroutine(StartBreakSequence());
         }
+        else
+        {
+            if (breakSequence != null)
+                StopCoroutine(breakSequence);
+            breakSequence = null;
+        }
+    }
+
+    private IEnumerator StartBreakSequence()
+    {
+        yield return timeUntilBreak;
+
+        StartCoroutine(BreakMast());
+    }
+
+    private IEnumerator BreakMast()
+    {
+        mastBreakSFXInstance.start();
+
+        bool isPaused = false;
+        while (!isPaused)
+        {
+            yield return null;
+
+            mastBreakSFXInstance.getPaused(out isPaused);
+        }
+
+        Destroy(GetComponent<Joint2D>());
+        gameObject.layer = transform.parent.gameObject.layer == LayerMask.NameToLayer("Default")?
+            LayerMask.NameToLayer("Default") :
+            LayerMask.NameToLayer("Back Entities") 
+        ;
     }
 
     public void SetThrottle(float value) => throttle = Mathf.Clamp01(value);
