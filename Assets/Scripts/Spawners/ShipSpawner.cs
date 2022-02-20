@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Cinemachine;
 
-public class BoatSpawner : MonoBehaviour
+public class ShipSpawner : MonoBehaviour
 {
     #region References
         [Header("References")]
@@ -20,6 +20,7 @@ public class BoatSpawner : MonoBehaviour
 
     [Space]
     [SerializeField] BoatSpecs boatData;
+    [SerializeField] AudioEventSheet audioSheet;
 
     // Start is called before the first frame update
     void Start()
@@ -53,6 +54,7 @@ public class BoatSpawner : MonoBehaviour
         controller.jumpRegion = jumpRegion;
         controller.jumpAcceleration = jumpAcceleration;
         controller.gui = gUI;
+        controller.audioSheet = audioSheet;
     }
 
     void OnBeginRun() 

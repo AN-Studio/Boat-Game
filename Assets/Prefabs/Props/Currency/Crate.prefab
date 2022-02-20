@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CollisionTag: Player
-  Event: event:/Crate Break
+  Event: event:/Currency/Crate Break
   PlayEvent: 5
   StopEvent: 0
   AllowFadeout: 1

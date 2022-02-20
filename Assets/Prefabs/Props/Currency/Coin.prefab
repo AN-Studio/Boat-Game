@@ -111,7 +111,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CollisionTag: 
-  Event: event:/Coin Collect
+  Event: event:/Currency/Coin Collect
   PlayEvent: 1
   StopEvent: 0
   AllowFadeout: 1

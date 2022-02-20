@@ -34,6 +34,6 @@ public class GUIDisplay : MonoBehaviour
 
     public void UpdateTension(float appliedForce, float mastStrength)
     {
-        tensionValue = (int) ((appliedForce / mastStrength) * 100);
+        tensionValue = (int) (Mathf.Clamp01(appliedForce / mastStrength) * 100);
     }
 }

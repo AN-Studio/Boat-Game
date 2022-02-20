@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Sail : MonoBehaviour {
-    [FMODUnity.EventRef] public string mastBreakSFX;
-    private FMOD.Studio.EventInstance mastBreakSFXInstance;
+    public AudioEventSheet audioSheet;
+    private FMOD.Studio.EventInstance mastCrackingSFX;
+    private FMOD.Studio.EventInstance mastSnappingSFX;
     public ShipController controller;
     public Rigidbody2D rb;
     public new BoxCollider2D collider;
@@ -22,7 +23,8 @@ public class Sail : MonoBehaviour {
 
     private void Start() 
     {
-        mastBreakSFXInstance = FMODUnity.RuntimeManager.CreateInstance(mastBreakSFX);
+        mastCrackingSFX = FMODUnity.RuntimeManager.CreateInstance(audioSheet["mastCracking"]);
+        mastSnappingSFX = FMODUnity.RuntimeManager.CreateInstance(audioSheet["mastSnapping"]);
 
         controller = GetComponentInParent<ShipController>();
         collider = GetComponent<BoxCollider2D>();
@@ -44,20 +46,27 @@ public class Sail : MonoBehaviour {
 
     private void FixedUpdate() 
     {
+        // if (!isBroken) 
+            ApplyWindDrag();
+    }
+
+    private void ApplyWindDrag()
+    {
         GameManager gameManager = GameManager.Instance;
         
         Vector2 relativeVelocity = (gameManager.windSpeed - rb.velocity.x) * Vector2.right;
         float sailArea = Mathf.Max(collider.size.x*collider.size.x, collider.size.y*collider.size.y);
 
         Vector2 dragForce = airDensity * dragCoefficient * relativeVelocity.sqrMagnitude * sailArea * throttle * relativeVelocity.normalized; 
-        Vector2 centerOfDrag = transform.TransformPoint(0, -collider.size.y * .5f, 0);
+        // Vector2 centerOfDrag = transform.TransformPoint(0, -collider.size.y * .5f, 0);
+        Vector2 centerOfDrag = transform.position;
 
         // rb.AddForce(dragForce);
         rb.AddForceAtPosition(dragForce, centerOfDrag);
 
         float mastStrength = controller.properties.mastStrength;
         controller.gui.UpdateTension(dragForce.x, mastStrength);
-        FMODUnity.RuntimeManager.StudioSystem.setParameterByName("Tension", dragForce.x / mastStrength);
+        FMODUnity.RuntimeManager.StudioSystem.setParameterByName("Tension", Mathf.Clamp01(dragForce.x / mastStrength));
         
         // print($"Drag Force: {dragForce}");
         if (Mathf.Abs(dragForce.x) > mastStrength)
@@ -71,6 +80,7 @@ public class Sail : MonoBehaviour {
                 StopCoroutine(breakSequence);
             breakSequence = null;
         }
+
     }
 
     private IEnumerator StartBreakSequence()
@@ -82,21 +92,28 @@ public class Sail : MonoBehaviour {
 
     private IEnumerator BreakMast()
     {
-        mastBreakSFXInstance.start();
+        mastCrackingSFX.start();
 
-        bool isPaused = false;
-        while (!isPaused)
+        FMOD.Studio.PLAYBACK_STATE playbackState;    
+        bool isPlaying = true;
+
+        while (isPlaying)
         {
             yield return null;
 
-            mastBreakSFXInstance.getPaused(out isPaused);
+            mastCrackingSFX.getPlaybackState(out playbackState);
+            isPlaying = playbackState != FMOD.Studio.PLAYBACK_STATE.STOPPED;
         }
+
+        print("Breaking Mast!");
+        mastSnappingSFX.start();
 
         Destroy(GetComponent<Joint2D>());
         gameObject.layer = transform.parent.gameObject.layer == LayerMask.NameToLayer("Default")?
             LayerMask.NameToLayer("Default") :
             LayerMask.NameToLayer("Back Entities") 
         ;
+        isBroken = true;
     }
 
     public void SetThrottle(float value) => throttle = Mathf.Clamp01(value);

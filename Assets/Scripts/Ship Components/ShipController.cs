@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 
 public class ShipController : MonoBehaviour
 {
+    public AudioEventSheet audioSheet;
     public BoatSpecs properties;
     public ActionRegion jumpRegion;
     public GUIDisplay gui;
@@ -23,11 +24,16 @@ public class ShipController : MonoBehaviour
     float totalMass;
     Vector2 centerOfMass;
 
+    private FMOD.Studio.EventInstance woodCreakSFX;
+
 
     #region MonoBehaviour Functions
         // Start is called before the first frame update
         void Start()
         {
+            woodCreakSFX = FMODUnity.RuntimeManager.CreateInstance(audioSheet["mastCreak"]);
+            woodCreakSFX.start();
+
             body = GetComponentInChildren<CapsuleCollider2D>();
             masts = GetComponentsInChildren<FixedJoint2D>();
             sails = GetComponentsInChildren<Sail>();
@@ -45,6 +51,7 @@ public class ShipController : MonoBehaviour
             centerOfMass /= totalMass;
 
             Setup();
+
         }
 
         private void Update() 
@@ -80,6 +87,11 @@ public class ShipController : MonoBehaviour
             // }
 
         }
+
+        private void OnDisable() {
+            woodCreakSFX.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);    
+        }
+
     #endregion
 
     public void OnThrottleChange(float value) => sailThrottle = value;
@@ -100,6 +112,7 @@ public class ShipController : MonoBehaviour
         foreach (Sail sail in sails) 
         {
             sail.dragCoefficient = properties.averageSailDrag;
+            sail.audioSheet = audioSheet;
         }
 
         jumpRegion.onBegin += InitiateJump;
