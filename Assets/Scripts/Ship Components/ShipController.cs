@@ -25,12 +25,14 @@ public class ShipController : MonoBehaviour
     Vector2 centerOfMass;
 
     private FMOD.Studio.EventInstance woodCreakSFX;
+    private FMOD.Studio.EventInstance sailWindUpSFX;
 
 
     #region MonoBehaviour Functions
         // Start is called before the first frame update
         void Start()
         {
+            sailWindUpSFX = FMODUnity.RuntimeManager.CreateInstance(audioSheet["sailWindUp"]);
             woodCreakSFX = FMODUnity.RuntimeManager.CreateInstance(audioSheet["mastCreak"]);
             woodCreakSFX.start();
 
@@ -75,7 +77,6 @@ public class ShipController : MonoBehaviour
             GameManager gameManager = GameManager.Instance;
             if (gameManager.gameStarted && !gameManager.gameEnded)
             {
-                // ApplyForwardForce();
                 ApplyJumpForce();
                 // ApplyTilt();
             }
@@ -94,7 +95,16 @@ public class ShipController : MonoBehaviour
 
     #endregion
 
-    public void OnThrottleChange(float value) => sailThrottle = value;
+    public void OnThrottleChange(float value)
+    {
+        sailThrottle = value;
+
+        FMOD.Studio.PLAYBACK_STATE playbackState;    
+        sailWindUpSFX.getPlaybackState(out playbackState);
+        
+        if (playbackState == FMOD.Studio.PLAYBACK_STATE.STOPPED)
+            sailWindUpSFX.start();
+    } 
 
     public void SetProperties(BoatSpecs data) => properties = data;
     public void Setup()
