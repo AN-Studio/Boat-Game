@@ -111,8 +111,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 307555763042644476}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.55, y: 2.09, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 1.65, y: 1.8, z: 0}
+  m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_Children:
   - {fileID: 2669926721226028984}
   m_Father: {fileID: 64855426730623571}
@@ -181,7 +181,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 1
-  m_Mass: 0.22815001
+  m_Mass: 0.14601602
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 1
@@ -231,7 +231,7 @@ FixedJoint2D:
   m_BreakTorque: Infinity
   m_AutoConfigureConnectedAnchor: 1
   m_Anchor: {x: 0, y: -2.09}
-  m_ConnectedAnchor: {x: 1.55, y: 0}
+  m_ConnectedAnchor: {x: 1.65, y: 0.12800002}
   m_DampingRatio: 0
   m_Frequency: 0
 --- !u!114 &6486132524199781448
@@ -246,6 +246,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b37c30ac5f6b4848bc6abff1af6052f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audioSheet: {fileID: 0}
   controller: {fileID: 0}
   rb: {fileID: 3394351931320892327}
   collider: {fileID: 3955714156111603565}
@@ -469,6 +470,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 731210d285b76b741a1aae45211bfa0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audioSheet: {fileID: 0}
   properties: {fileID: 0}
   jumpRegion: {fileID: 0}
   gui: {fileID: 0}
@@ -503,7 +505,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5774131889791658462}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.55, y: 2.09, z: 0}
+  m_LocalPosition: {x: -1.18, y: 2.09, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 5076417255517912083}
@@ -623,7 +625,7 @@ FixedJoint2D:
   m_BreakTorque: Infinity
   m_AutoConfigureConnectedAnchor: 1
   m_Anchor: {x: 0, y: -2.09}
-  m_ConnectedAnchor: {x: -1.55, y: 0}
+  m_ConnectedAnchor: {x: -1.18, y: 0}
   m_DampingRatio: 0
   m_Frequency: 0
 --- !u!114 &5614400075016918859
@@ -638,6 +640,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b37c30ac5f6b4848bc6abff1af6052f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audioSheet: {fileID: 0}
   controller: {fileID: 0}
   rb: {fileID: 4548389221685797277}
   collider: {fileID: 893437133118209958}

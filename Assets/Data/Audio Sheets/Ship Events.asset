@@ -19,3 +19,5 @@ MonoBehaviour:
     eventRef: event:/Mast/Mast Cracking
   - identifier: mastSnapping
     eventRef: event:/Mast/Mast Snapping
+  - identifier: sailWindUp
+    eventRef: event:/Mast/Windup

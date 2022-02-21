@@ -151,11 +151,11 @@ public class ShipController : MonoBehaviour
 
         if (body.IsTouchingLayers(mask))
         {
-            rb.angularDrag = 2 * depth * Mathf.Max(properties.bodyDrag.x, properties.bodyDrag.y);
+            rb.angularDrag = 10 * depth * Mathf.Max(properties.bodyDrag.x, properties.bodyDrag.y);
         }
         else
         {
-            rb.angularDrag = 2 * .001f * depth * Mathf.Max(properties.bodyDrag.x, properties.bodyDrag.y);
+            rb.angularDrag = 10 * .001f * depth * Mathf.Max(properties.bodyDrag.x, properties.bodyDrag.y);
         }
     }
 
