@@ -856,7 +856,7 @@ public partial class WaterGenerator : MonoBehaviour
     #endregion
 
     #region Gizmos
-        private void OnDrawGizmos() {
+        private void OnDrawGizmosSelected() {
             #if UNITY_EDITOR
                 Gizmos.color = upperWaterColor;
                 Gizmos.DrawLine(

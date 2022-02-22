@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -66,6 +67,12 @@ public class GameManager : MonoBehaviour
     }
 
     #region Public Functions
+        public void ResetGame() 
+        {
+            Scene scene = SceneManager.GetActiveScene();
+            SceneManager.LoadScene(scene.buildIndex);
+        }
+
         public Cell GetRandomCell() 
         {
             int totalWeight = 0;

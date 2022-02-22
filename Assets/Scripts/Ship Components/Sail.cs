@@ -77,7 +77,10 @@ public class Sail : MonoBehaviour {
         else
         {
             if (breakSequence != null)
+            {
                 StopCoroutine(breakSequence);
+                mastCrackingSFX.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            }
             breakSequence = null;
         }
 
@@ -87,11 +90,8 @@ public class Sail : MonoBehaviour {
     {
         yield return timeUntilBreak;
 
-        StartCoroutine(BreakMast());
-    }
+        // StartCoroutine(BreakMast());
 
-    private IEnumerator BreakMast()
-    {
         mastCrackingSFX.start();
 
         FMOD.Studio.PLAYBACK_STATE playbackState;    
@@ -115,6 +115,32 @@ public class Sail : MonoBehaviour {
         ;
         isBroken = true;
     }
+
+    // private IEnumerator BreakMast()
+    // {
+    //     mastCrackingSFX.start();
+
+    //     FMOD.Studio.PLAYBACK_STATE playbackState;    
+    //     bool isPlaying = true;
+
+    //     while (isPlaying)
+    //     {
+    //         yield return null;
+
+    //         mastCrackingSFX.getPlaybackState(out playbackState);
+    //         isPlaying = playbackState != FMOD.Studio.PLAYBACK_STATE.STOPPED;
+    //     }
+
+    //     print("Breaking Mast!");
+    //     mastSnappingSFX.start();
+
+    //     Destroy(GetComponent<Joint2D>());
+    //     gameObject.layer = transform.parent.gameObject.layer == LayerMask.NameToLayer("Default")?
+    //         LayerMask.NameToLayer("Default") :
+    //         LayerMask.NameToLayer("Back Entities") 
+    //     ;
+    //     isBroken = true;
+    // }
 
     public void SetThrottle(float value) => throttle = Mathf.Clamp01(value);
 }
