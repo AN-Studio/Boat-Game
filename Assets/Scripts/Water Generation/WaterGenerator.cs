@@ -62,6 +62,18 @@ public partial class WaterGenerator : MonoBehaviour
         private const float standardDrag = 1.05f;
     #endregion
 
+    private float WaveFunction(float t) 
+    {
+        float waveIntensity = GameManager.Instance.waveIntensity;
+
+        // float t = nodes[nodes.Count-1].position.x * waveDeltaTime / wavePeriod + time;
+        
+        return 
+            waveIntensity * Mathf.Sin(t) + 
+            waveIntensity * Mathf.Cos(t) * Mathf.Sin(t) * Mathf.Sin(t)
+        ;
+    }
+
     #region MonoBehaviour Functions
 
         private void OnTriggerEnter2D(Collider2D other) 
@@ -73,6 +85,7 @@ public partial class WaterGenerator : MonoBehaviour
             
             ReactToCollision(other);
 
+            // Compute drag according to cross surface
             Vector2 normal = other.attachedRigidbody.velocity.normalized;
             float crossArea = (normal * other.bounds.size).magnitude;
             other.attachedRigidbody.drag = standardDrag * crossArea ;
@@ -98,6 +111,7 @@ public partial class WaterGenerator : MonoBehaviour
         
         void OnTriggerExit2D(Collider2D other) 
         {
+            // Reduce drag to air density levels, unless object is the player.
             if (!other.gameObject.CompareTag("Player"))
             {
                 Vector2 normal = other.attachedRigidbody.velocity.normalized;
@@ -158,58 +172,11 @@ public partial class WaterGenerator : MonoBehaviour
                 
                 if (obj != null && !obj.gameObject.CompareTag("IgnoreWater"))
                 {
-                    // if (!obj.attachedRigidbody.freezeRotation)
-                    // {
-                        AccuratePhysics(obj);
-                    // }
-                    // else
-                    // {
-                    //     // SimplifiedPhysics(obj);
-                    // }
-
-                    // ReactToCollision(obj);
+                    SimulateBuoyancy(obj);
                 }
             }
         }
-        void SimplifiedPhysics(Collider2D other)
-        {
-            Rigidbody2D rb = other.attachedRigidbody;
-            PolygonCollider2D waterBody = GetComponent<PolygonCollider2D>();
-
-            Vector2 center = rb.worldCenterOfMass;
-            Vector2 size = GetColliderSize(other);
-            
-            Vector2[] centroids = new Vector2[] {
-                center,
-                center + (size * (Vector2.up) / 4).Rotate(rb.rotation),
-                center + (size * (Vector2.left) / 4).Rotate(rb.rotation),
-                center + (size * (Vector2.right) / 4).Rotate(rb.rotation),
-                center + (size * (Vector2.down) / 4).Rotate(rb.rotation),
-                center + (size * (Vector2.up + Vector2.left) / 4).Rotate(rb.rotation),
-                center + (size * (Vector2.up + Vector2.right) / 4).Rotate(rb.rotation),
-                center + (size * (Vector2.down + Vector2.right) / 4).Rotate(rb.rotation),
-                center + (size * (Vector2.down + Vector2.left) / 4).Rotate(rb.rotation)
-            };
-
-            float volume = 0;
-            float volumePerDivision = size.x * size.y / centroids.Length;
-            foreach (Vector2 centroid in centroids)
-            {
-                if (waterBody.OverlapPoint(centroid))
-                    volume += volumePerDivision;
-            }
-
-            float fluidDensity = 1f;
-            float dragCoefficient = .38f;
-            float crossSection = rb.velocity.y > 0 ? other.bounds.size.x : other.bounds.size.y; // this one might need a better solution
-
-            Vector2 buoyancy = -fluidDensity * Physics2D.gravity * volume;
-            float drag = .5f * rb.velocity.sqrMagnitude * dragCoefficient * crossSection;
-
-            rb.AddForce(-drag * rb.velocity.normalized);
-            rb.AddForce(buoyancy);
-        }
-        void AccuratePhysics(Collider2D other) 
+        void SimulateBuoyancy(Collider2D other) 
         {
             Rigidbody2D rb = other.attachedRigidbody;
             PolygonCollider2D waterBody = GetComponent<PolygonCollider2D>();
@@ -270,49 +237,12 @@ public partial class WaterGenerator : MonoBehaviour
 
                 // Compute the submerged volume & its centroid
                 centroid = ComputeCentroid(vertices, triangles, out volume);
-
             }
-
-            // bool waterOverlaps = false;
-            // if ((vertices[upperCornerIndex].y > leftNode.position.y || vertices[upperCornerIndex].y > rightNode.position.y)
-            // && (vertices[(upperCornerIndex+2)%4].y <= leftNode.position.y || vertices[(upperCornerIndex+2)%4].y <= rightNode.position.y))
-            // {
-            //     // Add contact points between water & collider
-            //     var (p1,p2) = FindIntersectionsOnSurface(vertices, rb.rotation, upperCornerIndex);
-
-            //     // Interpolate the linear function that includes the segment of water surface.
-            //     var surfaceSlope = (p2.y - p1.y) / (p2.x - p1.x);
-            //     var surfaceOffset = p2.y - surfaceSlope * p2.x;
-
-            //     // Compute the angle of the water's surface normal
-            //     normalForceAngle = (Mathf.Rad2Deg * Mathf.Atan(-1 / surfaceSlope)) % 360 ;
-            //     normalForceAngle = normalForceAngle < 0 ? 180 + normalForceAngle : normalForceAngle;
-
-            //     // Debug.Log($"Intersections: {p1} {p2}");
-            //     // Debug.Log($"Submerged Area (approx.): {(intersections[0].y -(center.y - size.y/2)) * size.x}");
-
-            //     // Remove unsubmerged vertices
-            //     vertices.RemoveAll(vertex => vertex.y > surfaceSlope * vertex.x + surfaceOffset);
-            //     waterOverlaps = vertices.Count < 4;
-                
-            //     vertices.Insert(0, p1);
-            //     vertices.Insert(1, p2);
-            // }
 
             // debug = "Submerged Volume Vertices:\n";
             // foreach (var vertex in vertices)
             //     debug += $"{vertex}\n";
             // Debug.Log(debug);
-
-            
-            // if (vertices.Any(vertex => waterBody.OverlapPoint(vertex)))
-            // {
-            //     // Split the unsubmerged volume into triangles
-            //     List<int> triangles = SplitIntoTriangles(vertices);
-
-            //     // Compute the submerged volume & its centroid
-            //     centroid = ComputeCentroid(vertices, triangles, out volume);
-            // }
 
             // Debug.Log($"Buoyancy Centroid: {centroid}\nSubmerged Volume: {volume}");
 
@@ -584,6 +514,9 @@ public partial class WaterGenerator : MonoBehaviour
             float disturbance;
             WaterNode cycledNode;
             float waveIntensity = GameManager.Instance.waveIntensity;
+            float wavePeriod = GameManager.Instance.wavePeriod;
+            float waveDeltaTime = (spreadSpeed*Time.fixedDeltaTime);
+
             for (int i = 1; i <= nodesPerUnit; i++)
             {
                 cycledNode = nodes[0];
@@ -592,19 +525,17 @@ public partial class WaterGenerator : MonoBehaviour
                 cycledNode.Reset();
                 cycledNode.position.x = nodes[nodes.Count-1].position.x + (positionDelta);
                 
-
-                disturbance = 
-                    waveIntensity * (isBackLane ? 
-                        Mathf.Cos(cycledNode.position.x + time) : 
-                        Mathf.Sin(cycledNode.position.x + time))
-                ;
+                float t = cycledNode.position.x * waveDeltaTime / wavePeriod + time;
+                disturbance = WaveFunction(t);
                 
                 cycledNode.position.y = transform.position.y + disturbance;
+                cycledNode.velocity = (-nodes[nodes.Count-1].position.y + cycledNode.position.y) / waveDeltaTime;
+                cycledNode.acceleration = (-nodes[nodes.Count-1].velocity + cycledNode.velocity) / waveDeltaTime;
                 // cycledNode.disturbance = disturbance;
                 
                 nodes.Add(cycledNode);
 
-                time = (time + Time.fixedDeltaTime) % (2*Mathf.PI); 
+                time = ((time + Time.fixedDeltaTime) / wavePeriod) % (2*Mathf.PI); 
             }
         }
 
@@ -613,6 +544,9 @@ public partial class WaterGenerator : MonoBehaviour
             float disturbance;
             WaterNode cycledNode;
             float waveIntensity = GameManager.Instance.waveIntensity;
+            float wavePeriod = GameManager.Instance.wavePeriod;
+            float waveDeltaTime = (spreadSpeed*Time.fixedDeltaTime);
+
             for (int i = 1; i <= nodesPerUnit; i++)
             {
                 cycledNode = nodes[nodes.Count -1];
@@ -621,39 +555,35 @@ public partial class WaterGenerator : MonoBehaviour
                 cycledNode.Reset();
                 cycledNode.position.x = nodes[0].position.x - (positionDelta);
                 
-                disturbance = 
-                    waveIntensity * (isBackLane ? 
-                        Mathf.Cos(cycledNode.position.x + time) : 
-                        Mathf.Sin(cycledNode.position.x + time))
-                ;
+                float t = cycledNode.position.x * waveDeltaTime / wavePeriod + time;
+                disturbance = WaveFunction(t);
                 
                 cycledNode.position.y = transform.position.y + disturbance;
+                cycledNode.velocity = (nodes[nodes.Count-1].position.y - cycledNode.position.y) / waveDeltaTime;
+                cycledNode.acceleration = (nodes[nodes.Count-1].velocity - cycledNode.velocity) / waveDeltaTime;
                 // cycledNode.disturbance = disturbance;
 
                 nodes.Insert(0, cycledNode);
                 
-                time = (time + Time.fixedDeltaTime) % (2*Mathf.PI); 
+                time = ((time + Time.fixedDeltaTime / wavePeriod)) % (2*Mathf.PI); 
             }
         }
 
         void GenerateWaves()
         {
-            float waveIntensity = GameManager.Instance.waveIntensity;
-            float disturbance = 
-                waveIntensity * (isBackLane ? 
-                    Mathf.Cos(nodes[nodes.Count-1].position.x * (spreadSpeed*Time.fixedDeltaTime)+ time) : 
-                    Mathf.Sin(nodes[nodes.Count-1].position.x * (spreadSpeed*Time.fixedDeltaTime)+ time))
-            ;
+            float wavePeriod = GameManager.Instance.wavePeriod;
+            float waveDeltaTime = spreadSpeed * Time.fixedDeltaTime;
+            float t = nodes[nodes.Count-1].position.x * waveDeltaTime / wavePeriod + time;
             
-            time = (time + Time.fixedDeltaTime) % (2*Mathf.PI);
+            nodes[nodes.Count-1].Disturb( WaveFunction(t) );
 
-            nodes[nodes.Count-1].Disturb(disturbance);
+            time = ((time + Time.fixedDeltaTime) / wavePeriod) % (2*Mathf.PI);
         }
         void ApplySpringForces()
         {
             for (int i = 0; i < nodes.Count ; i++)
             {
-                if (i < nodes.Count-1)
+                // if (i < nodes.Count-1)
                     nodes[i].Update(springConstant, damping, massPerNode);
                 surface.SetPosition(i, nodes[i].position);
             } 
@@ -717,6 +647,7 @@ public partial class WaterGenerator : MonoBehaviour
             float velocity;
             foreach (Collider2D splasher in splashedNodes.Keys)
             {
+                if (splasher.attachedRigidbody == null) continue;
                 massPerSplash = splasher.attachedRigidbody.mass / splashedNodes[splasher].Count;
                 velocity = splasher.attachedRigidbody.velocity.y;
 

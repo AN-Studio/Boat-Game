@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
         public bool gameStarted = false;
         public bool gameEnded = false;
         [Range(.1f,10f)] public float waveIntensity = 1;
+        [Range(.95f,1.1f)] public float wavePeriod = 1;
         [Range(0,60f)] public float windSpeed = 0;
     #endregion
 
@@ -50,6 +51,7 @@ public class GameManager : MonoBehaviour
             }
         #endregion
     
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
         DontDestroyOnLoad(gameObject);
     }
 

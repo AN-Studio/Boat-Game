@@ -20,7 +20,7 @@ public partial class WaterGenerator
 
         #region Public Functions
             
-            #region Construnctors
+            #region Constructors
                 public WaterNode(Vector2 position)
                 {
                     positionBase = position;
@@ -45,7 +45,7 @@ public partial class WaterGenerator
             }
             public float Splash(float splasherMass, float splasherVelocity, float massPerNode) 
             {
-                splasherVelocity = Mathf.Min(0f, splasherVelocity);
+                // splasherVelocity = Mathf.Min(0f, splasherVelocity);
 
                 this.velocity = 
                     (2*splasherMass*splasherVelocity + (massPerNode - splasherMass)*this.velocity) /
