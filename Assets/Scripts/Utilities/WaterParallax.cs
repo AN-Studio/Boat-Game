@@ -22,7 +22,7 @@ public class WaterParallax : Parallax
 
         transform.position = new Vector3(origin.x + distance + motion.x, origin.y + motion.y, transform.position.z);
 
-        if (temp > origin.x + length) origin.x += length;
-        else if (temp < origin.x - length) origin.x -= length; 
+        if (temp > origin.x + scaledLength) origin.x += length;
+        else if (temp < origin.x - scaledLength) origin.x -= length; 
     }
 }

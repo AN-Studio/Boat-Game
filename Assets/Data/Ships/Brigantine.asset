@@ -21,5 +21,5 @@ MonoBehaviour:
   mastRigidity: 0
   mastDensity: 0.6
   bodyDensity: 0.3
-  keelRelativePos: 1
-  keelWeightRatio: 2
+  keelRelativePos: 1.504
+  keelWeightRatio: 3

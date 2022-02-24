@@ -65,13 +65,14 @@ public partial class WaterGenerator : MonoBehaviour
     private float WaveFunction(float t) 
     {
         float waveIntensity = GameManager.Instance.waveIntensity;
+        float waveNoiseFactor = GameManager.Instance.waveNoiseFactor;
 
         // float t = nodes[nodes.Count-1].position.x * waveDeltaTime / wavePeriod + time;
         
-        return 
-            waveIntensity * Mathf.Sin(t) + 
-            waveIntensity * Mathf.Cos(t) * Mathf.Sin(t) * Mathf.Sin(t)
-        ;
+        return waveIntensity * (
+            (1 / (2*waveNoiseFactor)) * Mathf.Sin(t) + 
+            (waveNoiseFactor) * Mathf.Pow( Mathf.Cos(t), 3 ) * Mathf.Sin(t)
+        );
     }
 
     #region MonoBehaviour Functions
@@ -154,7 +155,6 @@ public partial class WaterGenerator : MonoBehaviour
             GenerateWaves();
            
             ProcessInteractionQueue();
-            // ReactToCollisions(); 
             
             ApplySpringForces();
             PropagateWaves();

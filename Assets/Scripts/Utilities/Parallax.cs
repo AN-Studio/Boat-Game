@@ -15,7 +15,7 @@ public class Parallax : MonoBehaviour
     {
         cam = Camera.main.transform;
         length = GetComponentInChildren<SpriteRenderer>().bounds.size.x;
-        scaledLength = length * transform.localScale.x;
+        scaledLength = length * transform.lossyScale.x;
         origin = transform.position;
 
     }

@@ -17,13 +17,24 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Game State
+
+        #region Game State
+            [Header("Game State")]
+            public bool gameStarted = false;
+            public bool gameEnded = false;
+            [Range(0,60f)] public float windSpeed = 0;
+        #endregion
+        
+        #region Wave Parameters
+            [Header("Wave Parameters")]
+            [Range(.1f,10f)] public float waveIntensity = 1;
+            [Range(.95f,1.1f)] public float wavePeriod = 1;
+            [Range(.5f,2)] public float waveNoiseFactor = .5f;
+        #endregion
+
+        [Header("Cell Settings")]
         [SerializeField] int maxCellCount;
         private int cellCount = 1;
-        public bool gameStarted = false;
-        public bool gameEnded = false;
-        [Range(.1f,10f)] public float waveIntensity = 1;
-        [Range(.95f,1.1f)] public float wavePeriod = 1;
-        [Range(0,60f)] public float windSpeed = 0;
     #endregion
 
     #region References
