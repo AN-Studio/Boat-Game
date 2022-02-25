@@ -161,11 +161,11 @@ public class ShipController : MonoBehaviour
 
         if (body.IsTouchingLayers(mask))
         {
-            rb.angularDrag = 2 * depth * Mathf.Max(properties.bodyDrag.x, properties.bodyDrag.y);
+            rb.angularDrag = 4 * depth * Mathf.Max(properties.bodyDrag.x, properties.bodyDrag.y);
         }
         else
         {
-            rb.angularDrag = 2 * .001f * depth * Mathf.Max(properties.bodyDrag.x, properties.bodyDrag.y);
+            rb.angularDrag = 4 * .001f * depth * Mathf.Max(properties.bodyDrag.x, properties.bodyDrag.y);
         }
     }
 
@@ -196,10 +196,11 @@ public class ShipController : MonoBehaviour
 
         if (wantsToJump && isTouchingWater && !GameManager.Instance.gameEnded)
         {
-            rb.AddForceAtPosition((jumpAcceleration * rb.mass * Vector2.up), transform.TransformPoint(centerOfMass));
+            print("Jumping!");
+            rb.AddForceAtPosition((jumpAcceleration * rb.mass * Vector2.up), transform.TransformPoint(centerOfMass), ForceMode2D.Impulse);
             wantsToJump = false;
 
-            StartCoroutine(ScaleLerp(rb.velocity.y, gameObject.layer != LayerMask.NameToLayer("Back Entities")));
+            // StartCoroutine(ScaleLerp(rb.velocity.y, gameObject.layer != LayerMask.NameToLayer("Back Entities")));
         }
     }
 

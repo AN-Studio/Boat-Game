@@ -8,14 +8,14 @@ public class Parallax : MonoBehaviour
     public float parallaxFactor;
     
     protected float length; 
-    protected float scaledLength;
+    // protected float scaledLength;
     protected Vector2 origin;
 
     void Awake() 
     {
         cam = Camera.main.transform;
         length = GetComponentInChildren<SpriteRenderer>().bounds.size.x;
-        scaledLength = length * transform.lossyScale.x;
+        // scaledLength = length * transform.lossyScale.x;
         origin = transform.position;
 
     }
@@ -34,7 +34,7 @@ public class Parallax : MonoBehaviour
 
         transform.position = new Vector3(origin.x + distance, origin.y, transform.position.z);
 
-        if (temp > origin.x + scaledLength) origin.x += length;
-        else if (temp < origin.x - scaledLength) origin.x -= length; 
+        if (temp > origin.x + length) origin.x += length;
+        else if (temp < origin.x - length) origin.x -= length; 
     }
 }
