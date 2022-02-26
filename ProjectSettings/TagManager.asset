@@ -44,20 +44,11 @@ TagManager:
   - name: Sky
     uniqueID: 3959028411
     locked: 0
-  - name: Sky Objects
-    uniqueID: 3989738315
+  - name: Background Back
+    uniqueID: 3312306419
     locked: 0
-  - name: Land background
-    uniqueID: 279620081
-    locked: 0
-  - name: Land Objects
-    uniqueID: 2016421259
-    locked: 0
-  - name: Back Water
-    uniqueID: 2033344139
-    locked: 0
-  - name: Between Waters
-    uniqueID: 993256091
+  - name: Background Front
+    uniqueID: 3206822871
     locked: 0
   - name: Default
     uniqueID: 0
