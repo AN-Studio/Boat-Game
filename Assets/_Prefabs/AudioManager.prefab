@@ -10,12 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 7795972642110829368}
   - component: {fileID: 7795972642110829371}
-  - component: {fileID: 7795972642110829370}
-  - component: {fileID: 7795972642110829369}
   m_Layer: 0
-  m_Name: Audio Control
+  m_Name: AudioManager
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 2800000, guid: 392af304825cbe847bbf4e603852e4dd, type: 3}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -50,31 +48,6 @@ MonoBehaviour:
   Banks:
   - Master
   - Master.strings
+  - SFX
   CollisionTag: 
   PreloadSamples: 0
---- !u!114 &7795972642110829370
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7795972642110829373}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b76ef45f52865e46b2579bb777437ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  busVolume: 0
---- !u!114 &7795972642110829369
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7795972642110829373}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f03edff801d42d4599fe94e57ba97c3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  vcaVolume: 0

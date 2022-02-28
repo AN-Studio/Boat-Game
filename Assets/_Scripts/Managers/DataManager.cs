@@ -2,12 +2,8 @@ using UnityEngine;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
-public partial class DataManager : MonoBehaviour
+public partial class DataManager : PersistentSingleton<DataManager>
 {
-    #region Singleton
-        public static DataManager Instance {get; private set;}
-    #endregion
-
     #region Data
         [Header("Game Data")]
         public int highScore = 0;
@@ -27,24 +23,6 @@ public partial class DataManager : MonoBehaviour
     #endregion
 
     #region MonoBehaviour Functions
-        void Awake() 
-        {
-            #region Singleton
-                if (Instance == null)
-                {
-                    Instance = this;
-                } 
-                else
-                {
-                    Debug.LogWarning("Tried to create another instance of DataManager");
-                    Destroy(this.gameObject);
-                }
-            #endregion
-        
-            DontDestroyOnLoad(gameObject);
-        }
-
-        // Start is called before the first frame update
         void Start()
         {
             LoadData();   
@@ -53,12 +31,6 @@ public partial class DataManager : MonoBehaviour
         void OnDestroy() 
         {
             SaveData();    
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-            
         }
     #endregion
 

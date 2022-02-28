@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "BoatSpecs", menuName = "Boat-Game/Boat Specs", order = 0)]
-public class BoatSpecs : ScriptableObject 
+[CreateAssetMenu(fileName = "New Ship", menuName = "Boat-Game/Ship", order = 0)]
+public class Ship : ScriptableObject 
 {
     #region Basic Details
         [Header("Details")]

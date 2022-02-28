@@ -7,13 +7,6 @@ using UnityEngine.Serialization;
 [RequireComponent(typeof(LineRenderer), typeof(MeshFilter), typeof(PolygonCollider2D))]
 public partial class WaterGenerator : MonoBehaviour
 {
-    #region Singleton
-        static WaterGenerator instance;
-        public static WaterGenerator Instance {
-            get => instance;
-        }
-    #endregion
-
     #region Settings
         [Header("Settings")]
         [SerializeField] bool isBackLane = false;
@@ -123,9 +116,6 @@ public partial class WaterGenerator : MonoBehaviour
 
         void Awake() 
         {
-            if (instance is null)
-                instance = this;
-
             effector = GetComponent<AreaEffector2D>();
             particles = GetComponent<ParticleSystem>();
             surface = GetComponent<LineRenderer>();

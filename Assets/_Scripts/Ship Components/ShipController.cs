@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 public class ShipController : MonoBehaviour
 {
     public AudioEventSheet audioSheet;
-    public BoatSpecs properties;
+    public Ship ship;
     public ActionRegion jumpRegion;
     public GUIDisplay gui;
 
@@ -106,22 +106,22 @@ public class ShipController : MonoBehaviour
             sailWindUpSFX.start();
     } 
 
-    public void SetProperties(BoatSpecs data) => properties = data;
+    public void SetShip(Ship data) => ship = data;
     public void Setup()
     {
-        body.density = properties.colliderDensity;
+        body.density = ship.colliderDensity;
 
         foreach (var mast in masts) 
         {
-            // mast.breakForce = properties.mastStrength;
-            mast.frequency = properties.mastRigidity;
-            mast.gameObject.GetComponent<Collider2D>().density = properties.mastDensity;
+            // mast.breakForce = ship.mastStrength;
+            mast.frequency = ship.mastRigidity;
+            mast.gameObject.GetComponent<Collider2D>().density = ship.mastDensity;
             mast.gameObject.tag = "Mast";
         }
 
         foreach (Sail sail in sails) 
         {
-            sail.dragCoefficient = properties.averageSailDrag;
+            sail.dragCoefficient = ship.averageSailDrag;
             sail.audioSheet = audioSheet;
         }
 
@@ -134,7 +134,7 @@ public class ShipController : MonoBehaviour
         float depth = Mathf.Min(body.size.x, body.size.y);
         
         Vector2 dragCoefficient = 
-            properties.bodyDrag * body.size * depth
+            ship.bodyDrag * body.size * depth
         ;
 
         LayerMask mask;
@@ -161,11 +161,11 @@ public class ShipController : MonoBehaviour
 
         if (body.IsTouchingLayers(mask))
         {
-            rb.angularDrag = 4 * depth * Mathf.Max(properties.bodyDrag.x, properties.bodyDrag.y);
+            rb.angularDrag = 4 * depth * Mathf.Max(ship.bodyDrag.x, ship.bodyDrag.y);
         }
         else
         {
-            rb.angularDrag = 4 * .001f * depth * Mathf.Max(properties.bodyDrag.x, properties.bodyDrag.y);
+            rb.angularDrag = 4 * .001f * depth * Mathf.Max(ship.bodyDrag.x, ship.bodyDrag.y);
         }
     }
 
@@ -174,8 +174,8 @@ public class ShipController : MonoBehaviour
         Vector2 size = WaterGenerator.GetColliderSize(body);
         Vector2 center = rb.worldCenterOfMass;
         
-        Vector2 keelWeight = rb.mass * properties.keelWeightRatio * Physics2D.gravity;
-        Vector2 keelPos = center + ((Vector2.down * size) * properties.keelRelativePos).Rotate(rb.rotation);
+        Vector2 keelWeight = rb.mass * ship.keelWeightRatio * Physics2D.gravity;
+        Vector2 keelPos = center + ((Vector2.down * size) * ship.keelRelativePos).Rotate(rb.rotation);
 
         // Debug.Log($"Keel Position: {keelPos}");
 

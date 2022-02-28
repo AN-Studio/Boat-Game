@@ -64,7 +64,7 @@ public class Sail : MonoBehaviour {
         // rb.AddForce(dragForce);
         rb.AddForceAtPosition(dragForce, centerOfDrag);
 
-        float mastStrength = controller.properties.mastStrength;
+        float mastStrength = controller.ship.mastStrength;
         controller.gui.UpdateTension(dragForce.x, mastStrength);
         FMODUnity.RuntimeManager.StudioSystem.setParameterByName("Tension", Mathf.Clamp01(dragForce.x / mastStrength));
         

@@ -19,7 +19,7 @@ public class ShipSpawner : MonoBehaviour
     #endregion
 
     [Space]
-    [SerializeField] BoatSpecs boatData;
+    [SerializeField] Ship ship;
     [SerializeField] AudioEventSheet audioSheet;
 
     // Start is called before the first frame update
@@ -41,7 +41,7 @@ public class ShipSpawner : MonoBehaviour
             boatInstance = null;
         }
 
-        boatInstance = Instantiate(boatData.prefab, transform.position, Quaternion.identity);
+        boatInstance = Instantiate(ship.prefab, transform.position, Quaternion.identity);
         boatInstance.tag = "Player";
         boatInstance.layer = LayerMask.NameToLayer("Default");
 
@@ -49,7 +49,7 @@ public class ShipSpawner : MonoBehaviour
 
         ShipController controller = boatInstance.GetComponentInChildren<ShipController>();
 
-        controller.SetProperties(boatData);
+        controller.SetShip(ship);
         slider.onValueChanged.AddListener(controller.OnThrottleChange);
         controller.jumpRegion = jumpRegion;
         controller.jumpAcceleration = jumpAcceleration;

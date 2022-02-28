@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour
+public class GameManager : PersistentSingleton<GameManager>
 {
     [System.Serializable]
     public struct RNGCell
@@ -11,10 +11,6 @@ public class GameManager : MonoBehaviour
         public Cell prefab;
         public int weight; 
     }
-
-    #region Singleton
-        public static GameManager Instance {get; private set;}
-    #endregion
 
     #region Game State
 
@@ -48,22 +44,10 @@ public class GameManager : MonoBehaviour
         private WaitForSeconds waitFor2Seconds = new WaitForSeconds(2f);
     #endregion
 
-    void Awake() 
+    protected override void Awake() 
     {
-        #region Singleton
-            if (Instance == null)
-            {
-                Instance = this;
-            } 
-            else
-            {
-                Debug.LogWarning("Tried to create another instance of GameManager");
-                Destroy(this.gameObject);
-            }
-        #endregion
-    
+        base.Awake();
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
-        DontDestroyOnLoad(gameObject);
     }
 
     // Start is called before the first frame update
