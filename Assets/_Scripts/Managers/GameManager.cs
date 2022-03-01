@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameManager : PersistentSingleton<GameManager>
+public class GameManager : Singleton<GameManager>
 {
     [System.Serializable]
     public struct RNGCell
@@ -36,6 +36,7 @@ public class GameManager : PersistentSingleton<GameManager>
     #region References
         public Transform lastEndpoint;
         public List<RNGCell> cells;
+        private Transform gameWorld;
     #endregion
 
     #region Private Variables
@@ -47,6 +48,7 @@ public class GameManager : PersistentSingleton<GameManager>
     protected override void Awake() 
     {
         base.Awake();
+        gameWorld = GameObject.Find("Game World").transform;
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
     }
 
@@ -92,7 +94,7 @@ public class GameManager : PersistentSingleton<GameManager>
         {
             Cell cell = GetRandomCell();
 
-            Cell instance  = Instantiate(cell, lastEndpoint.position, Quaternion.identity);
+            Cell instance  = Instantiate(cell, lastEndpoint.position, Quaternion.identity, gameWorld);
             lastEndpoint = instance.EndPoint;
             
             cellCount++;

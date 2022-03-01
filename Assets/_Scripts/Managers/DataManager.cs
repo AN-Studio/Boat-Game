@@ -2,7 +2,7 @@ using UnityEngine;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
-public partial class DataManager : PersistentSingleton<DataManager>
+public partial class DataManager : Singleton<DataManager>
 {
     #region Data
         [Header("Game Data")]

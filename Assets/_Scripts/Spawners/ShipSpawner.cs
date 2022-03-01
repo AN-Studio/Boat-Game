@@ -41,7 +41,8 @@ public class ShipSpawner : MonoBehaviour
             boatInstance = null;
         }
 
-        boatInstance = Instantiate(ship.prefab, transform.position, Quaternion.identity);
+        Transform setupObject = GameObject.Find("Setup").transform;
+        boatInstance = Instantiate(ship.prefab, transform.position, Quaternion.identity, setupObject);
         boatInstance.tag = "Player";
         boatInstance.layer = LayerMask.NameToLayer("Default");
 

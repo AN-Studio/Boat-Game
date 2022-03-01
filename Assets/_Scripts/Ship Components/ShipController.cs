@@ -171,7 +171,7 @@ public class ShipController : MonoBehaviour
 
     void ApplyKeelWeight()
     {
-        Vector2 size = WaterGenerator.GetColliderSize(body);
+        Vector2 size = Geometry.GetColliderSize(body);
         Vector2 center = rb.worldCenterOfMass;
         
         Vector2 keelWeight = rb.mass * ship.keelWeightRatio * Physics2D.gravity;

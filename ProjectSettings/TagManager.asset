@@ -44,10 +44,10 @@ TagManager:
   - name: Sky
     uniqueID: 3959028411
     locked: 0
-  - name: Background Back
+  - name: Back Water
     uniqueID: 3312306419
     locked: 0
-  - name: Background Front
+  - name: Middle Water
     uniqueID: 3206822871
     locked: 0
   - name: Default

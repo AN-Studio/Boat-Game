@@ -47,6 +47,6 @@ MonoBehaviour:
   slider: {fileID: 0}
   gUI: {fileID: 0}
   jumpRegion: {fileID: 0}
-  jumpAcceleration: 10
-  boatData: {fileID: 11400000, guid: 9c9e9e543e397534c8fade930d4a2d40, type: 2}
+  jumpAcceleration: 25
+  ship: {fileID: 11400000, guid: 9c9e9e543e397534c8fade930d4a2d40, type: 2}
   audioSheet: {fileID: 11400000, guid: a3fba697295741845ae85f4144013cc3, type: 2}
