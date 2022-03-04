@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Sail : MonoBehaviour {
     public AudioEventSheet audioSheet;
+    public Ship ship;
     private FMOD.Studio.EventInstance mastCrackingSFX;
     private FMOD.Studio.EventInstance mastSnappingSFX;
     public ShipController controller;
@@ -15,7 +16,6 @@ public class Sail : MonoBehaviour {
     private float raisedHeight;
     private float loweredHeight;
     private float throttle = 0;
-    public float dragCoefficient = 2.2f;
     const float airDensity = 0.001f;
     private bool isBroken = false;
     private Coroutine breakSequence;
@@ -35,6 +35,8 @@ public class Sail : MonoBehaviour {
         loweredHeight = raisedHeight - sailSprite.bounds.size.y;
         
         rb = collider.attachedRigidbody;
+        rb.useAutoMass = false;
+        rb.mass = 0;
     }
     private void Update() 
     {
@@ -57,19 +59,20 @@ public class Sail : MonoBehaviour {
         Vector2 relativeVelocity = (gameManager.windSpeed - rb.velocity.x) * Vector2.right;
         float sailArea = Mathf.Max(collider.size.x*collider.size.x, collider.size.y*collider.size.y);
 
-        Vector2 dragForce = airDensity * dragCoefficient * relativeVelocity.sqrMagnitude * sailArea * throttle * relativeVelocity.normalized; 
-        // Vector2 centerOfDrag = transform.TransformPoint(0, -collider.size.y * .5f, 0);
-        Vector2 centerOfDrag = transform.position;
+        Vector2 dragForce = airDensity * ship.averageSailDrag * relativeVelocity.sqrMagnitude * sailArea * throttle * relativeVelocity.normalized; 
+        Vector2 centerOfDrag = isBroken?
+            transform.position :
+            transform.TransformPoint(0, -collider.size.y * .5f, 0)
+        ;
 
         // rb.AddForce(dragForce);
         rb.AddForceAtPosition(dragForce, centerOfDrag);
 
-        float mastStrength = controller.ship.mastStrength;
-        controller.gui.UpdateTension(dragForce.x, mastStrength);
-        FMODUnity.RuntimeManager.StudioSystem.setParameterByName("Tension", Mathf.Clamp01(dragForce.x / mastStrength));
+        controller.gui.UpdateTension(dragForce.x, ship.mastStrength);
+        FMODUnity.RuntimeManager.StudioSystem.setParameterByName("Tension", Mathf.Clamp01(dragForce.x / ship.mastStrength));
         
         // print($"Drag Force: {dragForce}");
-        if (Mathf.Abs(dragForce.x) > mastStrength)
+        if (Mathf.Abs(dragForce.x) > ship.mastStrength)
         {
             if (!isBroken && breakSequence == null) 
                 breakSequence = StartCoroutine(StartBreakSequence());
@@ -114,6 +117,8 @@ public class Sail : MonoBehaviour {
             LayerMask.NameToLayer("Back Entities") 
         ;
         isBroken = true;
+        rb.useAutoMass = true;
+        collider.density = ship.mastDensity;
     }
 
     // private IEnumerator BreakMast()

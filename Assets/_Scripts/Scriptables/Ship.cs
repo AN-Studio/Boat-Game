@@ -18,7 +18,7 @@ public class Ship : ScriptableObject
         [Min(0f)] public float mastRigidity = 2f;
         public float mastDensity = 0.6f;
         [Range(0,1)] [SerializeField] float bodyDensity = 0.5f;
-        [Range(1f,2f)]public float keelRelativePos;
+        public Vector2 keelRelativePos;
         [Min(0f)] public float keelWeightRatio = 1f;
     #endregion
 

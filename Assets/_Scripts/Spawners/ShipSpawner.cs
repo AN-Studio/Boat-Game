@@ -16,6 +16,7 @@ public class ShipSpawner : MonoBehaviour
     #region Settings
         [Header("Global Ship Settings")]
         [SerializeField] float jumpAcceleration = 10;
+        [SerializeField] float maxTiltAngle = 45;
     #endregion
 
     [Space]
@@ -54,6 +55,7 @@ public class ShipSpawner : MonoBehaviour
         slider.onValueChanged.AddListener(controller.OnThrottleChange);
         controller.jumpRegion = jumpRegion;
         controller.jumpAcceleration = jumpAcceleration;
+        controller.maxTiltAngle = maxTiltAngle;
         controller.gui = gUI;
         controller.audioSheet = audioSheet;
     }

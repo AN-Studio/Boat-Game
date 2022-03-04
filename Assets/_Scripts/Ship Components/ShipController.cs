@@ -19,14 +19,23 @@ public class ShipController : MonoBehaviour
 
     [Range(0,1)] public float sailThrottle = 0;
     public float jumpAcceleration = 10;
+    public float maxTiltAngle;
     
     bool wantsToJump = false;
     float totalMass;
     Vector2 centerOfMass;
+    float tilt;
+    static readonly Vector2 vector2UpRight = Vector2.up + Vector2.right;
 
     private FMOD.Studio.EventInstance woodCreakSFX;
     private FMOD.Studio.EventInstance sailWindUpSFX;
 
+    float MaxTorque {
+        get {
+            float keelWeight = rb.mass * ship.keelWeightRatio * Physics2D.gravity.y;
+            return  keelWeight * ship.keelRelativePos.y * Mathf.Sin(maxTiltAngle * Mathf.Deg2Rad);
+        }
+    }
 
     #region MonoBehaviour Functions
         // Start is called before the first frame update
@@ -66,6 +75,8 @@ public class ShipController : MonoBehaviour
             }
 
             foreach(Sail sail in sails) sail.SetThrottle(sailThrottle);
+
+            tilt = GyroInput.GetTilt();
         }
 
         private void FixedUpdate() 
@@ -78,7 +89,7 @@ public class ShipController : MonoBehaviour
             if (gameManager.gameStarted && !gameManager.gameEnded)
             {
                 ApplyJumpForce();
-                // ApplyTilt();
+                ApplyTilt();
             }
 
             // print("This FixedUpdate:");
@@ -113,15 +124,13 @@ public class ShipController : MonoBehaviour
 
         foreach (var mast in masts) 
         {
-            // mast.breakForce = ship.mastStrength;
             mast.frequency = ship.mastRigidity;
-            mast.gameObject.GetComponent<Collider2D>().density = ship.mastDensity;
             mast.gameObject.tag = "Mast";
         }
 
         foreach (Sail sail in sails) 
         {
-            sail.dragCoefficient = ship.averageSailDrag;
+            sail.ship = ship;
             sail.audioSheet = audioSheet;
         }
 
@@ -175,7 +184,7 @@ public class ShipController : MonoBehaviour
         Vector2 center = rb.worldCenterOfMass;
         
         Vector2 keelWeight = rb.mass * ship.keelWeightRatio * Physics2D.gravity;
-        Vector2 keelPos = center + ((Vector2.down * size) * ship.keelRelativePos).Rotate(rb.rotation);
+        Vector2 keelPos = center + ((vector2UpRight * size/2) * ship.keelRelativePos).Rotate(rb.rotation);
 
         // Debug.Log($"Keel Position: {keelPos}");
 
@@ -197,7 +206,7 @@ public class ShipController : MonoBehaviour
         if (wantsToJump && isTouchingWater && !GameManager.Instance.gameEnded)
         {
             print("Jumping!");
-            rb.AddForceAtPosition((jumpAcceleration * rb.mass * Vector2.up), transform.TransformPoint(centerOfMass), ForceMode2D.Impulse);
+            rb.AddForce((jumpAcceleration * rb.mass * Vector2.up), ForceMode2D.Impulse);
             wantsToJump = false;
 
             // StartCoroutine(ScaleLerp(rb.velocity.y, gameObject.layer != LayerMask.NameToLayer("Back Entities")));
@@ -248,10 +257,10 @@ public class ShipController : MonoBehaviour
 
     void InitiateJump() => wantsToJump = true;
 
-    // void ApplyTilt()
-    // {
-    //     rb.AddTorque(tilt * tiltTorque);
-    // }
+    void ApplyTilt()
+    {
+        rb.AddTorque(tilt * MaxTorque);
+    }
 
     void ReadInputs()
     {
