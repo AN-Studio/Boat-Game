@@ -5,7 +5,17 @@ public class GyroInput
 {
     public static float GetTilt()
     {
-        Debug.Log(Input.acceleration);
-        return 0;
+        Vector2 projectionXY = new Vector2(Input.acceleration.x, Input.acceleration.y);
+        projectionXY.Normalize();
+
+        float result = Mathf.Clamp(projectionXY.x, -.75f, .75f) / .75f;
+
+        #if UNITY_EDITOR || UNITY_STANDALONE
+            result = Input.GetAxis("Horizontal");
+            result = Mathf.Clamp(result, -1, 1);
+        #endif
+
+        Debug.Log(result);
+        return result;
     }
 }

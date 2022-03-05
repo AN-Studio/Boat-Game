@@ -37,6 +37,10 @@ public class ShipController : MonoBehaviour
         }
     }
 
+    float JumpForceOffset {
+        get => tilt * body.size.x * .1f;
+    }
+
     #region MonoBehaviour Functions
         // Start is called before the first frame update
         void Start()
@@ -76,7 +80,7 @@ public class ShipController : MonoBehaviour
 
             foreach(Sail sail in sails) sail.SetThrottle(sailThrottle);
 
-            tilt = GyroInput.GetTilt();
+            tilt = -GyroInput.GetTilt();
         }
 
         private void FixedUpdate() 
@@ -184,7 +188,12 @@ public class ShipController : MonoBehaviour
         Vector2 center = rb.worldCenterOfMass;
         
         Vector2 keelWeight = rb.mass * ship.keelWeightRatio * Physics2D.gravity;
-        Vector2 keelPos = center + ((vector2UpRight * size/2) * ship.keelRelativePos).Rotate(rb.rotation);
+        // TODO: Rememberto restore this to just assigning the second value when done with testing.
+        // I just did this to test if the tilt control felt better during airborne.
+        Vector2 keelPos = body.IsTouchingLayers(LayerMask.GetMask("Water")) ?
+            center :
+            center + ((vector2UpRight * size/2) * ship.keelRelativePos).Rotate(rb.rotation)
+        ;
 
         // Debug.Log($"Keel Position: {keelPos}");
 
@@ -206,7 +215,12 @@ public class ShipController : MonoBehaviour
         if (wantsToJump && isTouchingWater && !GameManager.Instance.gameEnded)
         {
             print("Jumping!");
-            rb.AddForce((jumpAcceleration * rb.mass * Vector2.up), ForceMode2D.Impulse);
+            
+            Vector2 point = body.bounds.center;
+            point.x += JumpForceOffset;
+            point = point.Rotate(transform.rotation.z);
+            
+            rb.AddForceAtPosition((jumpAcceleration * rb.mass * Vector2.up), point, ForceMode2D.Impulse);
             wantsToJump = false;
 
             // StartCoroutine(ScaleLerp(rb.velocity.y, gameObject.layer != LayerMask.NameToLayer("Back Entities")));
