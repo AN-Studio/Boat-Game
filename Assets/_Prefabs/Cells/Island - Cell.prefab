@@ -430,6 +430,30 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1617321514017829223}
     m_Modifications:
+    - target: {fileID: 2495392791343206671, guid: 6ce56cc03b7e12d459047c1beab9b6cc, type: 3}
+      propertyPath: m_SortingOrder
+      value: -11
+      objectReference: {fileID: 0}
+    - target: {fileID: 6220667451030698420, guid: 6ce56cc03b7e12d459047c1beab9b6cc, type: 3}
+      propertyPath: m_SortingOrder
+      value: -12
+      objectReference: {fileID: 0}
+    - target: {fileID: 7012791974171491303, guid: 6ce56cc03b7e12d459047c1beab9b6cc, type: 3}
+      propertyPath: m_SortingOrder
+      value: -10
+      objectReference: {fileID: 0}
+    - target: {fileID: 7132487709897578982, guid: 6ce56cc03b7e12d459047c1beab9b6cc, type: 3}
+      propertyPath: m_SortingLayer
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7132487709897578982, guid: 6ce56cc03b7e12d459047c1beab9b6cc, type: 3}
+      propertyPath: m_SortingOrder
+      value: -10
+      objectReference: {fileID: 0}
+    - target: {fileID: 7132487709897578982, guid: 6ce56cc03b7e12d459047c1beab9b6cc, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -1088144425
+      objectReference: {fileID: 0}
     - target: {fileID: 7682974817860666488, guid: 6ce56cc03b7e12d459047c1beab9b6cc, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -477,6 +501,10 @@ PrefabInstance:
     - target: {fileID: 8047628586798946385, guid: 6ce56cc03b7e12d459047c1beab9b6cc, type: 3}
       propertyPath: m_Name
       value: Island
+      objectReference: {fileID: 0}
+    - target: {fileID: 8562107660974684723, guid: 6ce56cc03b7e12d459047c1beab9b6cc, type: 3}
+      propertyPath: m_SortingOrder
+      value: -12
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6ce56cc03b7e12d459047c1beab9b6cc, type: 3}

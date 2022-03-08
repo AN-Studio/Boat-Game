@@ -14,8 +14,8 @@ TagManager:
   - Ignore Collisions
   - Water
   - UI
-  - Back Water
-  - Back Entities
+  - Player
+  - Invisible Static
   - 
   - 
   - 

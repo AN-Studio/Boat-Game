@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 
 public class ShipController : MonoBehaviour
 {
+    public ControllerTweaks tweaks;
     public AudioEventSheet audioSheet;
     public Ship ship;
     public ActionRegion jumpRegion;
@@ -18,7 +19,9 @@ public class ShipController : MonoBehaviour
     SpriteRenderer[] renderers;
 
     [Range(0,1)] public float sailThrottle = 0;
-    public float jumpAcceleration = 10;
+    public float JumpForce {
+        get => -tweaks.JumpForce * rb.mass * (1 + ship.keelWeightRatio) * Physics2D.gravity.y;
+    }
     public float maxTiltAngle;
     
     bool wantsToJump = false;
@@ -33,8 +36,12 @@ public class ShipController : MonoBehaviour
     float MaxTorque {
         get {
             float keelWeight = rb.mass * ship.keelWeightRatio * Physics2D.gravity.y;
-            return  keelWeight * ship.keelRelativePos.y * Mathf.Sin(maxTiltAngle * Mathf.Deg2Rad);
+            return tweaks.MaxTorque * keelWeight * ship.keelRelativePos.y * Mathf.Sin(maxTiltAngle * Mathf.Deg2Rad);
         }
+    }
+
+    bool hasReleasedTiltInput {
+        get => tilt * rb.angularVelocity <= 0 || Mathf.Abs(tilt) < tweaks.GyroBias;
     }
 
     float JumpForceOffset {
@@ -49,6 +56,7 @@ public class ShipController : MonoBehaviour
             woodCreakSFX = FMODUnity.RuntimeManager.CreateInstance(audioSheet["mastCreak"]);
             woodCreakSFX.start();
 
+            tweaks = Resources.Load<ControllerTweaks>("Tweaks/Standard Config");
             body = GetComponentInChildren<CapsuleCollider2D>();
             masts = GetComponentsInChildren<FixedJoint2D>();
             sails = GetComponentsInChildren<Sail>();
@@ -145,9 +153,10 @@ public class ShipController : MonoBehaviour
     void UpdateDrag()
     {
         float depth = Mathf.Min(body.size.x, body.size.y);
-        
+        Vector2 crossSection = new Vector2(body.size.y, body.size.x);
+
         Vector2 dragCoefficient = 
-            ship.bodyDrag * body.size * depth
+            ship.bodyDrag * crossSection * depth
         ;
 
         LayerMask mask;
@@ -174,11 +183,14 @@ public class ShipController : MonoBehaviour
 
         if (body.IsTouchingLayers(mask))
         {
-            rb.angularDrag = 4 * depth * Mathf.Max(ship.bodyDrag.x, ship.bodyDrag.y);
+            rb.angularDrag = tweaks.AngularDrag * depth * Mathf.Max(ship.bodyDrag.x, ship.bodyDrag.y);
         }
         else
         {
-            rb.angularDrag = 4 * .001f * depth * Mathf.Max(ship.bodyDrag.x, ship.bodyDrag.y);
+            rb.angularDrag = tweaks.AngularDrag * .001f * depth * Mathf.Max(ship.bodyDrag.x, ship.bodyDrag.y);
+            rb.angularDrag *= hasReleasedTiltInput && Mathf.Abs(rb.angularVelocity) > tweaks.AngularSpeedBias ? 
+                tweaks.AngularDamping : 1
+            ; 
         }
     }
 
@@ -190,8 +202,8 @@ public class ShipController : MonoBehaviour
         Vector2 keelWeight = rb.mass * ship.keelWeightRatio * Physics2D.gravity;
         // TODO: Rememberto restore this to just assigning the second value when done with testing.
         // I just did this to test if the tilt control felt better during airborne.
-        Vector2 keelPos = body.IsTouchingLayers(LayerMask.GetMask("Water")) ?
-            center :
+        Vector2 keelPos = //body.IsTouchingLayers(LayerMask.GetMask("Water")) ?
+            //center :
             center + ((vector2UpRight * size/2) * ship.keelRelativePos).Rotate(rb.rotation)
         ;
 
@@ -214,13 +226,13 @@ public class ShipController : MonoBehaviour
 
         if (wantsToJump && isTouchingWater && !GameManager.Instance.gameEnded)
         {
-            print("Jumping!");
+            // print("Jumping!");
             
             Vector2 point = body.bounds.center;
             point.x += JumpForceOffset;
             point = point.Rotate(transform.rotation.z);
             
-            rb.AddForceAtPosition((jumpAcceleration * rb.mass * Vector2.up), point, ForceMode2D.Impulse);
+            rb.AddForceAtPosition((JumpForce * Vector2.up), point, ForceMode2D.Impulse);
             wantsToJump = false;
 
             // StartCoroutine(ScaleLerp(rb.velocity.y, gameObject.layer != LayerMask.NameToLayer("Back Entities")));
@@ -273,6 +285,7 @@ public class ShipController : MonoBehaviour
 
     void ApplyTilt()
     {
+        // print($"Angular Velocity: {rb.angularVelocity}\nTilt Input:{tilt}");
         rb.AddTorque(tilt * MaxTorque);
     }
 

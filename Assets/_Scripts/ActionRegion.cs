@@ -61,7 +61,7 @@ public class ActionRegion : MonoBehaviour
                     default:
                         break;
                 }
-            print("Touch triggered");
+            // print("Touch triggered");
         }
         #if UNITY_EDITOR
             else if (!regionTriggered && Input.GetButtonDown("Fire1"))

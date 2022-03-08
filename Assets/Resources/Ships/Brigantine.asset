@@ -17,9 +17,9 @@ MonoBehaviour:
   description: A medium-sized ship distiguished by its twin sails.
   bodyDrag: {x: 0.09, y: 0.6}
   averageSailDrag: 1.6
-  mastStrength: 2
+  mastStrength: 6
   mastRigidity: 0
   mastDensity: 0.6
-  bodyDensity: 0.3
+  bodyDensity: 0.5
   keelRelativePos: {x: 0, y: -1}
   keelWeightRatio: 3

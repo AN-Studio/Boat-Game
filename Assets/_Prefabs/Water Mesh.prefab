@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &7088383645307293226
+--- !u!1 &1988771687181287771
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,74 +8,43 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7088383645307293225}
-  m_Layer: 0
-  m_Name: Twin Waves
-  m_TagString: Untagged
-  m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7088383645307293225
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7088383645307293226}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 7088383646092349111}
-  m_Father: {fileID: 0}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &7088383646092349112
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7088383646092349111}
-  - component: {fileID: 7088383646092349071}
-  - component: {fileID: 7088383646092349104}
-  - component: {fileID: 7088383646092349105}
-  - component: {fileID: 7088383646092349106}
-  - component: {fileID: 7088383646092349107}
-  - component: {fileID: 7088383646092349108}
-  - component: {fileID: 7088383646092349109}
-  - component: {fileID: 7088383646092349110}
+  - component: {fileID: 1988771687181287764}
+  - component: {fileID: 1988771687181287756}
+  - component: {fileID: 1988771687181287763}
+  - component: {fileID: 1988771687181287762}
+  - component: {fileID: 1988771687181287761}
+  - component: {fileID: 1988771687181287760}
+  - component: {fileID: 1988771687181287767}
+  - component: {fileID: 1988771687181287766}
+  - component: {fileID: 1988771687181287765}
   m_Layer: 4
-  m_Name: Front Water
+  m_Name: Water Mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7088383646092349111
+--- !u!4 &1988771687181287764
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7088383646092349112}
+  m_GameObject: {fileID: 1988771687181287771}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: -2.19, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 7088383645307293225}
+  m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!120 &7088383646092349071
+--- !u!120 &1988771687181287756
 LineRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7088383646092349112}
+  m_GameObject: {fileID: 1988771687181287771}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -167,21 +136,21 @@ LineRenderer:
     generateLightingData: 1
   m_UseWorldSpace: 1
   m_Loop: 0
---- !u!33 &7088383646092349104
+--- !u!33 &1988771687181287763
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7088383646092349112}
+  m_GameObject: {fileID: 1988771687181287771}
   m_Mesh: {fileID: 0}
---- !u!23 &7088383646092349105
+--- !u!23 &1988771687181287762
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7088383646092349112}
+  m_GameObject: {fileID: 1988771687181287771}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 1
@@ -216,13 +185,13 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!60 &7088383646092349106
+--- !u!60 &1988771687181287761
 PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7088383646092349112}
+  m_GameObject: {fileID: 1988771687181287771}
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
@@ -246,38 +215,37 @@ PolygonCollider2D:
       - {x: 11.706107, y: -0.40450853}
       - {x: 12.293893, y: -0.40450847}
       - {x: 12.475529, y: 0.15450856}
---- !u!114 &7088383646092349107
+--- !u!114 &1988771687181287760
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7088383646092349112}
+  m_GameObject: {fileID: 1988771687181287771}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e476bc52c19ade44e97141179de1b233, type: 3}
+  m_Script: {fileID: 11500000, guid: e6ae88f8a44bcb2439c1d8d1fb6a13aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isBackLane: 0
-  upperWaterColor: {r: 0.21586865, g: 0.56078434, b: 0.9339623, a: 0.5176471}
+  upperWaterColor: {r: 0.34901962, g: 0.5058824, b: 0.69803923, a: 0.78039217}
   lowerWaterColor: {r: 0, g: 0, b: 0, a: 1}
-  longitude: 70
+  longitude: 120
   nodesPerUnit: 1
   waterDepth: 20
-  despawnDistance: 7
+  despawnDistance: 40
   performanceFactor: 10
   springConstant: 0.0204
   damping: 0.02
   spreadRatio: 0.33
   spreadSpeed: 8
---- !u!199 &7088383646092349108
+--- !u!199 &1988771687181287767
 ParticleSystemRenderer:
   serializedVersion: 6
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7088383646092349112}
+  m_GameObject: {fileID: 1988771687181287771}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -336,13 +304,13 @@ ParticleSystemRenderer:
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
   m_MaskInteraction: 0
---- !u!198 &7088383646092349109
+--- !u!198 &1988771687181287766
 ParticleSystem:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7088383646092349112}
+  m_GameObject: {fileID: 1988771687181287771}
   serializedVersion: 7
   lengthInSec: 0.5
   simulationSpeed: 1
@@ -4162,7 +4130,7 @@ ParticleSystem:
     colliderQueryMode: 0
     radiusScale: 1
     primitives:
-    - {fileID: 7088383646092349106}
+    - {fileID: 1988771687181287761}
   SubModule:
     serializedVersion: 2
     enabled: 0
@@ -5101,14 +5069,14 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
---- !u!249 &7088383646092349110
+--- !u!249 &1988771687181287765
 AreaEffector2D:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7088383646092349112}
+  m_GameObject: {fileID: 1988771687181287771}
   m_Enabled: 1
   m_UseColliderMask: 0
   m_ColliderMask:

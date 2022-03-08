@@ -15,7 +15,6 @@ public class ShipSpawner : MonoBehaviour
 
     #region Settings
         [Header("Global Ship Settings")]
-        [SerializeField] float jumpAcceleration = 10;
         [SerializeField] float maxTiltAngle = 45;
     #endregion
 
@@ -45,7 +44,7 @@ public class ShipSpawner : MonoBehaviour
         Transform setupObject = GameObject.Find("Setup").transform;
         boatInstance = Instantiate(ship.prefab, transform.position, Quaternion.identity, setupObject);
         boatInstance.tag = "Player";
-        boatInstance.layer = LayerMask.NameToLayer("Default");
+        boatInstance.layer = LayerMask.NameToLayer("Player");
 
         cam.Follow = boatInstance.transform;
 
@@ -54,7 +53,6 @@ public class ShipSpawner : MonoBehaviour
         controller.SetShip(ship);
         slider.onValueChanged.AddListener(controller.OnThrottleChange);
         controller.jumpRegion = jumpRegion;
-        controller.jumpAcceleration = jumpAcceleration;
         controller.maxTiltAngle = maxTiltAngle;
         controller.gui = gUI;
         controller.audioSheet = audioSheet;

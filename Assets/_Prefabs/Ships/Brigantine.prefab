@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2669926721226028984}
   - component: {fileID: 8517759131970836760}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Sail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 3955714156111603565}
   - component: {fileID: 7071107835783055164}
   - component: {fileID: 6486132524199781448}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Forward Mast
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -183,7 +183,7 @@ Rigidbody2D:
   m_UseAutoMass: 1
   m_Mass: 0.14601602
   m_LinearDrag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 0
   m_GravityScale: 1
   m_Material: {fileID: 0}
   m_Interpolate: 0
@@ -247,11 +247,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSheet: {fileID: 0}
+  ship: {fileID: 0}
   controller: {fileID: 0}
   rb: {fileID: 3394351931320892327}
   collider: {fileID: 3955714156111603565}
   sailTransform: {fileID: 2669926721226028984}
-  dragCoefficient: 2.2
 --- !u!1 &3787077078916957214
 GameObject:
   m_ObjectHideFlags: 0
@@ -262,7 +262,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5076417255517912083}
   - component: {fileID: 5310704306303859249}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Sail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -347,7 +347,7 @@ GameObject:
   - component: {fileID: 434997030320532086}
   - component: {fileID: 7674095822495956202}
   - component: {fileID: 2103725330486357888}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Brigantine
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -470,12 +470,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 731210d285b76b741a1aae45211bfa0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tweaks: {fileID: 0}
   audioSheet: {fileID: 0}
-  properties: {fileID: 0}
+  ship: {fileID: 0}
   jumpRegion: {fileID: 0}
   gui: {fileID: 0}
   sailThrottle: 0
-  jumpAcceleration: 10
+  maxTiltAngle: 0
 --- !u!1 &5774131889791658462
 GameObject:
   m_ObjectHideFlags: 0
@@ -490,7 +491,7 @@ GameObject:
   - component: {fileID: 893437133118209958}
   - component: {fileID: 216358582142349775}
   - component: {fileID: 5614400075016918859}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Main Mast
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -577,7 +578,7 @@ Rigidbody2D:
   m_UseAutoMass: 1
   m_Mass: 0.22815001
   m_LinearDrag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 0
   m_GravityScale: 1
   m_Material: {fileID: 0}
   m_Interpolate: 0
@@ -641,8 +642,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSheet: {fileID: 0}
+  ship: {fileID: 0}
   controller: {fileID: 0}
   rb: {fileID: 4548389221685797277}
   collider: {fileID: 893437133118209958}
   sailTransform: {fileID: 5076417255517912083}
-  dragCoefficient: 2.2

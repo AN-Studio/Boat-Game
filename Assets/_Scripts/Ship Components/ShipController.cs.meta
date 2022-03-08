@@ -3,7 +3,12 @@ guid: 731210d285b76b741a1aae45211bfa0e
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - tweaks: {fileID: 11400000, guid: 48cb309139ca96245bd68f0e34c597af, type: 2}
+  - audioSheet: {instanceID: 0}
+  - ship: {instanceID: 0}
+  - jumpRegion: {instanceID: 0}
+  - gui: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
