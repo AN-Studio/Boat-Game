@@ -1,8 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
-public class Sail : MonoBehaviour {
+public class Mast : MonoBehaviour {
+
+    struct Sail {
+        public Transform transform;
+        public SpriteRenderer sprite;
+        public Material material;
+        public float raisedHeight;
+        public float loweredHeight;
+    }
+
     public AudioEventSheet audioSheet;
     public Ship ship;
     private FMOD.Studio.EventInstance mastCrackingSFX;
@@ -10,11 +20,8 @@ public class Sail : MonoBehaviour {
     public ShipController controller;
     public Rigidbody2D rb;
     public new BoxCollider2D collider;
-    public Transform sailTransform;
-    Material sailMaterial;
+    List<Sail> sails;
 
-    private float raisedHeight;
-    private float loweredHeight;
     private float throttle = 0;
     const float airDensity = 0.001f;
     private bool isBroken = false;
@@ -28,22 +35,35 @@ public class Sail : MonoBehaviour {
 
         controller = GetComponentInParent<ShipController>();
         collider = GetComponent<BoxCollider2D>();
-        sailTransform = transform.GetChild(0);
-        SpriteRenderer sailSprite = sailTransform.GetComponentInChildren<SpriteRenderer>();
-        sailMaterial = sailSprite.material;
-        raisedHeight = sailTransform.localPosition.y;
-        loweredHeight = raisedHeight - sailSprite.bounds.size.y;
+        rb = GetComponent<Rigidbody2D>();
+        print(rb);
         
-        rb = collider.attachedRigidbody;
         rb.useAutoMass = false;
         rb.mass = 0;
+
+        sails = new List<Sail>();
+        foreach (Transform child in transform)
+        {
+            Sail sail = new Sail();
+            sail.transform = child;
+            sail.sprite = child.GetComponent<SpriteRenderer>();
+            sail.material = sail.sprite.material;
+            sail.raisedHeight = child.localPosition.y;
+            sail.loweredHeight = sail.raisedHeight - sail.sprite.bounds.size.y;
+
+            sails.Add(sail);
+        }
     }
     private void Update() 
     {
-        Vector3 position = sailTransform.localPosition;
-        position.y = Mathf.Lerp(raisedHeight, loweredHeight, 1-throttle);
-        sailMaterial.SetFloat("_AlphaThreshold", throttle);
-        sailTransform.localPosition = position;
+        foreach(Sail sail in sails)
+        {
+            Vector3 position = sail.transform.localPosition;
+            position.y = Mathf.Lerp(sail.raisedHeight, sail.loweredHeight, 1-throttle);
+            sail.transform.localPosition = position;
+            sail.material.SetFloat("_AlphaThreshold", throttle);
+        }
+
     }
 
     private void FixedUpdate() 

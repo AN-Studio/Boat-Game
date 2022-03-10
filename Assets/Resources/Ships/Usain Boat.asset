@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: baba47e98e58edb4a82b133fcba0e816, type: 3}
+  m_Name: Usain Boat
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 2180485902481843983, guid: 61dd1e2aed670c143b9fa56140e04821, type: 3}
+  name: Usain Boat
+  description: 
+  bodyDrag: {x: 0.09, y: 0.6}
+  averageSailDrag: 2.2
+  mastStrength: 6
+  mastRigidity: 0
+  mastDensity: 0.6
+  bodyDensity: 0.5
+  keelRelativePos: {x: 0, y: -1}
+  keelWeightRatio: 3

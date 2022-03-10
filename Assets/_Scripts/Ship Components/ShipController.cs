@@ -15,7 +15,7 @@ public class ShipController : MonoBehaviour
     Rigidbody2D rb;
     CapsuleCollider2D body;
     FixedJoint2D[] masts;
-    Sail[] sails;
+    Mast[] sails;
     SpriteRenderer[] renderers;
 
     [Range(0,1)] public float sailThrottle = 0;
@@ -59,15 +59,18 @@ public class ShipController : MonoBehaviour
             tweaks = Resources.Load<ControllerTweaks>("Tweaks/Standard Config");
             body = GetComponentInChildren<CapsuleCollider2D>();
             masts = GetComponentsInChildren<FixedJoint2D>();
-            sails = GetComponentsInChildren<Sail>();
+            sails = GetComponentsInChildren<Mast>();
             renderers = GetComponentsInChildren<SpriteRenderer>();
             
             rb = body.attachedRigidbody;
+            rb.useAutoMass = true;
 
             centerOfMass = rb.centerOfMass * rb.mass;
             totalMass = rb.mass;
             foreach (var mast in masts) 
             {
+                mast.connectedBody = rb;
+                mast.anchor = mast.GetComponent<Collider2D>().bounds.extents * Vector2.down; 
                 centerOfMass += mast.attachedRigidbody.mass * mast.attachedRigidbody.centerOfMass;
                 totalMass += mast.attachedRigidbody.mass;
             }
@@ -86,7 +89,7 @@ public class ShipController : MonoBehaviour
                 // GameManager.Instance.waveIntensity = 2;
             }
 
-            foreach(Sail sail in sails) sail.SetThrottle(sailThrottle);
+            foreach(Mast sail in sails) sail.SetThrottle(sailThrottle);
 
             tilt = -GyroInput.GetTilt();
         }
@@ -140,7 +143,7 @@ public class ShipController : MonoBehaviour
             mast.gameObject.tag = "Mast";
         }
 
-        foreach (Sail sail in sails) 
+        foreach (Mast sail in sails) 
         {
             sail.ship = ship;
             sail.audioSheet = audioSheet;

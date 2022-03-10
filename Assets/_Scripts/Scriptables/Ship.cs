@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Ship", menuName = "Boat-Game/Ship", order = 0)]
+[CreateAssetMenu(fileName = "New Ship", menuName = "Scriptable Objects/Ship", order = 0)]
 public class Ship : ScriptableObject 
 {
     #region Basic Details
@@ -12,13 +12,13 @@ public class Ship : ScriptableObject
 
     #region Boat Properties
         [Header("Properties")]
-        public Vector2 bodyDrag;
+        public Vector2 bodyDrag = new Vector2(.09f,.6f);
         [Range(0,3f)] public float averageSailDrag = 2.2f;
-        public float mastStrength = 500f;
-        [Min(0f)] public float mastRigidity = 2f;
+        public float mastStrength = 6f;
+        [Min(0f)] public float mastRigidity = 0f;
         public float mastDensity = 0.6f;
         [Range(0,1)] [SerializeField] float bodyDensity = 0.5f;
-        public Vector2 keelRelativePos;
+        public Vector2 keelRelativePos = new Vector2(0f,-1f);
         [Min(0f)] public float keelWeightRatio = 1f;
     #endregion
 

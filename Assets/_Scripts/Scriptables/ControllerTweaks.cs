@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Controller Tweaks", menuName = "Boat-Game/Controller Tweaks", order = 0)]
+[CreateAssetMenu(fileName = "New Controller Tweaks", menuName = "Scriptable Objects/Controller Tweaks", order = 0)]
 public class ControllerTweaks : ScriptableObject
 {   
     [Header("Settings")]
