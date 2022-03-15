@@ -11,7 +11,7 @@ public class GyroInput
         float result = Mathf.Clamp(projectionXY.x, -.75f, .75f) / .75f;
 
         #if UNITY_EDITOR || UNITY_STANDALONE
-            if (result == 0 || !UnityEditor.EditorApplication.isRemoteConnected)
+            if (result == 0)
             {
                 result = Input.GetAxis("Horizontal");
                 result = Mathf.Clamp(result, -1, 1);
