@@ -36,7 +36,7 @@ public class Mast : MonoBehaviour {
         controller = GetComponentInParent<ShipController>();
         collider = GetComponent<BoxCollider2D>();
         rb = GetComponent<Rigidbody2D>();
-        print(rb);
+        // print(rb);
         
         rb.useAutoMass = false;
         rb.mass = 0;

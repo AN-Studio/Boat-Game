@@ -22,6 +22,7 @@ public class OceanMesh : WaterMesh
     void Update() 
     {
         CheckCameraBounds();
+        SyncWithCameraTransform();
     }
 
     protected override void FixedUpdate()
@@ -59,6 +60,12 @@ public class OceanMesh : WaterMesh
         if (rightMostPos.x > rightBound) {
             for (int i = 0; i < rightMostPos.x - rightBound; i++) CycleNodesLeft(rightMostPos.x - rightBound);
         }
+    }
+    void SyncWithCameraTransform()
+    {
+        Vector2 position = cam.transform.position;
+        position.y = transform.position.y;
+        transform.position = position;
     }
 
     public void CycleNodesRight(float cycleDelta)

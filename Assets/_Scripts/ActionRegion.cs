@@ -81,7 +81,7 @@ public class ActionRegion : MonoBehaviour
                         break;
                     }
                 }
-                print("Fire1 Down");
+                // print("Fire1 Down");
             }
             else if (regionTriggered && Input.GetButtonUp("Fire1"))
             {
@@ -100,7 +100,7 @@ public class ActionRegion : MonoBehaviour
                         break;
                     }
                 }
-                print("Fire1 Up");
+                // print("Fire1 Up");
             }
         #endif
     }
