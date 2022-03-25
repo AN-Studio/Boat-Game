@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: Standard Config
   m_EditorClassIdentifier: 
   GyroBias: 0.25
+  MaxTiltAngle: 45
   AngularSpeedBias: 150
   AngularDamping: 5000
   JumpForce: 0.7
   MaxTorque: 1
   AngularDrag: 8
+  InWaterTorque: 2.5

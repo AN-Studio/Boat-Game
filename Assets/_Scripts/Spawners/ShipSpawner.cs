@@ -53,7 +53,6 @@ public class ShipSpawner : MonoBehaviour
         controller.SetShip(ship);
         slider.onValueChanged.AddListener(controller.OnThrottleChange);
         controller.jumpRegion = jumpRegion;
-        controller.maxTiltAngle = maxTiltAngle;
         controller.gui = gUI;
         controller.audioSheet = audioSheet;
     }
