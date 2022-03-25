@@ -63,7 +63,7 @@ public class ActionRegion : MonoBehaviour
                 }
             // print("Touch triggered");
         }
-        #if UNITY_EDITOR
+        #if UNITY_EDITOR || UNITY_STANDALONE
             else if (!regionTriggered && Input.GetButtonDown("Fire1"))
             {
                 pointer = new PointerEventData(eventSystem);
