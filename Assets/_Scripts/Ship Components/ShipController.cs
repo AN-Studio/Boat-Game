@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class ShipController : MonoBehaviour
+public class ShipController : StaticInstance<ShipController>
 {
     #region References
         public ControllerTweaks tweaks;
@@ -14,8 +14,8 @@ public class ShipController : MonoBehaviour
         public GUIDisplay gui;
 
         #region Internal
-            Rigidbody2D rb;
-            CapsuleCollider2D body;
+            internal Rigidbody2D rb;
+            internal CapsuleCollider2D body;
             FixedJoint2D[] masts;
             Mast[] sails;
             SpriteRenderer[] renderers;
