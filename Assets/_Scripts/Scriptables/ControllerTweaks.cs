@@ -6,6 +6,7 @@ using UnityEngine;
 public class ControllerTweaks : ScriptableObject
 {   
     [Header("Settings")]
+    [Range(0f,1f)] public float TimeUntilNextJump = 1f;
     [Range(0f,1f)] public float GyroBias = 0.1f;
     [Range(0f,90f)] public float MaxTiltAngle = 45f;
     public float AngularSpeedBias = 20f;

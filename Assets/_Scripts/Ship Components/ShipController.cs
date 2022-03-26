@@ -27,6 +27,7 @@ public class ShipController : StaticInstance<ShipController>
         [Range(0,1)] public float sailThrottle = 0;
         
         bool wantsToJump = false;
+        bool jumpIsEnabled = true;
         float totalMass;
         Vector2 centerOfMass;
         float tilt;
@@ -35,6 +36,7 @@ public class ShipController : StaticInstance<ShipController>
     #region Constants
         static readonly Vector2 vector2UpRight = Vector2.up + Vector2.right;
         static LayerMask waterMask;
+        static WaitForSeconds timeUntilEnabledJump;
     #endregion
 
     #region FMOD
@@ -153,6 +155,8 @@ public class ShipController : StaticInstance<ShipController>
         public void SetShip(Ship data) => ship = data;
         public void Setup()
         {
+            timeUntilEnabledJump = new WaitForSeconds(tweaks.TimeUntilNextJump);
+            
             body.density = ship.colliderDensity;
 
             foreach (var mast in masts) 
@@ -168,12 +172,20 @@ public class ShipController : StaticInstance<ShipController>
             }
 
             jumpRegion.onBegin += Jump;
+            // jumpRegion.onStay += Jump;
             // jumpRegion.OnEnded ;
         }
     #endregion
 
     #region Actions & Commands
-        void Jump() => wantsToJump = IsTouchingWater? true : wantsToJump;
+        void Jump() 
+        {
+            if (jumpIsEnabled && IsTouchingWater)
+            {
+                wantsToJump = true;
+                StartCoroutine(JumpTimer());
+            }
+        }
     #endregion
 
     #region Force Application
@@ -260,6 +272,19 @@ public class ShipController : StaticInstance<ShipController>
         }
 
     #endregion
+
+    IEnumerator JumpTimer()
+    {
+        jumpIsEnabled = false;
+
+        #if UNITY_EDITOR
+            yield return new WaitForSeconds(tweaks.TimeUntilNextJump);
+        #else
+            yield return timeUntilEnabledJump;
+        #endif
+
+        jumpIsEnabled = true;
+    }
 
     #region Legacy Code
         // void SwitchLane()

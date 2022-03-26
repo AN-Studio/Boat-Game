@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class OceanMesh : WaterMesh
 {
+    GameObject oceanFloor;
+
     #region WaveFunctions
         protected float WaveFunction(float t) 
         {
@@ -19,10 +21,22 @@ public class OceanMesh : WaterMesh
         }
     #endregion
 
+    protected override void Start() 
+    {
+        base.Start();
+
+        oceanFloor = new GameObject("Ocean Floor Collider", typeof(BoxCollider2D));
+        oceanFloor.transform.parent = transform;
+        oceanFloor.transform.localPosition = new Vector3(0, transform.position.y-waterDepth-.5f , 0);
+        
+        BoxCollider2D floorCollider = oceanFloor.GetComponent<BoxCollider2D>();
+        floorCollider.size = new Vector2(longitude+despawnDistance, 1);
+    }
+
     void Update() 
     {
         CheckCameraBounds();
-        SyncWithCameraTransform();
+        SyncWithShipTransform();
     }
 
     protected override void FixedUpdate()
@@ -64,11 +78,11 @@ public class OceanMesh : WaterMesh
             for (int i = 0; i < centerPos.x - transform.position.x; i++) CycleNodesLeft(centerPos.x - transform.position.x);
         }
     }
-    void SyncWithCameraTransform()
+    void SyncWithShipTransform()
     {
-        Vector2 position = cam.transform.position;
-        position.y = transform.position.y;
-        transform.position = position;
+        Vector2 position = ShipController.Instance.transform.position;
+        position.y = transform.parent.position.y;
+        transform.parent.position = position;
     }
 
     public void CycleNodesRight(float cycleDelta)

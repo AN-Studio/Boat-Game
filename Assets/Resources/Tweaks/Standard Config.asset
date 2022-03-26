@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f59320b548b98f44c89838321976f211, type: 3}
   m_Name: Standard Config
   m_EditorClassIdentifier: 
+  TimeUntilNextJump: 1
   GyroBias: 0.25
   MaxTiltAngle: 45
   AngularSpeedBias: 150

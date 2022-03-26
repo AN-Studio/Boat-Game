@@ -7,6 +7,7 @@ public class ActionRegion : MonoBehaviour
 {
     public delegate void Action();
     public Action onBegin;
+    public Action onStay;
     public Action onEnded;
     public GraphicRaycaster raycaster;
     PointerEventData pointer;
@@ -53,6 +54,10 @@ public class ActionRegion : MonoBehaviour
                 {
                     case TouchPhase.Began:
                         onBegin?.Invoke();
+                        break;
+                    case TouchPhase.Moved:
+                    case TouchPhase.Stationary:
+                        onStay?.Invoke();
                         break;
                     case TouchPhase.Ended:    
                         onEnded?.Invoke();

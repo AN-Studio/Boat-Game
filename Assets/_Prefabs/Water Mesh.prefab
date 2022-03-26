@@ -16,7 +16,6 @@ GameObject:
   - component: {fileID: 1988771687181287760}
   - component: {fileID: 1988771687181287767}
   - component: {fileID: 1988771687181287766}
-  - component: {fileID: 1988771687181287765}
   m_Layer: 4
   m_Name: Water Mesh
   m_TagString: Untagged
@@ -5069,23 +5068,3 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
---- !u!249 &1988771687181287765
-AreaEffector2D:
-  serializedVersion: 2
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1988771687181287771}
-  m_Enabled: 1
-  m_UseColliderMask: 0
-  m_ColliderMask:
-    serializedVersion: 2
-    m_Bits: 1
-  m_UseGlobalAngle: 0
-  m_ForceAngle: 0
-  m_ForceMagnitude: 0
-  m_ForceVariation: 0
-  m_ForceTarget: 1
-  m_Drag: 0
-  m_AngularDrag: 0

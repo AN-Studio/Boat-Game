@@ -50,7 +50,7 @@ public class ShipSpawner : MonoBehaviour
 
         // cam.Follow = boatInstance.transform;
         // CinemachineTargetGroup targetGroup = cam.GetComponent<CinemachineTargetGroup>();
-        targetGroup.AddMember(boatInstance.transform, 3, boatInstance.GetComponent<SpriteRenderer>().bounds.size.x);
+        targetGroup.AddMember(boatInstance.transform, 2, boatInstance.GetComponent<SpriteRenderer>().bounds.size.x);
         targetGroup.AddMember(ocean.transform, 1, ocean.waterDepth/2f);
 
         ShipController controller = boatInstance.GetComponentInChildren<ShipController>();
