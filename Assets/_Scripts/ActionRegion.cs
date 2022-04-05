@@ -7,6 +7,7 @@ public class ActionRegion : MonoBehaviour
 {
     public delegate void Action();
     public Action onBegin;
+    public Action onStay;
     public Action onEnded;
     public GraphicRaycaster raycaster;
     PointerEventData pointer;
@@ -54,6 +55,10 @@ public class ActionRegion : MonoBehaviour
                     case TouchPhase.Began:
                         onBegin?.Invoke();
                         break;
+                    case TouchPhase.Moved:
+                    case TouchPhase.Stationary:
+                        onStay?.Invoke();
+                        break;
                     case TouchPhase.Ended:    
                         onEnded?.Invoke();
                         regionTriggered = false;
@@ -63,7 +68,7 @@ public class ActionRegion : MonoBehaviour
                 }
             // print("Touch triggered");
         }
-        #if UNITY_EDITOR
+        #if UNITY_EDITOR || UNITY_STANDALONE
             else if (!regionTriggered && Input.GetButtonDown("Fire1"))
             {
                 pointer = new PointerEventData(eventSystem);
@@ -81,7 +86,7 @@ public class ActionRegion : MonoBehaviour
                         break;
                     }
                 }
-                print("Fire1 Down");
+                // print("Fire1 Down");
             }
             else if (regionTriggered && Input.GetButtonUp("Fire1"))
             {
@@ -100,7 +105,7 @@ public class ActionRegion : MonoBehaviour
                         break;
                     }
                 }
-                print("Fire1 Up");
+                // print("Fire1 Up");
             }
         #endif
     }

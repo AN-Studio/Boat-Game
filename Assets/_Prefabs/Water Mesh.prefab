@@ -16,7 +16,6 @@ GameObject:
   - component: {fileID: 1988771687181287760}
   - component: {fileID: 1988771687181287767}
   - component: {fileID: 1988771687181287766}
-  - component: {fileID: 1988771687181287765}
   m_Layer: 4
   m_Name: Water Mesh
   m_TagString: Untagged
@@ -224,20 +223,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1988771687181287771}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e6ae88f8a44bcb2439c1d8d1fb6a13aa, type: 3}
+  m_Script: {fileID: 11500000, guid: 79a158a5b257bc5439c20fe85d6d0e7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  upperWaterColor: {r: 0.34901962, g: 0.5058824, b: 0.69803923, a: 0.78039217}
-  lowerWaterColor: {r: 0, g: 0, b: 0, a: 1}
-  longitude: 120
-  nodesPerUnit: 1
-  waterDepth: 20
-  despawnDistance: 40
-  performanceFactor: 10
-  springConstant: 0.0204
-  damping: 0.02
-  spreadRatio: 0.33
-  spreadSpeed: 8
+  upperWaterColor: {r: 0, g: 0, b: 0, a: 0}
+  lowerWaterColor: {r: 0, g: 0, b: 0, a: 0}
+  longitude: 0
+  nodesPerUnit: 5
+  waterDepth: 0
+  despawnDistance: 5
+  performanceFactor: 2
+  springConstant: 0
+  damping: 0
+  spreadRatio: 0
+  spreadSpeed: 0
 --- !u!199 &1988771687181287767
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -5069,23 +5068,3 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
---- !u!249 &1988771687181287765
-AreaEffector2D:
-  serializedVersion: 2
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1988771687181287771}
-  m_Enabled: 1
-  m_UseColliderMask: 0
-  m_ColliderMask:
-    serializedVersion: 2
-    m_Bits: 1
-  m_UseGlobalAngle: 0
-  m_ForceAngle: 0
-  m_ForceMagnitude: 0
-  m_ForceVariation: 0
-  m_ForceTarget: 1
-  m_Drag: 0
-  m_AngularDrag: 0

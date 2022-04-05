@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class OceanMesh : WaterMesh
 {
+    GameObject oceanFloor;
+
     #region WaveFunctions
         protected float WaveFunction(float t) 
         {
@@ -19,9 +21,22 @@ public class OceanMesh : WaterMesh
         }
     #endregion
 
+    protected override void Start() 
+    {
+        base.Start();
+
+        oceanFloor = new GameObject("Ocean Floor Collider", typeof(BoxCollider2D));
+        oceanFloor.transform.parent = transform;
+        oceanFloor.transform.localPosition = new Vector3(0, transform.position.y-waterDepth-.5f , 0);
+        
+        BoxCollider2D floorCollider = oceanFloor.GetComponent<BoxCollider2D>();
+        floorCollider.size = new Vector2(longitude+despawnDistance, 1);
+    }
+
     void Update() 
     {
         CheckCameraBounds();
+        SyncWithShipTransform();
     }
 
     protected override void FixedUpdate()
@@ -42,23 +57,32 @@ public class OceanMesh : WaterMesh
     }
     void CheckCameraBounds() 
     {
-        Vector2 WorldUnitsInCamera;
-        WorldUnitsInCamera.y = cam.orthographicSize * 2;
-        WorldUnitsInCamera.x = WorldUnitsInCamera.y * Screen.width / Screen.height;
+        // Vector2 WorldUnitsInCamera;
+        // WorldUnitsInCamera.y = cam.orthographicSize * 2;
+        // WorldUnitsInCamera.x = WorldUnitsInCamera.y * Screen.width / Screen.height;
         
-        Vector2 leftMostPos = nodes[0].position;
-        Vector2 rightMostPos = nodes[nodes.Count - 1].position;
+        // Vector2 leftMostPos = nodes[0].position;
+        // Vector2 rightMostPos = nodes[nodes.Count - 1].position;
+        Vector2 centerPos = nodes[nodes.Count/2].position;
         
-        float leftBound = Camera.main.transform.position.x - WorldUnitsInCamera.x / 2 - despawnDistance;
-        float rightBound = Camera.main.transform.position.x + WorldUnitsInCamera.x / 2 + despawnDistance;
+        // float leftBound = Camera.main.transform.position.x - WorldUnitsInCamera.x / 2 - despawnDistance;
+        // float rightBound = Camera.main.transform.position.x + WorldUnitsInCamera.x / 2 + despawnDistance;
 
-        if (leftMostPos.x < leftBound) {
-            for (int i = 0; i < leftBound - leftMostPos.x; i++) CycleNodesRight(leftBound - leftMostPos.x);
+        // if (leftMostPos.x < leftBound) {
+        if (transform.position.x - centerPos.x > despawnDistance) {
+            for (int i = 0; i < transform.position.x - centerPos.x; i++) CycleNodesRight(transform.position.x - centerPos.x);
         }
 
-        if (rightMostPos.x > rightBound) {
-            for (int i = 0; i < rightMostPos.x - rightBound; i++) CycleNodesLeft(rightMostPos.x - rightBound);
+        // if (rightMostPos.x > rightBound) {
+        if (centerPos.x - transform.position.x > despawnDistance) {
+            for (int i = 0; i < centerPos.x - transform.position.x; i++) CycleNodesLeft(centerPos.x - transform.position.x);
         }
+    }
+    void SyncWithShipTransform()
+    {
+        Vector2 position = ShipController.Instance.transform.position;
+        position.y = transform.parent.position.y;
+        transform.parent.position = position;
     }
 
     public void CycleNodesRight(float cycleDelta)

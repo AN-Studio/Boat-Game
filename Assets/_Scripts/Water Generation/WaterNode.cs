@@ -12,6 +12,7 @@ public class WaterNode : FunctionNode
     public float velocity;
     public float acceleration;
     public float disturbance;
+    public float maxDepth;
 
     // const float massPerNode = 0.04f;
 
@@ -24,16 +25,18 @@ public class WaterNode : FunctionNode
     #region Public Functions
         
         #region Constructors
-            public WaterNode(Vector2 position)
+            public WaterNode(Vector2 position, float maxDepth)
             {
                 positionBase = position;
                 this.position = position;
+                this.maxDepth = positionBase.y - maxDepth;
             }
-            public WaterNode(Vector2 position, float disturbance)
+            public WaterNode(Vector2 position, float maxDepth, float disturbance)
             {
                 positionBase = position;
-                position = positionBase;
                 position.y += disturbance;
+                this.position = position;
+                this.maxDepth = positionBase.y - maxDepth;
             }
         #endregion
 
@@ -45,6 +48,7 @@ public class WaterNode : FunctionNode
             disturbance += -disturbance * damping;
 
             position.y += velocity * Time.fixedDeltaTime;
+            position.y = Mathf.Max(position.y, maxDepth);
             this.position = position;
             velocity += acceleration;
         }

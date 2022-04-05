@@ -113,7 +113,7 @@ public partial class WaterMesh : MonoBehaviour
         }
 
         // Start is called before the first frame update
-        void Start()
+        protected virtual void Start()
         {
             ComputeCoeficients();
             InitializeMeshStructures();
@@ -360,12 +360,12 @@ public partial class WaterMesh : MonoBehaviour
                 Vector2 rightPosition = (Vector2) transform.position + Vector2.right * (positionDelta * count);
                 Vector2 leftPosition = (Vector2) transform.position + Vector2.left * (positionDelta * count);
                 
-                nodes.Add(new WaterNode(rightPosition));
+                nodes.Add(new WaterNode(rightPosition, waterDepth));
                 positions.Add(rightPosition);
 
                 if (count > 0)
                 {
-                    nodes.Insert(0, new WaterNode(leftPosition));
+                    nodes.Insert(0, new WaterNode(leftPosition, waterDepth));
                     positions.Insert(0, rightPosition);
                 }
             }
