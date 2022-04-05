@@ -39,12 +39,60 @@ PrefabInstance:
     m_TransformParent: {fileID: 6898124978785795845}
     m_Modifications:
     - target: {fileID: 1988771687181287760, guid: cedf640af1a79214caa5df616d7288b1, type: 3}
+      propertyPath: damping
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 1988771687181287760, guid: cedf640af1a79214caa5df616d7288b1, type: 3}
       propertyPath: longitude
       value: 140
       objectReference: {fileID: 0}
     - target: {fileID: 1988771687181287760, guid: cedf640af1a79214caa5df616d7288b1, type: 3}
+      propertyPath: waterDepth
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1988771687181287760, guid: cedf640af1a79214caa5df616d7288b1, type: 3}
+      propertyPath: spreadRatio
+      value: 0.33
+      objectReference: {fileID: 0}
+    - target: {fileID: 1988771687181287760, guid: cedf640af1a79214caa5df616d7288b1, type: 3}
+      propertyPath: spreadSpeed
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1988771687181287760, guid: cedf640af1a79214caa5df616d7288b1, type: 3}
+      propertyPath: nodesPerUnit
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1988771687181287760, guid: cedf640af1a79214caa5df616d7288b1, type: 3}
+      propertyPath: springConstant
+      value: 0.0204
+      objectReference: {fileID: 0}
+    - target: {fileID: 1988771687181287760, guid: cedf640af1a79214caa5df616d7288b1, type: 3}
       propertyPath: despawnDistance
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1988771687181287760, guid: cedf640af1a79214caa5df616d7288b1, type: 3}
+      propertyPath: lowerWaterColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1988771687181287760, guid: cedf640af1a79214caa5df616d7288b1, type: 3}
+      propertyPath: performanceFactor
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1988771687181287760, guid: cedf640af1a79214caa5df616d7288b1, type: 3}
+      propertyPath: upperWaterColor.a
+      value: 0.78039217
+      objectReference: {fileID: 0}
+    - target: {fileID: 1988771687181287760, guid: cedf640af1a79214caa5df616d7288b1, type: 3}
+      propertyPath: upperWaterColor.b
+      value: 0.69803923
+      objectReference: {fileID: 0}
+    - target: {fileID: 1988771687181287760, guid: cedf640af1a79214caa5df616d7288b1, type: 3}
+      propertyPath: upperWaterColor.g
+      value: 0.5058824
+      objectReference: {fileID: 0}
+    - target: {fileID: 1988771687181287760, guid: cedf640af1a79214caa5df616d7288b1, type: 3}
+      propertyPath: upperWaterColor.r
+      value: 0.34901962
       objectReference: {fileID: 0}
     - target: {fileID: 1988771687181287764, guid: cedf640af1a79214caa5df616d7288b1, type: 3}
       propertyPath: m_RootOrder
