@@ -28,7 +28,7 @@ public class GUIDisplay : MonoBehaviour
 
         scoreUI.text = $"Score: {dataManager.score}";
         moneyUI.text = dataManager.money.ToString();
-        windUI.text = $"{gameManager.windSpeed} Km/h";
+        windUI.text = $"{gameManager.WindSpeed} Km/h";
         tensionUI.text = $"{tensionValue}%";
     }
 

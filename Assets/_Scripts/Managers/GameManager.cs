@@ -2,15 +2,46 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 public class GameManager : Singleton<GameManager>
 {
-    [System.Serializable]
-    public struct RNGCell
-    {
-        public Cell prefab;
-        public int weight; 
-    }
+    #region Structures
+        public enum GameState {None, Calm, Hostile, GameEnded}
+        
+        [System.Serializable]
+        public struct RNGCell
+        {
+            public Cell prefab;
+            public int weight; 
+        }
+
+        [System.Serializable]
+        public struct Range {
+            public float min;
+            public float max;
+        }
+    
+        #region Formula Parameter Structures
+            [System.Serializable]
+            public class WindSpeedParams
+            {
+                [Range(0,60)]public float baseValue = 24;
+                public float maxValue = 60;
+                public float increaseRate = 1;
+                [Range(1,100) ]public float metersPerIncrease = 1;
+            }
+            [System.Serializable]
+            public class WaveIntensityParams
+            {
+                [Range(.1f,10)] public float baseValue = 2.6f;
+                public float maxValue = 10;
+                public float increaseRate = 1;
+                [Range(1,100) ]public float metersPerIncrease = 1;
+            }
+        #endregion
+
+    #endregion
 
     #region Game State
 
@@ -18,19 +49,29 @@ public class GameManager : Singleton<GameManager>
             [Header("Game State")]
             public bool gameStarted = false;
             public bool gameEnded = false;
-            [Range(0,60f)] public float windSpeed = 0;
+            public GameState gameState = GameState.Calm;
         #endregion
         
-        #region Wave Parameters
-            [Header("Wave Parameters")]
-            [Range(.1f,10f)] public float waveIntensity = 1;
-            [Range(.95f,1.1f)] public float wavePeriod = 1;
-            [Range(.5f,2)] public float waveNoiseFactor = .5f;
+        #region Weather Parameters
+            [Header("Weather Parameters")]
+            public WindSpeedParams windSpeed;
         #endregion
 
-        [Header("Cell Settings")]
-        [SerializeField] int maxCellCount;
-        private int cellCount = 1;
+        #region Wave Parameters
+            [Header("Wave Parameters")]
+            public WaveIntensityParams waveIntensity;
+            public Range wavePeriodRange;
+            [FormerlySerializedAs("baseWavePeriod")] [Range(.95f,1.1f)] float wavePeriod = 1.04f;
+            public Range waveNoiseFactorRange;
+            [FormerlySerializedAs("baseWaveNoiseFactor")] [Range(.5f,2)] float waveNoiseFactor = .6f;
+            public float maxWaveNoiseFactor = 2f;
+        #endregion
+
+        #region RNG Cell Settings
+            [Header("RNG Cell Settings")]
+            [SerializeField] int maxCellCount;
+            private int cellCount = 1;
+        #endregion 
     #endregion
 
     #region References
@@ -43,6 +84,27 @@ public class GameManager : Singleton<GameManager>
         private int coinCombo = 0;
         private Coroutine comboTimer;
         private WaitForSeconds waitFor2Seconds = new WaitForSeconds(2f);
+    #endregion
+
+    #region Properties & Formulas
+        public float WindSpeed {
+            get => Mathf.Min(
+                windSpeed.maxValue,
+                windSpeed.baseValue
+            );
+        }
+        public float WaveIntensity {
+            get => Mathf.Min(
+                waveIntensity.maxValue,
+                waveIntensity.baseValue
+            );
+        }
+        public float WavePeriod {
+            get => wavePeriod;
+        }
+        public float WaveNoiseFactor {
+            get => waveNoiseFactor;
+        }
     #endregion
 
     protected override void Awake() 

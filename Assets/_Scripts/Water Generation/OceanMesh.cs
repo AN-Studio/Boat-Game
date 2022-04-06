@@ -9,14 +9,14 @@ public class OceanMesh : WaterMesh
     #region WaveFunctions
         protected float WaveFunction(float t) 
         {
-            float waveIntensity = GameManager.Instance.waveIntensity;
-            float waveNoiseFactor = GameManager.Instance.waveNoiseFactor;
+            float WaveIntensity = GameManager.Instance.WaveIntensity;
+            float WaveNoiseFactor = GameManager.Instance.WaveNoiseFactor;
 
-            // float t = nodes[nodes.Count-1].position.x * waveDeltaTime / wavePeriod + time;
+            // float t = nodes[nodes.Count-1].position.x * waveDeltaTime / WavePeriod + time;
             
-            return waveIntensity * (
-                (1 / (2*waveNoiseFactor)) * Mathf.Sin(t) + 
-                (waveNoiseFactor) * Mathf.Pow( Mathf.Cos(t), 3 ) * Mathf.Sin(t)
+            return WaveIntensity * (
+                (1 / (2*WaveNoiseFactor)) * Mathf.Sin(t) + 
+                (WaveNoiseFactor) * Mathf.Pow( Mathf.Cos(t), 3 ) * Mathf.Sin(t)
             );
         }
     #endregion
@@ -47,13 +47,13 @@ public class OceanMesh : WaterMesh
 
     void GenerateWaves()
     {
-        float wavePeriod = GameManager.Instance.wavePeriod;
+        float WavePeriod = GameManager.Instance.WavePeriod;
         float waveDeltaTime = spreadSpeed * Time.fixedDeltaTime;
-        float t = nodes[nodes.Count-1].position.x * waveDeltaTime / wavePeriod + time;
+        float t = nodes[nodes.Count-1].position.x * waveDeltaTime / WavePeriod + time;
         
         nodes[nodes.Count-1].Disturb( WaveFunction(t) );
 
-        time = ((time + Time.fixedDeltaTime) / wavePeriod) % (2*Mathf.PI);
+        time = ((time + Time.fixedDeltaTime) / WavePeriod) % (2*Mathf.PI);
     }
     void CheckCameraBounds() 
     {
@@ -89,8 +89,8 @@ public class OceanMesh : WaterMesh
     {
         float disturbance;
         WaterNode cycledNode;
-        float waveIntensity = GameManager.Instance.waveIntensity;
-        float wavePeriod = GameManager.Instance.wavePeriod;
+        float WaveIntensity = GameManager.Instance.WaveIntensity;
+        float WavePeriod = GameManager.Instance.WavePeriod;
         float waveDeltaTime = (spreadSpeed*Time.fixedDeltaTime);
 
         Vector2 position;
@@ -104,7 +104,7 @@ public class OceanMesh : WaterMesh
             position.x = nodes[nodes.Count-1].position.x + (positionDelta);
             cycledNode.position = position;
 
-            float t = cycledNode.position.x * waveDeltaTime / wavePeriod + time;
+            float t = cycledNode.position.x * waveDeltaTime / WavePeriod + time;
             disturbance = WaveFunction(t);
             
             position = cycledNode.position;
@@ -116,7 +116,7 @@ public class OceanMesh : WaterMesh
             
             nodes.Add(cycledNode);
 
-            time = ((time + Time.fixedDeltaTime) / wavePeriod) % (2*Mathf.PI); 
+            time = ((time + Time.fixedDeltaTime) / WavePeriod) % (2*Mathf.PI); 
         }
     }
 
@@ -124,8 +124,8 @@ public class OceanMesh : WaterMesh
     {
         float disturbance;
         WaterNode cycledNode;
-        float waveIntensity = GameManager.Instance.waveIntensity;
-        float wavePeriod = GameManager.Instance.wavePeriod;
+        float WaveIntensity = GameManager.Instance.WaveIntensity;
+        float WavePeriod = GameManager.Instance.WavePeriod;
         float waveDeltaTime = (spreadSpeed*Time.fixedDeltaTime);
 
         Vector2 position;
@@ -139,7 +139,7 @@ public class OceanMesh : WaterMesh
             position.x = nodes[0].position.x - (positionDelta);
             cycledNode.position = position;
             
-            float t = cycledNode.position.x * waveDeltaTime / wavePeriod + time;
+            float t = cycledNode.position.x * waveDeltaTime / WavePeriod + time;
             disturbance = WaveFunction(t);
             
             position = cycledNode.position;
@@ -151,7 +151,7 @@ public class OceanMesh : WaterMesh
 
             nodes.Insert(0, cycledNode);
             
-            time = ((time + Time.fixedDeltaTime / wavePeriod)) % (2*Mathf.PI); 
+            time = ((time + Time.fixedDeltaTime / WavePeriod)) % (2*Mathf.PI); 
         }
     }
 }

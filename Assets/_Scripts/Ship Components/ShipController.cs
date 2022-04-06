@@ -103,7 +103,7 @@ public class ShipController : StaticInstance<ShipController>
             if (!GameManager.Instance.gameStarted && Input.GetButtonDown("Fire1")) 
             {
                 GameManager.Instance.gameStarted = true;
-                // GameManager.Instance.waveIntensity = 2;
+                // GameManager.Instance.WaveIntensity = 2;
             }
 
             foreach(Mast sail in sails) sail.SetThrottle(sailThrottle);

@@ -76,7 +76,7 @@ public class Mast : MonoBehaviour {
     {
         GameManager gameManager = GameManager.Instance;
         
-        Vector2 relativeVelocity = (gameManager.windSpeed - rb.velocity.x) * Vector2.right;
+        Vector2 relativeVelocity = (gameManager.WindSpeed - rb.velocity.x) * Vector2.right;
         float sailArea = Mathf.Max(collider.size.x*collider.size.x, collider.size.y*collider.size.y);
 
         Vector2 dragForce = airDensity * ship.averageSailDrag * relativeVelocity.sqrMagnitude * sailArea * throttle * relativeVelocity.normalized; 

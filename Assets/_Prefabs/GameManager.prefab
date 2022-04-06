@@ -45,10 +45,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameStarted: 1
   gameEnded: 0
-  windSpeed: 24
-  waveIntensity: 2.6
-  wavePeriod: 1.04
-  waveNoiseFactor: 0.6
+  gameState: 1
+  windSpeed:
+    baseValue: 24
+    maxValue: 60
+    increaseRate: 1
+    metersPerIncrease: 1
+  waveIntensity:
+    baseValue: 2.6
+    maxValue: 10
+    increaseRate: 1
+    metersPerIncrease: 1
+  wavePeriodRange:
+    min: 0.95
+    max: 1.1
+  waveNoiseFactorRange:
+    min: 0.5
+    max: 2
   maxCellCount: 4
   lastEndpoint: {fileID: 0}
   cells:
