@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Cinemachine;
 
-public class ShipSpawner : MonoBehaviour
+public class ShipSpawner : StaticInstance<ShipSpawner>
 {
     #region References
         [Header("References")]

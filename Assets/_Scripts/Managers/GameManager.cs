@@ -17,9 +17,10 @@ public class GameManager : Singleton<GameManager>
         }
 
         [System.Serializable]
-        public struct Range {
-            public float min;
-            public float max;
+        public class PulsingRandomizer {
+            public Vector2 valueRange;
+            public PulseTimer timer = new PulseTimer();
+            public Vector2 timerRange;
         }
     
         #region Formula Parameter Structures
@@ -28,16 +29,16 @@ public class GameManager : Singleton<GameManager>
             {
                 [Range(0,60)]public float baseValue = 24;
                 public float maxValue = 60;
-                public float increaseRate = 1;
-                [Range(1,100) ]public float metersPerIncrease = 1;
+                [Range(1,100) ]public float metersPerValueIncrease = 1;
+                public float hostileStateIncrease = 5;
             }
             [System.Serializable]
             public class WaveIntensityParams
             {
                 [Range(.1f,10)] public float baseValue = 2.6f;
                 public float maxValue = 10;
-                public float increaseRate = 1;
-                [Range(1,100) ]public float metersPerIncrease = 1;
+                [Range(1,100) ]public float metersPerValueIncrease = 1;
+                public float hostileStateIncrease = 1;
             }
         #endregion
 
@@ -60,11 +61,10 @@ public class GameManager : Singleton<GameManager>
         #region Wave Parameters
             [Header("Wave Parameters")]
             public WaveIntensityParams waveIntensity;
-            public Range wavePeriodRange;
-            [FormerlySerializedAs("baseWavePeriod")] [Range(.95f,1.1f)] float wavePeriod = 1.04f;
-            public Range waveNoiseFactorRange;
-            [FormerlySerializedAs("baseWaveNoiseFactor")] [Range(.5f,2)] float waveNoiseFactor = .6f;
-            public float maxWaveNoiseFactor = 2f;
+            [Range(.95f,1.1f)] public float wavePeriod = 1.04f;
+            public PulsingRandomizer wavePeriodRandomizer;
+            [Range(.5f,2)] public float waveNoise = .6f;
+            public PulsingRandomizer waveNoiseRandomizer;
         #endregion
 
         #region RNG Cell Settings
@@ -90,20 +90,27 @@ public class GameManager : Singleton<GameManager>
         public float WindSpeed {
             get => Mathf.Min(
                 windSpeed.maxValue,
-                windSpeed.baseValue
+                windSpeed.baseValue + 
+                    DistanceTravelled / windSpeed.metersPerValueIncrease +
+                    (gameState == GameState.Hostile ? windSpeed.hostileStateIncrease : 0)
             );
         }
         public float WaveIntensity {
             get => Mathf.Min(
                 waveIntensity.maxValue,
-                waveIntensity.baseValue
+                waveIntensity.baseValue +
+                    DistanceTravelled / waveIntensity.metersPerValueIncrease +
+                    (gameState == GameState.Hostile ? waveIntensity.hostileStateIncrease : 0)
             );
         }
         public float WavePeriod {
             get => wavePeriod;
         }
         public float WaveNoiseFactor {
-            get => waveNoiseFactor;
+            get => waveNoise;
+        }
+        public float DistanceTravelled {
+            get => ShipController.Instance.transform.position.x - ShipSpawner.Instance.transform.position.x;
         }
     #endregion
 
@@ -117,6 +124,18 @@ public class GameManager : Singleton<GameManager>
     // Start is called before the first frame update
     void Start()
     {
+        wavePeriodRandomizer.timer.onPulse += UpdateWavePeriod;
+        wavePeriodRandomizer.timer.ResetPulseTo(
+            wavePeriodRandomizer.timerRange.x + 
+            (wavePeriodRandomizer.timerRange.y - wavePeriodRandomizer.timerRange.x) / 2
+        );
+        
+        waveNoiseRandomizer.timer.onPulse += UpdateWaveNoise;
+        waveNoiseRandomizer.timer.ResetPulseTo(
+            waveNoiseRandomizer.timerRange.x + 
+            (waveNoiseRandomizer.timerRange.y - waveNoiseRandomizer.timerRange.x) / 2
+        );
+
         // GameObject prefab = GetRandomCell();
         // Instantiate(prefab,new Vector3(120,0,0), Quaternion.identity);
     }
@@ -124,6 +143,11 @@ public class GameManager : Singleton<GameManager>
     // Update is called once per frame
     void Update()
     {
+        wavePeriodRandomizer.timer.Tick();
+        waveNoiseRandomizer.timer.Tick();
+
+        print($"WaveIntensity: {WaveIntensity}\nWindSpeed: {WindSpeed}");
+
         while (cellCount < maxCellCount) SpawnCell();
     }
 
@@ -184,6 +208,17 @@ public class GameManager : Singleton<GameManager>
             // Set FMOD global parameter 'Coin Combo'
             coinCombo = 0;
             FMODUnity.RuntimeManager.StudioSystem.setParameterByName("Coin Combo", coinCombo);
+        }
+
+        private void UpdateWaveNoise() 
+        {
+            waveNoise = Random.Range(waveNoiseRandomizer.valueRange.x, waveNoiseRandomizer.valueRange.y);
+            waveNoiseRandomizer.timer.SetPulseTo( Random.Range(waveNoiseRandomizer.timerRange.x, waveNoiseRandomizer.timerRange.y) );
+        }
+        private void UpdateWavePeriod() 
+        {
+            wavePeriod = Random.Range(wavePeriodRandomizer.valueRange.x, wavePeriodRandomizer.valueRange.y);
+            wavePeriodRandomizer.timer.SetPulseTo( Random.Range(wavePeriodRandomizer.timerRange.x, wavePeriodRandomizer.timerRange.y) );
         }
     #endregion
 }

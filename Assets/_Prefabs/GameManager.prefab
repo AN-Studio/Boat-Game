@@ -49,19 +49,21 @@ MonoBehaviour:
   windSpeed:
     baseValue: 24
     maxValue: 60
-    increaseRate: 1
-    metersPerIncrease: 1
+    metersPerValueIncrease: 1
+    hostileStateIncrease: 5
   waveIntensity:
     baseValue: 2.6
     maxValue: 10
-    increaseRate: 1
-    metersPerIncrease: 1
-  wavePeriodRange:
-    min: 0.95
-    max: 1.1
-  waveNoiseFactorRange:
-    min: 0.5
-    max: 2
+    metersPerValueIncrease: 1
+    hostileStateIncrease: 1
+  wavePeriod: 1.04
+  wavePeriodRandomizer:
+    valueRange: {x: 0.95, y: 1.1}
+    timerRange: {x: 2, y: 5}
+  waveNoise: 0.6
+  waveNoiseRandomizer:
+    valueRange: {x: 0.5, y: 2}
+    timerRange: {x: 2, y: 5}
   maxCellCount: 4
   lastEndpoint: {fileID: 0}
   cells:
