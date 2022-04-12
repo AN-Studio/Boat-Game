@@ -27,6 +27,9 @@ public class GameManager : Singleton<GameManager>
             [System.Serializable]
             public class WindSpeedParams
             {
+                [Range(0,60)] public float simulatedIncrease = 0;
+
+                [Header("Settings")]
                 [Range(0,60)]public float baseValue = 24;
                 public float maxValue = 60;
                 [Range(1,100) ]public float metersPerValueIncrease = 1;
@@ -35,6 +38,9 @@ public class GameManager : Singleton<GameManager>
             [System.Serializable]
             public class WaveIntensityParams
             {
+                [Range(0,10)] public float simulatedIncrease = 0;
+                
+                [Header("Settings")]
                 [Range(.1f,10)] public float baseValue = 2.6f;
                 public float maxValue = 10;
                 [Range(1,100) ]public float metersPerValueIncrease = 1;
@@ -90,26 +96,29 @@ public class GameManager : Singleton<GameManager>
         public float WindSpeed {
             get => Mathf.Min(
                 windSpeed.maxValue,
-                windSpeed.baseValue + 
-                    DistanceTravelled / windSpeed.metersPerValueIncrease +
+                windSpeed.baseValue + windSpeed.simulatedIncrease +
+                    .05f * (windSpeed.maxValue - windSpeed.baseValue) * 
+                        DistanceTravelled / windSpeed.metersPerValueIncrease +
                     (gameState == GameState.Hostile ? windSpeed.hostileStateIncrease : 0)
             );
         }
         public float WaveIntensity {
             get => Mathf.Min(
                 waveIntensity.maxValue,
-                waveIntensity.baseValue +
-                    DistanceTravelled / waveIntensity.metersPerValueIncrease +
+                waveIntensity.baseValue + waveIntensity.simulatedIncrease +
+                    .05f * (waveIntensity.maxValue - waveIntensity.baseValue) * 
+                        DistanceTravelled / waveIntensity.metersPerValueIncrease +
                     (gameState == GameState.Hostile ? waveIntensity.hostileStateIncrease : 0)
             );
         }
         public float WavePeriod {
-            get => wavePeriod;
+            get => wavePeriod * (WaveIntensity / waveIntensity.baseValue + WindSpeed / windSpeed.baseValue)/2;
         }
         public float WaveNoiseFactor {
             get => waveNoise;
         }
         public float DistanceTravelled {
+            // get => 0;
             get => ShipController.Instance.transform.position.x - ShipSpawner.Instance.transform.position.x;
         }
     #endregion
@@ -146,7 +155,7 @@ public class GameManager : Singleton<GameManager>
         wavePeriodRandomizer.timer.Tick();
         waveNoiseRandomizer.timer.Tick();
 
-        print($"WaveIntensity: {WaveIntensity}\nWindSpeed: {WindSpeed}");
+        print($"wavePeriod: {wavePeriod}\nWavePeriod: {WavePeriod}");
 
         while (cellCount < maxCellCount) SpawnCell();
     }
