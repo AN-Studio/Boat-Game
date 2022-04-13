@@ -57,6 +57,8 @@ public class GameManager : Singleton<GameManager>
             public bool gameStarted = false;
             public bool gameEnded = false;
             public GameState gameState = GameState.Calm;
+            public Vector2 timeRangeUntilStateChange;
+            private PulseTimer stateTimer = new PulseTimer();
         #endregion
         
         #region Weather Parameters
@@ -90,26 +92,36 @@ public class GameManager : Singleton<GameManager>
         private int coinCombo = 0;
         private Coroutine comboTimer;
         private WaitForSeconds waitFor2Seconds = new WaitForSeconds(2f);
+        private Coroutine hostilityLerper;
+        private float hostilityFactor = 0;
     #endregion
 
     #region Properties & Formulas
         public float WindSpeed {
-            get => Mathf.Min(
-                windSpeed.maxValue,
-                windSpeed.baseValue + windSpeed.simulatedIncrease +
-                    .05f * (windSpeed.maxValue - windSpeed.baseValue) * 
-                        DistanceTravelled / windSpeed.metersPerValueIncrease +
-                    (gameState == GameState.Hostile ? windSpeed.hostileStateIncrease : 0)
-            );
+            get {
+                float result = Mathf.Min(
+                    windSpeed.maxValue,
+                    windSpeed.baseValue + windSpeed.simulatedIncrease +
+                        .05f * (windSpeed.maxValue - windSpeed.baseValue) * 
+                            DistanceTravelled / windSpeed.metersPerValueIncrease +
+                        (gameState == GameState.Hostile ? windSpeed.hostileStateIncrease : 0)
+                );
+
+                return result * (1 + hostilityFactor);
+            }
         }
         public float WaveIntensity {
-            get => Mathf.Min(
-                waveIntensity.maxValue,
-                waveIntensity.baseValue + waveIntensity.simulatedIncrease +
-                    .05f * (waveIntensity.maxValue - waveIntensity.baseValue) * 
-                        DistanceTravelled / waveIntensity.metersPerValueIncrease +
-                    (gameState == GameState.Hostile ? waveIntensity.hostileStateIncrease : 0)
-            );
+            get {
+                float result = Mathf.Min(
+                    waveIntensity.maxValue,
+                    waveIntensity.baseValue + waveIntensity.simulatedIncrease +
+                        .05f * (waveIntensity.maxValue - waveIntensity.baseValue) * 
+                            DistanceTravelled / waveIntensity.metersPerValueIncrease +
+                        (gameState == GameState.Hostile ? waveIntensity.hostileStateIncrease : 0)
+                );
+
+                return result * (1 + hostilityFactor);
+            }
         }
         public float WavePeriod {
             get => wavePeriod * (WaveIntensity / waveIntensity.baseValue + WindSpeed / windSpeed.baseValue)/2;
@@ -145,6 +157,14 @@ public class GameManager : Singleton<GameManager>
             (waveNoiseRandomizer.timerRange.y - waveNoiseRandomizer.timerRange.x) / 2
         );
 
+        stateTimer.onPulse += UpdateState;
+        stateTimer.ResetPulseTo(
+            timeRangeUntilStateChange.x +
+            (timeRangeUntilStateChange.y - timeRangeUntilStateChange.x) / 2
+        );
+
+        hostilityLerper = StartCoroutine(LerpHostility());
+
         // GameObject prefab = GetRandomCell();
         // Instantiate(prefab,new Vector3(120,0,0), Quaternion.identity);
     }
@@ -152,12 +172,18 @@ public class GameManager : Singleton<GameManager>
     // Update is called once per frame
     void Update()
     {
+        stateTimer.Tick();
         wavePeriodRandomizer.timer.Tick();
         waveNoiseRandomizer.timer.Tick();
 
         print($"wavePeriod: {wavePeriod}\nWavePeriod: {WavePeriod}");
 
         while (cellCount < maxCellCount) SpawnCell();
+    }
+
+    private void OnDestroy() 
+    {
+        StopCoroutine(hostilityLerper);
     }
 
     #region Public Functions
@@ -219,6 +245,38 @@ public class GameManager : Singleton<GameManager>
             FMODUnity.RuntimeManager.StudioSystem.setParameterByName("Coin Combo", coinCombo);
         }
 
+
+        private IEnumerator LerpHostility()
+        {
+            while (true)
+            {
+                yield return null;
+
+                switch (gameState)
+                {
+                    case GameState.Calm:
+                        hostilityFactor -= .01f * Time.deltaTime;
+                        break;
+                    case GameState.Hostile:
+                        hostilityFactor += .01f * Time.deltaTime;
+                        break;
+                    default:
+                        break;
+                }
+                
+                hostilityFactor = Mathf.Clamp01(hostilityFactor);
+            }
+        }
+        private void UpdateState() 
+        {
+            if (gameState != GameState.None && gameState != GameState.GameEnded)
+            {
+                gameState = gameState != GameState.Hostile ?
+                    GameState.Hostile :
+                    GameState.Calm
+                ;
+            }
+        }
         private void UpdateWaveNoise() 
         {
             waveNoise = Random.Range(waveNoiseRandomizer.valueRange.x, waveNoiseRandomizer.valueRange.y);
