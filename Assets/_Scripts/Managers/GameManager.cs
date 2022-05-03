@@ -32,8 +32,8 @@ public class GameManager : Singleton<GameManager>
                 [Header("Settings")]
                 [Range(0,60)]public float baseValue = 24;
                 public float maxValue = 60;
-                [Range(1,100) ]public float metersPerValueIncrease = 1;
-                public float hostileStateIncrease = 5;
+                [Range(1,2000)] public float metersPerValueIncrease = 1;
+                [Range(0f,.1f)] public float percentValueIncrease = .05f;
             }
             [System.Serializable]
             public class WaveIntensityParams
@@ -43,8 +43,8 @@ public class GameManager : Singleton<GameManager>
                 [Header("Settings")]
                 [Range(.1f,10)] public float baseValue = 2.6f;
                 public float maxValue = 10;
-                [Range(1,100) ]public float metersPerValueIncrease = 1;
-                public float hostileStateIncrease = 1;
+                [Range(1,2000) ]public float metersPerValueIncrease = 1;
+                [Range(0f,.1f)] public float percentValueIncrease = .05f;
             }
         #endregion
 
@@ -58,6 +58,8 @@ public class GameManager : Singleton<GameManager>
             public bool gameEnded = false;
             public GameState gameState = GameState.Calm;
             public Vector2 timeRangeUntilStateChange;
+            public Vector2 calmTimeRange;
+            public Vector2 hostileTimeRange;
             private PulseTimer stateTimer = new PulseTimer();
         #endregion
         
@@ -102,9 +104,9 @@ public class GameManager : Singleton<GameManager>
                 float result = Mathf.Min(
                     windSpeed.maxValue,
                     windSpeed.baseValue + windSpeed.simulatedIncrease +
-                        .05f * (windSpeed.maxValue - windSpeed.baseValue) * 
-                            DistanceTravelled / windSpeed.metersPerValueIncrease +
-                        (gameState == GameState.Hostile ? windSpeed.hostileStateIncrease : 0)
+                        windSpeed.percentValueIncrease *
+                        (windSpeed.maxValue - windSpeed.baseValue) * 
+                        (DistanceTravelled / windSpeed.metersPerValueIncrease) 
                 );
 
                 return result * (1 + hostilityFactor);
@@ -115,16 +117,16 @@ public class GameManager : Singleton<GameManager>
                 float result = Mathf.Min(
                     waveIntensity.maxValue,
                     waveIntensity.baseValue + waveIntensity.simulatedIncrease +
-                        .05f * (waveIntensity.maxValue - waveIntensity.baseValue) * 
-                            DistanceTravelled / waveIntensity.metersPerValueIncrease +
-                        (gameState == GameState.Hostile ? waveIntensity.hostileStateIncrease : 0)
+                        waveIntensity.percentValueIncrease *
+                        (waveIntensity.maxValue - waveIntensity.baseValue) * 
+                        (DistanceTravelled / waveIntensity.metersPerValueIncrease) 
                 );
 
                 return result * (1 + hostilityFactor);
             }
         }
         public float WavePeriod {
-            get => wavePeriod * (WaveIntensity / waveIntensity.baseValue + WindSpeed / windSpeed.baseValue)/2;
+            get => wavePeriod * (3*WaveIntensity / waveIntensity.baseValue + WindSpeed / windSpeed.baseValue)/4;
         }
         public float WaveNoiseFactor {
             get => waveNoise;
@@ -158,10 +160,7 @@ public class GameManager : Singleton<GameManager>
         );
 
         stateTimer.onPulse += UpdateState;
-        stateTimer.ResetPulseTo(
-            timeRangeUntilStateChange.x +
-            (timeRangeUntilStateChange.y - timeRangeUntilStateChange.x) / 2
-        );
+        stateTimer.ResetPulseTo(timeRangeUntilStateChange.y);
 
         hostilityLerper = StartCoroutine(LerpHostility());
 
@@ -255,10 +254,10 @@ public class GameManager : Singleton<GameManager>
                 switch (gameState)
                 {
                     case GameState.Calm:
-                        hostilityFactor -= .01f * Time.deltaTime;
+                        hostilityFactor -= .05f * Time.deltaTime;
                         break;
                     case GameState.Hostile:
-                        hostilityFactor += .01f * Time.deltaTime;
+                        hostilityFactor += .025f * Time.deltaTime;
                         break;
                     default:
                         break;
@@ -271,11 +270,31 @@ public class GameManager : Singleton<GameManager>
         {
             if (gameState != GameState.None && gameState != GameState.GameEnded)
             {
-                gameState = gameState != GameState.Hostile ?
-                    GameState.Hostile :
-                    GameState.Calm
-                ;
+                if (gameState == GameState.Calm)
+                {
+                    gameState = GameState.Hostile;
+                    stateTimer.SetPulseTo(
+                        Random.Range(hostileTimeRange.x, hostileTimeRange.y)
+                    );
+                }
+                else if (gameState == GameState.Hostile)
+                {
+                    gameState = GameState.Calm;
+                    stateTimer.SetPulseTo(
+                        Random.Range(calmTimeRange.x, calmTimeRange.y)
+                    );
+                }
+
+                // gameState = gameState != GameState.Hostile ?
+                //     GameState.Hostile :
+                //     GameState.Calm
+                // ;
             }
+
+            // stateTimer.SetPulseTo(
+            //     Random.Range(timeRangeUntilStateChange.x, timeRangeUntilStateChange.y)
+            // );
+
         }
         private void UpdateWaveNoise() 
         {
