@@ -175,7 +175,7 @@ public class GameManager : Singleton<GameManager>
         wavePeriodRandomizer.timer.Tick();
         waveNoiseRandomizer.timer.Tick();
 
-        print($"wavePeriod: {wavePeriod}\nWavePeriod: {WavePeriod}");
+        // print($"wavePeriod: {wavePeriod}\nWavePeriod: {WavePeriod}");
 
         while (cellCount < maxCellCount) SpawnCell();
     }

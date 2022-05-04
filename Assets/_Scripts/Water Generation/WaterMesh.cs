@@ -58,10 +58,19 @@ public partial class WaterMesh : MonoBehaviour
         #region Collision Management
             private void OnTriggerEnter2D(Collider2D other) 
             {
-                ParticleSystem.ShapeModule shape = particles.shape;
-                shape.position = other.transform.position - transform.position;
+                if (!other.CompareTag("IgnoreWater"))
+                {
+                    ParticleSystem.ShapeModule shape = particles.shape;
+                    ParticleSystem.MainModule main = particles.main;
+                    ParticleSystem.MinMaxCurve startSpeed = main.startSpeed;
 
-                // particles.Play();
+                    shape.position = (other.transform.position - other.bounds.extents.y * Vector3.up) - transform.position;
+                    startSpeed.constantMin = -other.attachedRigidbody.velocity.y * .75f; //* (other.attachedRigidbody.mass / massPerNode);
+                    startSpeed.constantMax = -other.attachedRigidbody.velocity.y * 1.25f; //* (other.attachedRigidbody.mass / massPerNode);
+
+
+                    particles.Play();
+                }
                 
                 ReactToCollision(other);
 
@@ -76,12 +85,12 @@ public partial class WaterMesh : MonoBehaviour
                 if (!interactionQueue.Contains(other) && other.gameObject.GetComponent<Joint2D>() == null)
                     interactionQueue.Enqueue(other);
 
-                if (Mathf.Abs(other.attachedRigidbody.velocity.x) >= 1)
+                if (Mathf.Abs(other.attachedRigidbody.velocity.x) >= 5 && !other.CompareTag("IgnoreWater"))
                 {
                     ParticleSystem.ShapeModule shape = particles.shape;
-                    shape.position = other.transform.position - transform.position;
+                    shape.position = (other.transform.position - other.bounds.extents.y * Vector3.up) - transform.position;
 
-                    // particles.Play();
+                    particles.Play();
                 }
 
                 Vector2 normal = other.attachedRigidbody.velocity.normalized;
@@ -136,7 +145,7 @@ public partial class WaterMesh : MonoBehaviour
         void ComputeCoeficients()
         {
             positionDelta = 1f / nodesPerUnit;
-            massPerNode = (1f / nodesPerUnit) * waterDepth;
+            massPerNode = (1f / nodesPerUnit); // * waterDepth;
         }
         void ProcessInteractionQueue()
         {
@@ -144,7 +153,7 @@ public partial class WaterMesh : MonoBehaviour
             {
                 Collider2D obj = interactionQueue.Dequeue();
                 
-                if (obj != null && !obj.gameObject.CompareTag("IgnoreWater"))
+                if (obj != null && !obj.CompareTag("IgnoreWater"))
                 {
                     SimulateBuoyancy(obj);
                 }
