@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
 
 public class ShipController : StaticInstance<ShipController>
 {
@@ -35,7 +33,7 @@ public class ShipController : StaticInstance<ShipController>
 
     #region Constants
         static readonly Vector2 vector2UpRight = Vector2.up + Vector2.right;
-        static LayerMask waterMask;
+        public static LayerMask waterMask;
         static WaitForSeconds timeUntilEnabledJump;
     #endregion
 

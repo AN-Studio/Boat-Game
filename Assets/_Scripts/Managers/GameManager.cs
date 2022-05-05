@@ -192,6 +192,11 @@ public class GameManager : Singleton<GameManager>
             SceneManager.LoadScene(scene.buildIndex);
         }
 
+        public void LoseGame()
+        {
+            gameState = GameState.GameEnded;
+        }
+
         public Cell GetRandomCell() 
         {
             int totalWeight = 0;

@@ -28,6 +28,13 @@ public class Mast : MonoBehaviour {
     private Coroutine breakSequence;
     private WaitForSeconds timeUntilBreak = new WaitForSeconds(3f);
 
+    bool LandedWithMast {
+        get => 
+            collider.IsTouchingLayers(ShipController.waterMask) && 
+            !controller.body.IsTouchingLayers(ShipController.waterMask)
+        ;
+    }
+
     private void Start() 
     {
         mastCrackingSFX = FMODUnity.RuntimeManager.CreateInstance(audioSheet["mastCracking"]);
@@ -70,6 +77,7 @@ public class Mast : MonoBehaviour {
     {
         // if (!isBroken) 
             ApplyWindDrag();
+            CheckIntegrity();
     }
 
     private void ApplyWindDrag()
@@ -109,6 +117,12 @@ public class Mast : MonoBehaviour {
 
     }
 
+    private void CheckIntegrity()
+    {
+        if (!isBroken && LandedWithMast) BreakMast();
+
+    }
+
     private IEnumerator StartBreakSequence()
     {
         yield return timeUntilBreak;
@@ -128,17 +142,22 @@ public class Mast : MonoBehaviour {
             isPlaying = playbackState != FMOD.Studio.PLAYBACK_STATE.STOPPED;
         }
 
+        BreakMast();
+    }
+
+    private void BreakMast()
+    {
         print("Breaking Mast!");
         mastSnappingSFX.start();
 
         Destroy(GetComponent<Joint2D>());
-        gameObject.layer = transform.parent.gameObject.layer == LayerMask.NameToLayer("Default")?
-            LayerMask.NameToLayer("Default") :
-            LayerMask.NameToLayer("Back Entities") 
-        ;
+        
+        gameObject.layer = LayerMask.NameToLayer("Default");
         isBroken = true;
         rb.useAutoMass = true;
         collider.density = ship.mastDensity;
+
+        GameManager.Instance.LoseGame();
     }
 
     // private IEnumerator BreakMast()
