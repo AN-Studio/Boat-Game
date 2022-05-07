@@ -142,6 +142,9 @@ public class GameManager : Singleton<GameManager>
             // get => 0;
             get => ShipController.Instance.transform.position.x - ShipSpawner.Instance.transform.position.x;
         }
+        public bool GameHasEnded {
+            get => gameState == GameState.GameEnded;
+        }
     #endregion
 
     protected override void Awake() 

@@ -116,7 +116,7 @@ public class ShipController : StaticInstance<ShipController>
             ApplyKeelWeight();    
             
             GameManager gameManager = GameManager.Instance;
-            if (gameManager.gameStarted && !gameManager.gameEnded)
+            if (!gameManager.GameHasEnded)
             {
                 ApplyJumpForce();
                 ApplyTilt();
@@ -283,48 +283,4 @@ public class ShipController : StaticInstance<ShipController>
 
         jumpIsEnabled = true;
     }
-
-    #region Legacy Code
-        // void SwitchLane()
-        // {
-        //     gameObject.layer = gameObject.layer == LayerMask.NameToLayer("Back Entities") ? 
-        //         LayerMask.NameToLayer("Default") :
-        //         LayerMask.NameToLayer("Back Entities")
-        //     ;
-
-        //     foreach (var renderer in renderers)
-        //     {
-        //         renderer.sortingLayerName = gameObject.layer == LayerMask.NameToLayer("Back Entities") ?
-        //             "Back Water" :
-        //             "Default"
-        //         ;
-        //     }
-        // }
-
-        // IEnumerator ScaleLerp(float startSpeed, bool scalingToBackLane = true)
-        // {
-        //     float startScale = scalingToBackLane? 1f : .75f;
-        //     float endScale = scalingToBackLane? .75f : 1f;
-
-        //     float currentScale = startScale; 
-        //     Vector3 localScale = new Vector3(currentScale, currentScale, 1);
-        //     while (rb.velocity.y > 0)
-        //     {
-        //         float t = (startSpeed - rb.velocity.y) / startSpeed;
-        //         currentScale = Mathf.Lerp(startScale, endScale, t);
-
-        //         localScale.x = currentScale;
-        //         localScale.y = currentScale;
-        //         transform.localScale = localScale;
-
-        //         yield return null;
-        //     }
-            
-        //     localScale.x = endScale;
-        //     localScale.y = endScale;
-        //     transform.localScale = localScale;
-
-        //     SwitchLane();
-        // }
-    #endregion
 }
