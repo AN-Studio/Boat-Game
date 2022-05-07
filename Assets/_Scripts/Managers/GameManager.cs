@@ -85,9 +85,16 @@ public class GameManager : Singleton<GameManager>
     #endregion
 
     #region References
-        public Transform lastEndpoint;
-        public List<RNGCell> cells;
-        private Transform gameWorld;
+        [Header("References")]
+        public GameObject gameUI;
+        public GameObject gameOverScreen;
+
+        #region Game World
+        [Header("Game World")]
+            public Transform lastEndpoint;
+            public List<RNGCell> cells;
+            private Transform gameWorld;
+        #endregion
     #endregion
 
     #region Private Variables
@@ -192,9 +199,12 @@ public class GameManager : Singleton<GameManager>
             SceneManager.LoadScene(scene.buildIndex);
         }
 
-        public void LoseGame()
+        public void EndGame()
         {
             gameState = GameState.GameEnded;
+
+            gameUI.SetActive(false);
+            gameOverScreen.SetActive(true);
         }
 
         public Cell GetRandomCell() 
