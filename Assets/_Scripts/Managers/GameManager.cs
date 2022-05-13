@@ -8,13 +8,6 @@ public class GameManager : Singleton<GameManager>
 {
     #region Structures
         public enum GameState {None, Calm, Hostile, GameEnded}
-        
-        [System.Serializable]
-        public struct RNGCell
-        {
-            public Cell prefab;
-            public int weight; 
-        }
 
         [System.Serializable]
         public class PulsingRandomizer {
@@ -50,6 +43,12 @@ public class GameManager : Singleton<GameManager>
 
     #endregion
 
+    #region References
+        [Header("References")]
+        public GameObject gameUI;
+        public GameObject gameOverScreen;
+    #endregion
+
     #region Game State
 
         #region Game State
@@ -57,7 +56,6 @@ public class GameManager : Singleton<GameManager>
             public bool gameStarted = false;
             public bool gameEnded = false;
             public GameState gameState = GameState.Calm;
-            public Vector2 timeRangeUntilStateChange;
             public Vector2 calmTimeRange;
             public Vector2 hostileTimeRange;
             private PulseTimer stateTimer = new PulseTimer();
@@ -77,25 +75,8 @@ public class GameManager : Singleton<GameManager>
             public PulsingRandomizer waveNoiseRandomizer;
         #endregion
 
-        #region RNG Cell Settings
-            [Header("RNG Cell Settings")]
-            [SerializeField] int maxCellCount;
-            private int cellCount = 1;
-        #endregion 
     #endregion
 
-    #region References
-        [Header("References")]
-        public GameObject gameUI;
-        public GameObject gameOverScreen;
-
-        #region Game World
-        [Header("Game World")]
-            public Transform lastEndpoint;
-            public List<RNGCell> cells;
-            private Transform gameWorld;
-        #endregion
-    #endregion
 
     #region Private Variables
         private int coinCombo = 0;
@@ -150,7 +131,6 @@ public class GameManager : Singleton<GameManager>
     protected override void Awake() 
     {
         base.Awake();
-        gameWorld = GameObject.Find("Game World").transform;
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
     }
 
@@ -170,7 +150,7 @@ public class GameManager : Singleton<GameManager>
         );
 
         stateTimer.onPulse += UpdateState;
-        stateTimer.ResetPulseTo(timeRangeUntilStateChange.y);
+        stateTimer.ResetPulseTo(calmTimeRange.y);
 
         hostilityLerper = StartCoroutine(LerpHostility());
 
@@ -186,8 +166,6 @@ public class GameManager : Singleton<GameManager>
         waveNoiseRandomizer.timer.Tick();
 
         // print($"wavePeriod: {wavePeriod}\nWavePeriod: {WavePeriod}");
-
-        while (cellCount < maxCellCount) SpawnCell();
     }
 
     private void OnDestroy() 
@@ -196,48 +174,22 @@ public class GameManager : Singleton<GameManager>
     }
 
     #region Public Functions
-        public void ResetGame() 
-        {
-            Scene scene = SceneManager.GetActiveScene();
-            SceneManager.LoadScene(scene.buildIndex);
-        }
 
-        public void EndGame()
-        {
-            gameState = GameState.GameEnded;
-
-            gameUI.SetActive(false);
-            gameOverScreen.SetActive(true);
-        }
-
-        public Cell GetRandomCell() 
-        {
-            int totalWeight = 0;
-            foreach (var cell in cells) 
-                totalWeight += cell.weight;
-
-            float random = Random.value * totalWeight;
-
-            int index = 0;
-            int w = cells[index].weight;
-            while (w < random)
+        #region Game Flow Controls
+            public void ResetGame() 
             {
-                index++;
-                w += cells[index].weight;
+                Scene scene = SceneManager.GetActiveScene();
+                SceneManager.LoadScene(scene.buildIndex);
             }
 
-            return cells[index].prefab;
-        }
-        public void SpawnCell()
-        {
-            Cell cell = GetRandomCell();
+            public void EndGame()
+            {
+                gameState = GameState.GameEnded;
 
-            Cell instance  = Instantiate(cell, lastEndpoint.position, Quaternion.identity, gameWorld);
-            lastEndpoint = instance.EndPoint;
-            
-            cellCount++;
-        }
-        public void DecreaseCellCount() => cellCount--;
+                gameUI.SetActive(false);
+                gameOverScreen.SetActive(true);
+            }
+        #endregion
 
         public void IncreaseCoinCombo() 
         {
@@ -252,7 +204,9 @@ public class GameManager : Singleton<GameManager>
             if (comboTimer != null) StopCoroutine(comboTimer);
             comboTimer = StartCoroutine(CoinComboTimer());
         }
-
+    #endregion
+    
+    #region Coroutines
         private IEnumerator CoinComboTimer()
         {
             yield return waitFor2Seconds;
@@ -284,6 +238,9 @@ public class GameManager : Singleton<GameManager>
                 hostilityFactor = Mathf.Clamp01(hostilityFactor);
             }
         }
+    #endregion
+
+    #region Event Responses
         private void UpdateState() 
         {
             if (gameState != GameState.None && gameState != GameState.GameEnded)

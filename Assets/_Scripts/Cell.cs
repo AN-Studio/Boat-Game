@@ -39,8 +39,10 @@ public class Cell : MonoBehaviour
     }
     void Despawn() 
     {
-        GameManager.Instance.DecreaseCellCount();
-        Destroy(gameObject);
+        WorldGenerator.Instance.DespawnCell(this);
+
+        // GameManager.Instance.DecreaseCellCount();
+        // Destroy(gameObject);
     }
 
 }
