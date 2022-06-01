@@ -4238,7 +4238,39 @@ Transform:
   m_Father: {fileID: 1910556729}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!43 &1447950932
+--- !u!1 &1519130173
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1519130174}
+  m_Layer: 0
+  m_Name: Ocean Waves
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1519130174
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519130173}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 1684511312}
+  - {fileID: 1114659401}
+  m_Father: {fileID: 1376773221}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!43 &1534075014
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4402,38 +4434,6 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!1 &1519130173
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1519130174}
-  m_Layer: 0
-  m_Name: Ocean Waves
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1519130174
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1519130173}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 1684511312}
-  - {fileID: 1114659401}
-  m_Father: {fileID: 1376773221}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1548638758
 GameObject:
   m_ObjectHideFlags: 0
@@ -16726,12 +16726,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 10301, guid: 0000000000000000f000000000000000, type: 0}
     - target: {fileID: 6898124979435919244, guid: 4129a6a39a0a1294ca44c731c12175f7, type: 3}
+      propertyPath: longitude
+      value: 120
+      objectReference: {fileID: 0}
+    - target: {fileID: 6898124979435919244, guid: 4129a6a39a0a1294ca44c731c12175f7, type: 3}
       propertyPath: waterDepth
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 6898124979435919244, guid: 4129a6a39a0a1294ca44c731c12175f7, type: 3}
       propertyPath: performanceFactor
-      value: 16
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4129a6a39a0a1294ca44c731c12175f7, type: 3}
