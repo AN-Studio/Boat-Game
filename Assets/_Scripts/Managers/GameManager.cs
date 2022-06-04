@@ -47,6 +47,7 @@ public class GameManager : Singleton<GameManager>
         [Header("References")]
         public GameObject gameUI;
         public GameObject gameOverScreen;
+        public GameObject youWinScreen;
     #endregion
 
     #region Game State
@@ -181,13 +182,19 @@ public class GameManager : Singleton<GameManager>
                 Scene scene = SceneManager.GetActiveScene();
                 SceneManager.LoadScene(scene.buildIndex);
             }
-
             public void EndGame()
             {
                 gameState = GameState.GameEnded;
-
                 gameUI.SetActive(false);
+            }
+            public void LoseGame()
+            {
+                EndGame();
                 gameOverScreen.SetActive(true);
+            }
+            public void WinGame()
+            {
+                EndGame();
             }
         #endregion
 
