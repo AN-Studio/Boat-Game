@@ -16,6 +16,12 @@ public class Cell : MonoBehaviour
             throw new System.Exception($"Cell '{name}' does not have an endpoint set");    
 
         cam = Camera.main;
+        
+        Instantiate<GameObject>(
+            Resources.Load("Checkpoint") as GameObject,
+            transform.position, Quaternion.identity,
+            transform
+        );
     }
 
     // Update is called once per frame

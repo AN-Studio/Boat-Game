@@ -41,12 +41,23 @@ public class WorldGenerator : Singleton<WorldGenerator>
         private int activeCellCount = 1;
         private int cellSpawnCount = 1;
         private int cellsUntilNewBiome = 0;
+        private int checkpointsReached = 0;
     #endregion
 
     #region World Cells
         private Biome currentBiome;
         public List<WeightedItem<Biome>> biomes;
         private RandomizedList<Biome> routeBiomes;
+    #endregion
+
+    #region Properties
+        public Route Route {
+            get => route;
+        } 
+
+        public float RouteProgress {
+            get => Mathf.Clamp01(checkpointsReached / (float) route.length);
+        }
     #endregion
 
     protected override void Awake() 
@@ -62,7 +73,7 @@ public class WorldGenerator : Singleton<WorldGenerator>
 
         StartCoroutine(BiomeController());
         
-        SetRouteTo(new Route());
+        SetRouteTo(ScriptableObject.CreateInstance("Route") as Route);
     }
 
     void Update() 
@@ -70,6 +81,8 @@ public class WorldGenerator : Singleton<WorldGenerator>
         while (cellSpawnCount <= route.length && activeCellCount < settings.maxActiveCells) 
             SpawnCell();
     }
+
+    public void TickCheckpoint() => checkpointsReached++;
 
     void SetRouteTo(Route route)
     {
