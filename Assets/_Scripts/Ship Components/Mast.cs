@@ -113,21 +113,21 @@ public class Mast : MonoBehaviour {
         controller.gui.UpdateTension(dragForce.x, ship.mastStrength);
         FMODUnity.RuntimeManager.StudioSystem.setParameterByName("Tension", Mathf.Clamp01(dragForce.x / ship.mastStrength));
         
-        // print($"Drag Force: {dragForce}");
-        if (Mathf.Abs(dragForce.x) > ship.mastStrength)
-        {
-            if (!isBroken && breakSequence == null) 
-                breakSequence = StartCoroutine(StartBreakSequence());
-        }
-        else
-        {
-            if (breakSequence != null)
-            {
-                StopCoroutine(breakSequence);
-                mastCrackingSFX.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-            }
-            breakSequence = null;
-        }
+        // // Query mast tension to start or halt the mast break sequence
+        // if (Mathf.Abs(dragForce.x) > ship.mastStrength)
+        // {
+        //     if (!isBroken && breakSequence == null) 
+        //         breakSequence = StartCoroutine(StartBreakSequence());
+        // }
+        // else
+        // {
+        //     if (breakSequence != null)
+        //     {
+        //         StopCoroutine(breakSequence);
+        //         mastCrackingSFX.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+        //     }
+        //     breakSequence = null;
+        // }
 
     }
 
@@ -171,7 +171,7 @@ public class Mast : MonoBehaviour {
         rb.useAutoMass = true;
         collider.density = ship.mastDensity;
 
-        GameManager.Instance.EndGame();
+        GameManager.Instance.LoseGame();
     }
 
     public void SetThrottle(float value) => throttle = Mathf.Clamp01(value);

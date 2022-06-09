@@ -7,7 +7,7 @@ using UnityEngine.Serialization;
 public class GameManager : Singleton<GameManager>
 {
     #region Structures
-        public enum GameState {None, Calm, Hostile, GameEnded}
+        public enum GameState {None, Calm, Hostile, GameEnded, PortReached}
 
         [System.Serializable]
         public class PulsingRandomizer {
@@ -98,7 +98,12 @@ public class GameManager : Singleton<GameManager>
                         (DistanceTravelled / windSpeed.metersPerValueIncrease) 
                 );
 
-                return result * (1 + hostilityFactor);
+                if (gameState < GameState.GameEnded)
+                    return result * (1 + hostilityFactor);
+                else if (gameState == GameState.GameEnded)
+                    return 10;
+                else
+                    return 0;
             }
         }
         public float WaveIntensity {
@@ -111,7 +116,9 @@ public class GameManager : Singleton<GameManager>
                         (DistanceTravelled / waveIntensity.metersPerValueIncrease) 
                 );
 
-                return result * (1 + hostilityFactor);
+                return gameState < GameState.GameEnded ?
+                    result * (1 + hostilityFactor) : 1
+                ;
             }
         }
         public float WavePeriod {
@@ -195,6 +202,8 @@ public class GameManager : Singleton<GameManager>
             public void WinGame()
             {
                 EndGame();
+                gameState = GameState.PortReached;
+                youWinScreen.SetActive(true);
             }
         #endregion
 

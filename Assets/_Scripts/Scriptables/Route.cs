@@ -4,5 +4,5 @@ using UnityEngine;
 public class Route : ScriptableObject 
 {
     public int dangerLevel = 1;
-    public int length = 50;   
+    public int length = 5;   
 }
