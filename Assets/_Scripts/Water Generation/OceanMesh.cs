@@ -25,12 +25,14 @@ public class OceanMesh : WaterMesh
     {
         base.Start();
 
-        oceanFloor = new GameObject("Ocean Floor Collider", typeof(BoxCollider2D));
+        oceanFloor = new GameObject("Ocean Floor Collider", typeof(BoxCollider2D), typeof(Rigidbody2D));
         oceanFloor.transform.parent = transform;
         oceanFloor.transform.localPosition = new Vector3(0, transform.position.y-waterDepth-.5f , 0);
         
         BoxCollider2D floorCollider = oceanFloor.GetComponent<BoxCollider2D>();
         floorCollider.size = new Vector2(longitude+despawnDistance, 1);
+
+        oceanFloor.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Kinematic;
     }
 
     void Update() 

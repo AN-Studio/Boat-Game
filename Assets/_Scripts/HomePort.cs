@@ -7,7 +7,10 @@ public class HomePort : MonoBehaviour
 {
     private void OnTriggerEnter2D(Collider2D other) 
     {
-        GameManager.Instance.WinGame();
-        other.attachedRigidbody.drag = 1000f;
+        if (other.CompareTag("Player"))
+        {
+            GameManager.Instance.WinGame();
+            other.attachedRigidbody.drag = 1000f;
+        }
     } 
 }

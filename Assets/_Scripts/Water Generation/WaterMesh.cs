@@ -58,55 +58,65 @@ public partial class WaterMesh : MonoBehaviour
         #region Collision Management
             private void OnTriggerEnter2D(Collider2D other) 
             {
-                if (!other.CompareTag("IgnoreWater"))
+                if (other.attachedRigidbody != null)
                 {
-                    ParticleSystem.ShapeModule shape = particles.shape;
-                    ParticleSystem.MainModule main = particles.main;
-                    ParticleSystem.MinMaxCurve startSpeed = main.startSpeed;
+                    if (!other.CompareTag("IgnoreWater"))
+                    {
+                        ParticleSystem.ShapeModule shape = particles.shape;
+                        ParticleSystem.MainModule main = particles.main;
+                        ParticleSystem.MinMaxCurve startSpeed = main.startSpeed;
+                        print(other.attachedRigidbody);
 
-                    shape.position = (other.transform.position - other.bounds.extents.y * Vector3.up) - transform.position;
-                    startSpeed.constantMin = -other.attachedRigidbody.velocity.y * .75f; //* (other.attachedRigidbody.mass / massPerNode);
-                    startSpeed.constantMax = -other.attachedRigidbody.velocity.y * 1.25f; //* (other.attachedRigidbody.mass / massPerNode);
+                        shape.position = (other.transform.position - other.bounds.extents.y * Vector3.up) - transform.position;
+                        startSpeed.constantMin = -other.attachedRigidbody.velocity.y * .75f; //* (other.attachedRigidbody.mass / massPerNode);
+                        startSpeed.constantMax = -other.attachedRigidbody.velocity.y * 1.25f; //* (other.attachedRigidbody.mass / massPerNode);
 
 
-                    particles.Play();
+                        particles.Play();
+                    }
+                    
+                    ReactToCollision(other);
+
+                    // Compute drag according to cross surface
+                    Vector2 normal = other.attachedRigidbody.velocity.normalized;
+                    float crossArea = (normal * other.bounds.size).magnitude;
+                    other.attachedRigidbody.drag = standardDrag * crossArea ;
                 }
-                
-                ReactToCollision(other);
-
-                // Compute drag according to cross surface
-                Vector2 normal = other.attachedRigidbody.velocity.normalized;
-                float crossArea = (normal * other.bounds.size).magnitude;
-                other.attachedRigidbody.drag = standardDrag * crossArea ;
             }
 
             void OnTriggerStay2D(Collider2D other) 
             {
-                if (!interactionQueue.Contains(other) && other.gameObject.GetComponent<Joint2D>() == null)
-                    interactionQueue.Enqueue(other);
-
-                if (Mathf.Abs(other.attachedRigidbody.velocity.x) >= 5 && !other.CompareTag("IgnoreWater"))
+                if (other.attachedRigidbody != null)
                 {
-                    ParticleSystem.ShapeModule shape = particles.shape;
-                    shape.position = (other.transform.position - other.bounds.extents.y * Vector3.up) - transform.position;
+                    if (!interactionQueue.Contains(other) && other.gameObject.GetComponent<Joint2D>() == null)
+                        interactionQueue.Enqueue(other);
 
-                    particles.Play();
+                    if (Mathf.Abs(other.attachedRigidbody.velocity.x) >= 5 && !other.CompareTag("IgnoreWater"))
+                    {
+                        ParticleSystem.ShapeModule shape = particles.shape;
+                        shape.position = (other.transform.position - other.bounds.extents.y * Vector3.up) - transform.position;
+
+                        particles.Play();
+                    }
+
+                    Vector2 normal = other.attachedRigidbody.velocity.normalized;
+                    float crossArea = (normal * other.bounds.size).magnitude;
+                    other.attachedRigidbody.drag = standardDrag * crossArea ;
                 }
-
-                Vector2 normal = other.attachedRigidbody.velocity.normalized;
-                float crossArea = (normal * other.bounds.size).magnitude;
-                other.attachedRigidbody.drag = standardDrag * crossArea ;
             }
             
             void OnTriggerExit2D(Collider2D other) 
             {
-                // Reduce drag to air density levels, unless object is the player.
-                if (!other.gameObject.CompareTag("Player"))
+                if (other.attachedRigidbody != null)
                 {
-                    Vector2 normal = other.attachedRigidbody.velocity.normalized;
-                    float crossArea = (normal * other.bounds.size).magnitude;
-                    other.attachedRigidbody.drag = .001f * standardDrag * crossArea;
-                }    
+                    // Reduce drag to air density levels, unless object is the player.
+                    if (!other.gameObject.CompareTag("Player"))
+                    {
+                        Vector2 normal = other.attachedRigidbody.velocity.normalized;
+                        float crossArea = (normal * other.bounds.size).magnitude;
+                        other.attachedRigidbody.drag = .001f * standardDrag * crossArea;
+                    }    
+                }
             }
         #endregion
 
