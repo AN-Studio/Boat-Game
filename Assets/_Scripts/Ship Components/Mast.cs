@@ -37,8 +37,8 @@ public class Mast : MonoBehaviour {
 
     private void OnCollisionEnter2D(Collision2D other) 
     {
-        if (!this.isBroken)
-            BreakMast();
+        // if (!this.isBroken)
+        //     BreakMast();
     }
 
     private void OnTriggerEnter2D(Collider2D other) 
