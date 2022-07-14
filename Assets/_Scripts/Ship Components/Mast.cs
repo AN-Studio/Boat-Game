@@ -19,6 +19,7 @@ public class Mast : MonoBehaviour {
     private FMOD.Studio.EventInstance mastSnappingSFX;
     public ShipController controller;
     public Rigidbody2D rb;
+    public Joint2D joint;
     public new BoxCollider2D collider;
     List<Sail> sails;
 
@@ -38,14 +39,14 @@ public class Mast : MonoBehaviour {
     private void OnCollisionEnter2D(Collision2D other) 
     {
         // if (!this.isBroken)
-        //     BreakMast();
+        //     Break();
     }
 
     private void OnTriggerEnter2D(Collider2D other) 
     {
         if (other.gameObject.layer == LayerMask.NameToLayer("Water") && 
         !this.isBroken && !controller.body.IsTouchingLayers(ShipController.waterMask))
-            BreakMast();
+            Break();
     }
 
     private void Start() 
@@ -56,6 +57,7 @@ public class Mast : MonoBehaviour {
         controller = GetComponentInParent<ShipController>();
         collider = GetComponent<BoxCollider2D>();
         rb = GetComponent<Rigidbody2D>();
+        joint = GetComponent<Joint2D>();
         // print(rb);
         
         rb.useAutoMass = false;
@@ -133,7 +135,7 @@ public class Mast : MonoBehaviour {
 
     private void CheckIntegrity()
     {
-        if (!isBroken && LandedWithMast) BreakMast();
+        if (!isBroken && LandedWithMast) Break();
 
     }
 
@@ -141,7 +143,7 @@ public class Mast : MonoBehaviour {
     {
         yield return timeUntilBreak;
 
-        // StartCoroutine(BreakMast());
+        // StartCoroutine(Break());
 
         mastCrackingSFX.start();
 
@@ -156,15 +158,15 @@ public class Mast : MonoBehaviour {
             isPlaying = playbackState != FMOD.Studio.PLAYBACK_STATE.STOPPED;
         }
 
-        BreakMast();
+        Break();
     }
 
-    public void BreakMast()
+    public void Break()
     {
         print("Breaking Mast!");
         mastSnappingSFX.start();
 
-        Destroy(GetComponent<Joint2D>());
+        Destroy(joint);
         
         gameObject.layer = LayerMask.NameToLayer("Default");
         isBroken = true;

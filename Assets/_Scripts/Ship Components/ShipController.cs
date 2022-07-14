@@ -14,8 +14,8 @@ public class ShipController : StaticInstance<ShipController>
         #region Internal
             internal Rigidbody2D rb;
             internal CapsuleCollider2D body;
-            FixedJoint2D[] masts;
-            Mast[] sails;
+            FixedJoint2D[] mastJoints;
+            Mast[] masts;
             SpriteRenderer[] renderers;
         #endregion
 
@@ -73,8 +73,8 @@ public class ShipController : StaticInstance<ShipController>
 
             tweaks = Resources.Load<ControllerTweaks>("Tweaks/Standard Config");
             body = GetComponentInChildren<CapsuleCollider2D>();
-            masts = GetComponentsInChildren<FixedJoint2D>();
-            sails = GetComponentsInChildren<Mast>();
+            mastJoints = GetComponentsInChildren<FixedJoint2D>();
+            masts = GetComponentsInChildren<Mast>();
             renderers = GetComponentsInChildren<SpriteRenderer>();
             
             rb = body.attachedRigidbody;
@@ -82,12 +82,12 @@ public class ShipController : StaticInstance<ShipController>
 
             centerOfMass = rb.centerOfMass * rb.mass;
             totalMass = rb.mass;
-            foreach (var mast in masts) 
+            foreach (var joint in mastJoints) 
             {
-                mast.connectedBody = rb;
-                mast.anchor = mast.GetComponent<Collider2D>().bounds.extents * Vector2.down; 
-                centerOfMass += mast.attachedRigidbody.mass * mast.attachedRigidbody.centerOfMass;
-                totalMass += mast.attachedRigidbody.mass;
+                joint.connectedBody = rb;
+                joint.anchor = joint.GetComponent<Collider2D>().bounds.extents * Vector2.down; 
+                centerOfMass += joint.attachedRigidbody.mass * joint.attachedRigidbody.centerOfMass;
+                totalMass += joint.attachedRigidbody.mass;
             }
             centerOfMass /= totalMass;
 
@@ -104,7 +104,7 @@ public class ShipController : StaticInstance<ShipController>
                 // GameManager.Instance.WaveIntensity = 2;
             }
 
-            foreach(Mast sail in sails) sail.SetThrottle(sailThrottle);
+            foreach(Mast sail in masts) sail.SetThrottle(sailThrottle);
 
             tilt = -GyroInput.GetTilt();
         }
@@ -123,9 +123,9 @@ public class ShipController : StaticInstance<ShipController>
             }
 
             // print("This FixedUpdate:");
-            // foreach (var mast in masts) 
+            // foreach (var joint in mastJoints) 
             // {
-            //     if (mast != null) print($"Reaction Force: {mast.reactionForce}");
+            //     if (joint != null) print($"Reaction Force: {joint.reactionForce}");
             // }
 
         }
@@ -157,13 +157,13 @@ public class ShipController : StaticInstance<ShipController>
             
             body.density = ship.colliderDensity;
 
-            foreach (var mast in masts) 
+            foreach (var joint in mastJoints) 
             {
-                mast.frequency = ship.mastRigidity;
-                mast.gameObject.tag = "Mast";
+                joint.frequency = ship.mastRigidity;
+                joint.gameObject.tag = "Mast";
             }
 
-            foreach (Mast sail in sails) 
+            foreach (Mast sail in masts) 
             {
                 sail.ship = ship;
                 sail.audioSheet = audioSheet;
@@ -183,6 +183,14 @@ public class ShipController : StaticInstance<ShipController>
                 wantsToJump = true;
                 StartCoroutine(JumpTimer());
             }
+        }
+        public void Crash()
+        {
+            foreach (Mast mast in masts) mast.Break();
+        }
+        public void Bounce(Vector2 contactPoint)
+        {
+            rb.AddForceAtPosition(JumpForce * Vector2.up, contactPoint, ForceMode2D.Impulse);
         }
     #endregion
 

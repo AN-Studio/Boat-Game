@@ -22,6 +22,18 @@ public class Cell : MonoBehaviour
             transform.position, Quaternion.identity,
             transform
         );
+
+        GameObject coinFloor = new GameObject("Coin Floor Plane", typeof(BoxCollider2D), typeof(Rigidbody2D));
+        coinFloor.transform.parent = transform;
+        coinFloor.transform.localPosition = new Vector3(0, -15 , 0);
+        coinFloor.layer = LayerMask.NameToLayer("Invisible Static");
+        
+        float xSize = endPoint.position.x - transform.position.x;
+        BoxCollider2D floorCollider = coinFloor.GetComponent<BoxCollider2D>();
+        floorCollider.size = new Vector2(xSize, 1);
+        floorCollider.offset = new Vector2(xSize / 2, 0);
+
+        coinFloor.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
     }
 
     // Update is called once per frame
